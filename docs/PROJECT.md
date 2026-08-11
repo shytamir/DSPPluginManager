@@ -16,7 +16,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | --- | --- |
 | Active roadmap | Milestone 1: Deterministic pre-activation host |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
-| RM-01 compiled host foundation | Implemented; awaiting project-owner acceptance |
+| RM-01 compiled host foundation | Accepted by project owner |
+| RM-02 immutable host environment paths | Implemented; awaiting project-owner acceptance |
 | Managed Harmony dependency acquisition and integrity lock | Implemented as build infrastructure; runtime resolution not implemented |
 | Product contract | Being defined and reviewed |
 | Managed process bootstrap and plugin host | Not implemented |

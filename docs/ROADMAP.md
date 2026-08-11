@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-01 — Compiled host foundation
+- **Next story:** RM-02 — Immutable host environment paths
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -35,13 +35,14 @@ migration, and final publication are later milestones.
 The repository already provides three-part build versioning, temporary
 Thunderstore package validation, and reproducible acquisition and integrity
 validation of the accepted HarmonyX/MonoMod/Mono.Cecil stack. These are inputs
-to the stories below, not evidence that a working host exists.
+to the stories below, alongside the owner-accepted compiled `net472` foundation.
+They are not evidence that a working host exists.
 
 ## Milestone 1: Deterministic pre-activation host
 
 ### RM-01 — Compiled host foundation
 
-**Status:** Awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As a maintainer, I want real versioned `net472` product assemblies
 and a focused test project so every later feature is compiled and exercised on
@@ -66,7 +67,7 @@ deterministic version stamping and CI validation.
 
 ### RM-02 — Immutable host environment paths
 
-**Status:** Planned
+**Status:** Awaiting project-owner acceptance
 
 **Story:** As host code, I want one validated immutable path model so every
 subsystem uses explicit absolute locations instead of the process working
