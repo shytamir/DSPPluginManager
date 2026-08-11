@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-07 — Source-scoped non-throwing logging core
+- **Next story:** RM-08 — Authoritative current-run disk log
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -205,7 +205,7 @@ platforms, runtime fixes, or preloader plugins.
 
 ### RM-07 — Source-scoped non-throwing logging core
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As host and plugin code, I want retained source-bound logger handles
 so every diagnostic has stable attribution and logging failure cannot alter a
@@ -233,7 +233,7 @@ records, safe payload formatting, and a small internal sink boundary.
 
 ### RM-08 — Authoritative current-run disk log
 
-**Status:** Planned
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As an operator, I want one readable current-run log so bootstrap,
 discovery, and later plugin failures can be diagnosed in chronological context.

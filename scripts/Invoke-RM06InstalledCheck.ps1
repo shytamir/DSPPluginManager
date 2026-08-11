@@ -31,6 +31,7 @@ $expectedManagerPath = [IO.Path]::GetFullPath($managerPath)
 $bundleProxy = Join-Path $bundlePath 'winhttp.dll'
 $bundleManager = Join-Path $bundlePath 'DSPPluginManager'
 $checkpointPath = Join-Path $managerPath 'bootstrap-checkpoint.txt'
+$currentLogPath = Join-Path $managerPath 'logs\DSPPluginManager.log'
 $resultRoot = Join-Path $repositoryPath 'artifacts\rm06-installed-check'
 $resultPath = Join-Path $resultRoot (
     (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssfffZ')
@@ -102,6 +103,7 @@ function Invoke-StartupObservation {
         $processObservedAt = $null
         $windowObserved = $false
         $respondingObserved = $false
+        $currentLogObserved = $false
         while ([DateTime]::UtcNow -lt $deadline) {
             if ($null -eq $processObservedAt -and
                 [DateTime]::UtcNow -ge $lastLaunchRequest.AddSeconds(15)) {
@@ -137,7 +139,45 @@ function Invoke-StartupObservation {
                 $respondingObserved) {
                 $content = [IO.File]::ReadAllText($checkpointPath)
                 if ($content.Contains('event=unity-main-thread-handoff')) {
-                    break
+                    if (Test-Path -LiteralPath $currentLogPath -PathType Leaf) {
+                        try {
+                            $stream = New-Object IO.FileStream(
+                                $currentLogPath,
+                                [IO.FileMode]::Open,
+                                [IO.FileAccess]::Read,
+                                [IO.FileShare]::ReadWrite
+                            )
+                            try {
+                                $reader = New-Object IO.StreamReader(
+                                    $stream,
+                                    (New-Object Text.UTF8Encoding($false, $true)),
+                                    $true
+                                )
+                                try {
+                                    $logContent = $reader.ReadToEnd()
+                                }
+                                finally {
+                                    $reader.Dispose()
+                                }
+                            }
+                            finally {
+                                $stream.Dispose()
+                            }
+                            $currentLogObserved =
+                                $logContent.Contains(
+                                    'Current-run log opened at'
+                                ) -and
+                                $logContent.Contains(
+                                    'Unity main-thread handoff completed.'
+                                )
+                        }
+                        catch [IO.IOException] {
+                            $currentLogObserved = $false
+                        }
+                    }
+                    if ($currentLogObserved) {
+                        break
+                    }
                 }
             }
             if (-not $ExpectCheckpoint -and $respondingObserved -and
@@ -153,12 +193,16 @@ function Invoke-StartupObservation {
         if ($checkpointExists -ne $ExpectCheckpoint) {
             throw "$Mode checkpoint expectation failed: expected=$ExpectCheckpoint actual=$checkpointExists"
         }
+        if ($ExpectCheckpoint -and -not $currentLogObserved) {
+            throw "$Mode startup did not expose the completed current-run log."
+        }
         return [PSCustomObject]@{
             Mode = $Mode
             ProcessId = $observedId
             WindowObserved = $windowObserved
             RespondingObserved = $respondingObserved
             CheckpointObserved = $checkpointExists
+            CurrentLogObserved = $currentLogObserved
         }
     }
     finally {
@@ -250,6 +294,10 @@ try {
         throw 'The Unity handoff did not run on the established bootstrap thread.'
     }
     Copy-Item -LiteralPath $checkpointPath -Destination $resultPath
+    Copy-Item -LiteralPath $currentLogPath -Destination $resultPath
+    $enabledLogHash = (
+        Get-FileHash -LiteralPath $currentLogPath -Algorithm SHA256
+    ).Hash
 
     Remove-Item -LiteralPath $checkpointPath -Force
     $disabledConfig = @'
@@ -267,6 +315,10 @@ dllSearchPathOverride=
     )
     $disabledResult = Invoke-StartupObservation `
         -Mode 'disabled' -ExpectCheckpoint $false
+    if ((Get-FileHash -LiteralPath $currentLogPath `
+            -Algorithm SHA256).Hash -cne $enabledLogHash) {
+        throw 'Doorstop-disabled startup changed the retained current-run log.'
+    }
 
     $resolvedManager = (Resolve-Path -LiteralPath $managerPath).Path
     if ($resolvedManager -cne $expectedManagerPath -or
@@ -284,6 +336,8 @@ dllSearchPathOverride=
         "Enabled process: $($enabledResult.ProcessId)",
         "Enabled responsive: $($enabledResult.RespondingObserved)",
         "Enabled checkpoint: $($enabledResult.CheckpointObserved)",
+        "Enabled live current-run log: $($enabledResult.CurrentLogObserved)",
+        "Current-run log SHA-256: $enabledLogHash",
         "Managed entry count: $($entryLines.Count)",
         "Unity callback count: $($handoffLines.Count)",
         "Unity callback context: UnityEngine.UnitySynchronizationContext",

@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using DSPPluginManager.Dependencies;
+using DSPPluginManager.Logging;
 
 namespace DSPPluginManager.Bootstrap
 {
@@ -12,6 +13,8 @@ namespace DSPPluginManager.Bootstrap
         private static readonly OneShotGate HandoffGate = new OneShotGate();
         private static ReservedDependencyResolver resolver;
         private static BootstrapEnvironment environment;
+        private static DiskLogSink diskLogSink;
+        private static SourceLogger hostLogger;
 
         public static void Main()
         {
@@ -60,12 +63,19 @@ namespace DSPPluginManager.Bootstrap
                     Thread.CurrentThread.ManagedThreadId
                 );
 
+                InitializeLogging(failureContext);
+                hostLogger.Information(
+                    "Managed bootstrap environment initialized."
+                );
+
                 resolver = new ReservedDependencyResolver(
                     environment.Paths.DependencyDirectory,
                     environment.Paths.PluginDirectory
                 );
                 resolver.Install();
+                hostLogger.Information("Reserved dependency resolver installed.");
                 InstallUnityHandoff(environment);
+                hostLogger.Information("Unity main-thread handoff installed.");
             }
             catch (Exception exception)
             {
@@ -95,6 +105,49 @@ namespace DSPPluginManager.Bootstrap
             BootstrapCheckpoint.WriteHandoff(
                 environment.Paths.HostRoot,
                 Thread.CurrentThread.ManagedThreadId
+            );
+            hostLogger.Information("Unity main-thread handoff completed.");
+        }
+
+        private static void InitializeLogging(
+            BootstrapFailureContext failureContext
+        )
+        {
+            Exception primaryOpenFailure;
+            string emergencyDiagnosticPath;
+            diskLogSink = DiskLogSink.TryCreate(
+                environment.Paths.LogDirectory,
+                failureContext,
+                out primaryOpenFailure,
+                out emergencyDiagnosticPath
+            );
+            ILogSink sink = diskLogSink == null
+                ? (ILogSink)NullLogSink.Instance
+                : diskLogSink;
+            LogDispatcher dispatcher = new LogDispatcher(sink);
+            hostLogger = dispatcher.CreateLogger(
+                new LogSourceContext(
+                    LogSourceKind.Host,
+                    "dsp-plugin-manager",
+                    "DSP Plugin Manager"
+                )
+            );
+
+            if (diskLogSink == null)
+            {
+                return;
+            }
+            if (primaryOpenFailure != null)
+            {
+                hostLogger.Warning(
+                    "Primary current-run log was unavailable; using '" +
+                    diskLogSink.SelectedPath + "'. " +
+                    primaryOpenFailure
+                );
+            }
+            hostLogger.Information(
+                "Current-run log opened at '" +
+                diskLogSink.SelectedPath + "'."
             );
         }
 

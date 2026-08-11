@@ -22,7 +22,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-04 reserved dependency resolver | Accepted by project owner |
 | RM-05 Unity main-thread handoff decision probe | Accepted by project owner |
 | RM-06 pinned UnityDoorstop managed bootstrap | Accepted by project owner |
-| RM-07 source-scoped non-throwing logging core | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
+| RM-07 source-scoped non-throwing logging core | Accepted by project owner |
+| RM-08 authoritative current-run disk log | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Being defined and reviewed |
 | Plugin discovery, activation, and lifecycle host | Not implemented |
@@ -33,8 +34,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 The temporary Thunderstore package remains a compiled and versioned internal
 foundation, not an installable product. The separately generated bootstrap
 bundle has a validated managed entrypoint, Unity handoff, and internal logging
-core but no disk log, plugin discovery, activation, lifecycle services, or
-public plugin contract.
+core with its current-run disk sink, but no plugin discovery, activation,
+lifecycle services, or public plugin contract.
 
 ## Purpose and success
 
@@ -117,6 +118,18 @@ evidence or an explicit product decision.
   records.
 - Listener registration, source registration, filtering, structured queries,
   and plugin-selected sinks are not part of the initial logging surface.
+- The authoritative current-run file is `DSPPluginManager.log` in the host log
+  directory. A new run replaces it and permits concurrent read access.
+- If the primary cannot open, the only alternate attempt is
+  `DSPPluginManager-fallback.log` in the same directory. The host records the
+  selected fallback in that file; failure of both destinations goes directly
+  to the independent bootstrap emergency record.
+- The disk format is human-readable UTF-8 without a byte-order mark and retains
+  complete multiline messages. Buffered records flush every two seconds and
+  synchronously on sink disposal; lifecycle integration must dispose the sink
+  only after orderly plugin cleanup.
+- There is no append history, previous-run retention, rotation, suffix search,
+  or plugin-selected disk destination.
 
 ### Harmony provisioning
 
@@ -158,7 +171,6 @@ evidence or an explicit product decision.
 - identifier case sensitivity;
 - final host, plugin, configuration, log, and writable-parent locations;
 - configuration format and treatment of existing BepInEx `.cfg` files;
-- normal-log naming and retention policy;
 - first migration consumer and its acceptance matrix;
 - final Thunderstore dependency, installation layout, and publication policy.
 
