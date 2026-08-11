@@ -274,13 +274,38 @@ Commit only when requested. Push only when explicitly requested. Do not amend,
 rebase, reset, clean, stash, force-push, or rewrite history unless explicitly
 instructed.
 
-If Git reports dubious ownership, do not change global configuration. Scope the
-exception to the command:
+### Routine Git access recovery
+
+This Windows checkout may be owned by the desktop or Administrators account
+while an agent command runs under a sandbox identity. If Git reports
+`detected dubious ownership`, do not alter global Git configuration. Scope the
+exception to each command:
 
 ```powershell
 $repo = (Resolve-Path '.').Path.Replace('\', '/')
 git -c "safe.directory=$repo" status --short
 ```
+
+Use the same `-c "safe.directory=$repo"` form for other Git commands in that
+turn.
+
+If Git cannot create `.git/index.lock`, rerun only that Git operation under the
+authenticated desktop context. Do not change repository permissions.
+
+Before editing or pushing, fetch or use `git pull --ff-only` when the clean
+local branch may be behind its remote. Never resolve divergence with a force
+push or history rewrite.
+
+Treat GitHub connector, local Git, and `gh` authentication as independent.
+Do not run `gh auth status` as an unconditional plugin prerequisite. Check it
+only immediately before an operation that genuinely requires `gh`, such as
+Actions-log inspection or thread-aware review GraphQL.
+
+Prefer the connector for supported GitHub API operations and local `git` for
+fetch, pull, and push. A stale `gh` token does not block either path. If `gh`
+is genuinely required and unauthenticated, ask the user to refresh it; do not
+log out, replace credentials, or start interactive login yourself. Report a
+blocker only when the interface required for the requested operation fails.
 
 ## 16. Definition of done
 
