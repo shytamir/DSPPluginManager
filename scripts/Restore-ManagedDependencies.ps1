@@ -325,7 +325,7 @@ foreach ($package in $packages) {
         throw "Assembly identity mismatch for $($asset.fileName)."
     }
 
-    $assembly = [Reflection.Assembly]::ReflectionOnlyLoadFrom($runtimePath)
+    $assembly = [Reflection.Assembly]::LoadFrom($runtimePath)
     $actualReferences = @($assembly.GetReferencedAssemblies() | Where-Object {
             $managedAssemblyNames -ccontains $_.Name
         })
