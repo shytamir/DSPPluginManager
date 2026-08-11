@@ -44,6 +44,12 @@ namespace DSPPluginManager.ContractTests
                     args[3],
                     args[4]
                 );
+                SelectedCandidateLoaderTests.Run(
+                    args[0],
+                    args[1],
+                    args[3],
+                    args[4]
+                );
                 Milestone1DiscoveryTests.Run(
                     args[0],
                     args[1],
@@ -51,8 +57,8 @@ namespace DSPPluginManager.ContractTests
                     args[4]
                 );
                 Console.WriteLine(
-                    "RM-09 contract, RM-11 metadata, and RM-12 " +
-                    "reconciliation tests passed."
+                    "RM-09 contract, RM-11 metadata, RM-12 reconciliation, " +
+                    "and RM-14 runtime-loader tests passed."
                 );
                 return 0;
             }

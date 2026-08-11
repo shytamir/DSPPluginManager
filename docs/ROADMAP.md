@@ -16,8 +16,8 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-13 — Unity lifecycle observability decision probe
-- **Active story status:** Acceptance evidence complete; awaiting project-owner
+- **Active story:** RM-14 — Selected assembly runtime loader
+- **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
 
@@ -61,7 +61,7 @@ so each implementation depends only on accepted earlier outcomes.
 
 ### RM-13 — Unity lifecycle observability decision probe
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a maintainer, I want startup and cleanup failures observed in the
 supported DSP build so the activation contract is based on actual Unity
@@ -94,7 +94,7 @@ R-10.
 
 ### RM-14 — Selected assembly runtime loader
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As the host, I want only reconciled candidates loaded at runtime so
 rejected and superseded code remains outside the execution context.

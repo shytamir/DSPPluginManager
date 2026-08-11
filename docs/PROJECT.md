@@ -15,7 +15,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Area | State |
 | --- | --- |
 | Roadmap status | Milestone 2: Supervised Unity activation is active |
-| RM-13 Unity lifecycle observability decision probe | Acceptance evidence complete; awaiting project-owner acceptance |
+| RM-13 Unity lifecycle observability decision probe | Accepted by project owner |
+| RM-14 selected assembly runtime loader | Acceptance conditions met; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -32,7 +33,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery and lifecycle slices defined; remaining migration surface not specified |
-| Plugin discovery, activation, and lifecycle host | Bounded enumeration, static recognition, and deterministic reconciliation implemented; activation not implemented |
+| Plugin discovery, activation, and lifecycle host | Bounded enumeration, static recognition, deterministic reconciliation, and selected-candidate runtime loading implemented; activation not implemented |
 | Public source-migration contract | Minimal discovery and lifecycle slices specified; service surface not specified |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
@@ -43,11 +44,13 @@ bundle has a validated managed entrypoint, Unity handoff, internal logging core
 with its current-run disk sink, and the minimal public discovery contract. An
 installed DSP run entered the host once without BepInEx providing the
 lifecycle, enumerated and statically inspected a seven-candidate fixture tree,
-and logged the same deterministic reconciliation plan as the offline tests. No
-candidate assembly was runtime-loaded or executed. A later installed decision
-probe selected an explicit two-callback lifecycle seam because private Unity
-messages did not expose failure or destruction completion to the host. The host
-does not yet activate plugins and exposes no plugin services.
+and logged the same deterministic reconciliation plan as the offline tests.
+That installed exit did not runtime-load or execute a candidate. A later
+installed decision probe selected an explicit two-callback lifecycle seam
+because private Unity messages did not expose failure or destruction completion
+to the host. The selected-candidate runtime boundary is implemented and
+fixture-validated but is not yet invoked by the host. The host does not yet
+activate plugins and exposes no plugin services.
 
 ## Purpose and success
 
@@ -133,6 +136,17 @@ evidence or an explicit product decision.
 - Equal-version candidates with different content, type, or assembly identity
   reject the identity group as ambiguous.
 - Failure after selection never silently falls back to an older version.
+- Only a reconciliation entry in the `Selected` state may cross the runtime
+  loading boundary. Rejected, redundant, superseded, and ambiguous entries are
+  refused without a runtime load attempt.
+- Before loading, the selected file's path, SHA-256 content, and assembly
+  identity must still match its static inspection record. The loaded assembly
+  must originate from that path and expose the exact recorded concrete type.
+- One selected assembly path has one retained runtime-load outcome for the
+  process. Success is reused; failure is not retried and never selects an older
+  candidate.
+- Runtime-load failures retain candidate identifier, version, path, type,
+  phase, diagnostic detail, and the complete exception when one exists.
 - The initial product has no plugin dependency, incompatibility, cycle, or
   cross-plugin load-order contract.
 

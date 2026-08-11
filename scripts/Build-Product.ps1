@@ -271,14 +271,23 @@ if ($LASTEXITCODE -ne 0) {
 $contractTestExecutable = Join-Path $contractTestOutput `
     'DSPPluginManager.ContractTests.exe'
 $gameManagedDirectory = Split-Path -Parent $UnityEngineCoreModulePath
-& $contractTestExecutable `
-    $contractDll `
-    $consumerDll `
-    $AssemblyVersion `
-    $dependencyRuntime `
-    $gameManagedDirectory
-if ($LASTEXITCODE -ne 0) {
-    throw 'Contract and static metadata tests failed.'
+$runtimeFixtureOutput = Join-Path $contractTestOutput `
+    'rm14-runtime-fixtures'
+try {
+    & $contractTestExecutable `
+        $contractDll `
+        $consumerDll `
+        $AssemblyVersion `
+        $dependencyRuntime `
+        $gameManagedDirectory
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Contract, static metadata, and runtime-loader tests failed.'
+    }
+}
+finally {
+    if (Test-Path -LiteralPath $runtimeFixtureOutput) {
+        Remove-Item -LiteralPath $runtimeFixtureOutput -Recurse -Force
+    }
 }
 
 Write-Output "Compiled product build passed: $productDll"
