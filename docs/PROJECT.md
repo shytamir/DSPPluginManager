@@ -19,7 +19,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
 | RM-03 independent bootstrap failure record | Accepted by project owner |
-| RM-04 reserved dependency resolver | Implemented; awaiting project-owner acceptance |
+| RM-04 reserved dependency resolver | Accepted by project owner |
+| RM-05 Unity main-thread handoff decision probe | Acceptance evidence complete; awaiting project-owner acceptance |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Being defined and reviewed |
 | Managed process bootstrap and plugin host | Not implemented |
@@ -70,6 +71,10 @@ evidence or an explicit product decision.
 - The default native boundary is the pinned UnityDoorstop 3.4 generation used by
   the proven DSP/BepInEx 5.4.17 installation.
 - UnityDoorstop targets a project-owned minimal managed entrypoint.
+- The supported Unity handoff is one validated in-memory Cecil insertion into
+  `UnityEngine.Application`'s static constructor. The external
+  `RuntimeInitializeOnLoadMethod` alternative is rejected because it received
+  no callback in the recorded DSP probe.
 - Selected plugins participate as real persistent Unity `MonoBehaviour`
   components on the main thread.
 - The host reports lifecycle failures without claiming hot reload or managed
@@ -133,7 +138,7 @@ evidence or an explicit product decision.
 
 ## Open steering decisions
 
-- the final Unity-main-thread handoff and activation acknowledgement;
+- activation acknowledgement semantics after the selected Unity handoff;
 - supported shutdown observation semantics;
 - public contract name, namespace, assembly identity, type signatures, and
   metadata encoding;

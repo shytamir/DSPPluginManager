@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-04 — Reserved dependency resolver
+- **Next story:** RM-05 — Unity main-thread handoff decision probe
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -36,8 +36,8 @@ The repository already provides three-part build versioning, temporary
 Thunderstore package validation, and reproducible acquisition and integrity
 validation of the accepted HarmonyX/MonoMod/Mono.Cecil stack. These are inputs
 to the stories below, alongside the owner-accepted compiled `net472` foundation,
-immutable environment paths, and independent bootstrap failure record. They are
-not evidence that a working host exists.
+immutable environment paths, independent bootstrap failure record, and reserved
+dependency resolver. They are not evidence that a working host exists.
 
 ## Milestone 1: Deterministic pre-activation host
 
@@ -121,7 +121,7 @@ the minimal managed entrypoint.
 
 ### RM-04 — Reserved dependency resolver
 
-**Status:** Awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As the host, I want the approved Harmony/Cecil identities resolved
 only from manager-owned files so an accidental or plugin-local copy cannot win
@@ -148,7 +148,7 @@ resolver hooks, or Harmony patch ownership.
 
 ### RM-05 — Unity main-thread handoff decision probe
 
-**Status:** Planned
+**Status:** Awaiting project-owner acceptance
 
 **Story:** As a maintainer, I want both bounded handoff candidates exercised in
 the supported DSP build so the production bootstrap uses evidence rather than
