@@ -21,7 +21,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-03 independent bootstrap failure record | Accepted by project owner |
 | RM-04 reserved dependency resolver | Accepted by project owner |
 | RM-05 Unity main-thread handoff decision probe | Accepted by project owner |
-| RM-06 pinned UnityDoorstop managed bootstrap | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
+| RM-06 pinned UnityDoorstop managed bootstrap | Accepted by project owner |
+| RM-07 source-scoped non-throwing logging core | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Being defined and reviewed |
 | Plugin discovery, activation, and lifecycle host | Not implemented |
@@ -30,9 +31,10 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Installable or publishable product package | Not available |
 
 The temporary Thunderstore package remains a compiled and versioned internal
-foundation, not an installable product. The separately generated RM-06
-acceptance bundle has a validated managed entrypoint and Unity handoff but no
-plugin discovery, activation, lifecycle services, or public plugin contract.
+foundation, not an installable product. The separately generated bootstrap
+bundle has a validated managed entrypoint, Unity handoff, and internal logging
+core but no disk log, plugin discovery, activation, lifecycle services, or
+public plugin contract.
 
 ## Purpose and success
 
@@ -108,6 +110,13 @@ evidence or an explicit product decision.
 - Service ownership follows the stable plugin identifier.
 - Service failures remain local and observable where the process can continue
   safely.
+- Host and plugin loggers retain immutable stable-identifier and display-name
+  attribution and support only information, warning, and error records.
+- Payload formatting, timestamp acquisition, or sink failure never escapes a
+  logging call, and concurrent source calls reach the internal sink as complete
+  records.
+- Listener registration, source registration, filtering, structured queries,
+  and plugin-selected sinks are not part of the initial logging surface.
 
 ### Harmony provisioning
 

@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-06 — Pinned UnityDoorstop managed bootstrap
+- **Next story:** RM-07 — Source-scoped non-throwing logging core
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -175,7 +175,7 @@ the default narrow in-memory Cecil handoff.
 
 ### RM-06 — Pinned UnityDoorstop managed bootstrap
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As an operator, I want a reversible manager-owned bootstrap bundle so
 DSP can enter the compiled host exactly once without BepInEx.
@@ -205,7 +205,7 @@ platforms, runtime fixes, or preloader plugins.
 
 ### RM-07 — Source-scoped non-throwing logging core
 
-**Status:** Planned
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As host and plugin code, I want retained source-bound logger handles
 so every diagnostic has stable attribution and logging failure cannot alter a

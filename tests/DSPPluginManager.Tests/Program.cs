@@ -13,9 +13,10 @@ namespace DSPPluginManager.Tests
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
+                LoggingCoreTests.Run();
                 Console.WriteLine(
                     "Compiled foundation, path, bootstrap entry, diagnostic, " +
-                    "and reserved dependency tests passed."
+                    "reserved dependency, and logging core tests passed."
                 );
                 return 0;
             }
