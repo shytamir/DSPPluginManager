@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build-test-package:
-    name: Build, validate, and package placeholder
+    name: Build, validate, and package compiled foundation
     runs-on: windows-latest
 
     steps:
@@ -33,6 +33,11 @@ jobs:
             throw "Checkout mismatch: expected ${{ github.sha }}, found $checkedOut."
           }
 
+      - name: Set up pinned .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+
       - name: Resolve release version
         id: version
         shell: pwsh
@@ -46,12 +51,14 @@ jobs:
         shell: pwsh
         run: ./scripts/Restore-ManagedDependencies.ps1
 
-      - name: Build placeholder artifact
+      - name: Build and test compiled foundation
         id: build
         shell: pwsh
         run: |
-          ./scripts/New-DummyArtifact.ps1 `
-            -OutputPath 'artifacts/build/DSPPluginManager.dll'
+          ./scripts/Build-Product.ps1 `
+            -SemanticVersion $env:SEMANTIC_VERSION `
+            -AssemblyVersion $env:ASSEMBLY_VERSION `
+            -ReleaseLabel $env:RELEASE_LABEL
           ./scripts/Test-BuildVersion.ps1 `
             -DllPath 'artifacts/build/DSPPluginManager.dll' `
             -BuildInfoPath 'artifacts/BUILD-INFO.txt' `
@@ -125,10 +132,10 @@ jobs:
           | Checkout | $env:CHECKOUT_STATUS |
           | Resolve version | $env:VERSION_STATUS |
           | Acquire and validate managed dependencies | $env:DEPENDENCY_STATUS |
-          | Build and validate placeholder | $env:BUILD_STATUS |
+          | Build and validate compiled foundation | $env:BUILD_STATUS |
           | Build package | $env:PACKAGE_STATUS |
           | Validate package | $env:TEST_STATUS |
           | Upload artifacts | $env:UPLOAD_STATUS |
 
-          The packaged DLL is intentionally empty until the runtime project exists.
+          The packaged DLL is a compiled foundation only; no plugin-host behavior is available.
           "@ >> $env:GITHUB_STEP_SUMMARY

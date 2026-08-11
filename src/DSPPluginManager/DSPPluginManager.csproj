@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DSPPluginManager</AssemblyName>
+    <RootNamespace>DSPPluginManager</RootNamespace>
+    <Title>DSP Plugin Manager</Title>
+    <Product>DSP Plugin Manager</Product>
+    <Description>Dyson Sphere Program plugin host foundation.</Description>
+  </PropertyGroup>
+</Project>

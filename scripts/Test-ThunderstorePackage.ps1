@@ -117,6 +117,13 @@ try {
             throw "Package entry is missing or incorrectly cased: $requiredEntry"
         }
     }
+    $expectedEntries = @($requiredRootEntries + $expectedPayloadEntries)
+    $unexpectedEntries = @($entryNames | Where-Object {
+            $expectedEntries -cnotcontains $_
+        })
+    if ($unexpectedEntries.Count -gt 0) {
+        throw "Package contains unexpected entries: $($unexpectedEntries -join ', ')"
+    }
 
     $manifestEntry = $files |
         Where-Object FullName -CEQ 'manifest.json' |
@@ -200,15 +207,15 @@ try {
     $dllEntry = $files |
         Where-Object FullName -CEQ 'DSPPluginManager.dll' |
         Select-Object -First 1
-    if ($dllEntry.Length -ne 0 -or
-        (Get-Item -LiteralPath $ExpectedDllPath).Length -ne 0) {
-        throw 'The bootstrap DLL must remain an empty placeholder.'
+    if ($dllEntry.Length -le 0 -or
+        (Get-Item -LiteralPath $ExpectedDllPath).Length -le 0) {
+        throw 'The compiled product assembly must be non-empty.'
     }
     $expectedDllHash = (
         Get-FileHash -LiteralPath $ExpectedDllPath -Algorithm SHA256
     ).Hash
     if ((Get-ZipEntryHash -Entry $dllEntry) -cne $expectedDllHash) {
-        throw 'Packaged placeholder DLL does not match the build artifact.'
+        throw 'Packaged product DLL does not match the build artifact.'
     }
 
     $buildInfoEntry = $files |
@@ -227,7 +234,7 @@ try {
             "Package version: $ExpectedVersion",
             "Semantic version: $ExpectedVersion",
             "Assembly version: $ExpectedAssemblyVersion",
-            'Artifact status: placeholder'
+            'Artifact status: compiled foundation'
         )) {
         if (-not $packagedBuildInfo.Contains($expectedText)) {
             throw "Packaged BUILD-INFO is missing: $expectedText"
@@ -255,7 +262,7 @@ $report = @"
 | Manifest v1 fields | Passed |
 | UTF-8 README | Passed |
 | 256 by 256 PNG icon | Passed |
-| Placeholder artifact integrity | Passed |
+| Compiled product integrity | Passed |
 | Package size | $packageLength bytes |
 | SHA-256 | ``$packageHash`` |
 "@

@@ -33,8 +33,11 @@ $version = & (Join-Path $PSScriptRoot 'Set-BuildVersion.ps1') `
 $dllPath = Join-Path $RepositoryRoot `
     'artifacts\build\DSPPluginManager.dll'
 $buildInfoPath = Join-Path $RepositoryRoot 'artifacts\BUILD-INFO.txt'
-& (Join-Path $PSScriptRoot 'New-DummyArtifact.ps1') `
-    -OutputPath $dllPath | Out-Null
+& (Join-Path $PSScriptRoot 'Build-Product.ps1') `
+    -SemanticVersion $version.SEMANTIC_VERSION `
+    -AssemblyVersion $version.ASSEMBLY_VERSION `
+    -ReleaseLabel $version.RELEASE_LABEL `
+    -RepositoryRoot $RepositoryRoot
 & (Join-Path $PSScriptRoot 'Test-BuildVersion.ps1') `
     -DllPath $dllPath `
     -BuildInfoPath $buildInfoPath `

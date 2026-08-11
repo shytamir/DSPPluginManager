@@ -17,7 +17,7 @@ migration, and final publication are later milestones.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
 - **Next story:** RM-01 — Compiled host foundation
-- **Next story status:** Pending
+- **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
 ## Working rules
@@ -41,7 +41,7 @@ to the stories below, not evidence that a working host exists.
 
 ### RM-01 — Compiled host foundation
 
-**Status:** Pending
+**Status:** Awaiting project-owner acceptance
 
 **Story:** As a maintainer, I want real versioned `net472` product assemblies
 and a focused test project so every later feature is compiled and exercised on

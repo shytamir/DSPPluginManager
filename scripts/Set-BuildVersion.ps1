@@ -57,7 +57,7 @@ Semantic version: $semanticVersion
 Assembly version: $assemblyVersion
 Source commit: $sourceCommit
 Workflow sequence: $Sequence
-Artifact status: placeholder
+Artifact status: compiled foundation
 "@
 Set-Content -LiteralPath $BuildInfoPath -Value $buildInfo -Encoding utf8
 

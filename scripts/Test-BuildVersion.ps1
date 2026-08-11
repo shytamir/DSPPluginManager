@@ -38,8 +38,9 @@ foreach ($requiredPath in @($DllPath, $BuildInfoPath)) {
     }
 }
 
-if ((Get-Item -LiteralPath $DllPath).Length -ne 0) {
-    throw 'The bootstrap artifact must remain an empty placeholder DLL.'
+$dll = Get-Item -LiteralPath $DllPath
+if ($dll.Length -le 0) {
+    throw 'The compiled product assembly is empty.'
 }
 if ($ExpectedSemanticVersion -cne $ExpectedPackageVersion) {
     throw 'Semantic and package versions must match.'
@@ -52,6 +53,27 @@ if ($ExpectedReleaseLabel -cne "$ExpectedPackageVersion.$expectedShortCommit") {
     throw 'Release label does not follow the M.m.N.commit contract.'
 }
 
+try {
+    $identity = [Reflection.AssemblyName]::GetAssemblyName($dll.FullName)
+}
+catch {
+    throw "The product artifact is not a readable managed assembly: $($_.Exception.Message)"
+}
+if ($identity.Name -cne 'DSPPluginManager') {
+    throw "Unexpected product assembly name: $($identity.Name)"
+}
+if ($identity.Version.ToString() -cne $ExpectedAssemblyVersion) {
+    throw "Unexpected assembly version: $($identity.Version)"
+}
+
+$fileVersion = [Diagnostics.FileVersionInfo]::GetVersionInfo($dll.FullName)
+if ($fileVersion.FileVersion -cne $ExpectedAssemblyVersion) {
+    throw "Unexpected file version: $($fileVersion.FileVersion)"
+}
+if ($fileVersion.ProductVersion -cne $ExpectedReleaseLabel) {
+    throw "Unexpected product version: $($fileVersion.ProductVersion)"
+}
+
 $expectedLines = @(
     "Release label: $ExpectedReleaseLabel",
     "Package version: $ExpectedPackageVersion",
@@ -59,7 +81,7 @@ $expectedLines = @(
     "Assembly version: $ExpectedAssemblyVersion",
     "Source commit: $($ExpectedCommit.ToLowerInvariant())",
     "Workflow sequence: $ExpectedSequence",
-    'Artifact status: placeholder'
+    'Artifact status: compiled foundation'
 )
 $actualLines = @(Get-Content -LiteralPath $BuildInfoPath)
 if ($actualLines.Count -ne $expectedLines.Count) {

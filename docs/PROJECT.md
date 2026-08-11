@@ -16,6 +16,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | --- | --- |
 | Active roadmap | Milestone 1: Deterministic pre-activation host |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
+| RM-01 compiled host foundation | Implemented; awaiting project-owner acceptance |
 | Managed Harmony dependency acquisition and integrity lock | Implemented as build infrastructure; runtime resolution not implemented |
 | Product contract | Being defined and reviewed |
 | Managed process bootstrap and plugin host | Not implemented |
@@ -23,8 +24,10 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
-The current package payload is an intentionally empty DLL. A successful package
-build demonstrates repository automation only, not product behavior.
+The current package payload is a compiled and versioned `net472` foundation
+assembly with no public plugin contract or host behavior. A successful package
+build demonstrates repository automation and compiled-baseline integrity only,
+not an available product.
 
 ## Purpose and success
 

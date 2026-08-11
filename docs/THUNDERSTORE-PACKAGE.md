@@ -2,11 +2,11 @@
 
 ## Current status
 
-The package pipeline is operational, but its product payload is a generated,
-zero-byte `DSPPluginManager.dll`. The ZIP exists only to validate versioning,
-Thunderstore structure, package integrity, and GitHub Actions automation before
-the runtime project exists. It is not installable software and must not be
-published as a release.
+The package pipeline is operational and its product payload is a compiled,
+versioned `net472` `DSPPluginManager.dll`. The assembly is the RM-01 foundation:
+it intentionally exposes no public plugin contract and implements no startup,
+discovery, or lifecycle behavior. The ZIP remains build evidence, is not
+installable software, and must not be published as a release.
 
 ## ZIP layout
 
@@ -42,10 +42,9 @@ The package version is written to `manifest.json`. All three classes, the full
 source commit, and workflow sequence are written to `BUILD-INFO.txt` and
 validated before packaging.
 
-Because the current DLL is empty, `M.m.N.0` is declared build metadata rather
-than real assembly/file metadata. Once a compiled project exists, the build
-must stamp and inspect those properties on the DLL before this placeholder
-exception is removed.
+The build stamps `M.m.N.0` as the DLL's assembly and file version and stamps the
+diagnostic release label as its informational/product version. Validation reads
+those values back from the compiled assembly before packaging.
 
 ## Inputs
 
@@ -54,10 +53,15 @@ exception is removed.
   `{{VERSION_NUMBER}}` placeholder.
 - `packaging/README.md`: temporary UTF-8 store README.
 - `LICENSE`: repository license.
+- `global.json`: exact .NET SDK used locally and in CI.
+- `src/DSPPluginManager`: compiled product foundation.
+- `tests/DSPPluginManager.Tests`: focused executable foundation checks.
 - CI run number and triggering commit: automatic patch and diagnostic identity.
 
-The placeholder icon and empty DLL are generated during the build. Generated
-files and packages remain under `artifacts/` and are not committed.
+The placeholder icon is generated during packaging. Compiled outputs, restored
+build dependencies, test executables, and packages remain under `artifacts/`
+and are not committed. The pinned .NET Framework 4.7.2 reference-assembly
+package is a private build input and is not copied into product artifacts.
 
 The build also acquires the manager-owned Harmony stack described by
 `dependencies/managed-dependencies.lock.json`. It validates exact NuGet package
@@ -83,6 +87,10 @@ commit to the PowerShell entry point:
 The pipeline validates generic Thunderstore requirements and build integrity:
 
 - exact acquisition and staging of the locked manager-owned Harmony closure;
+- locked restore through the pinned .NET SDK and private `net472` reference
+  assemblies;
+- successful compilation with C# 7.3-compatible code and no warnings;
+- focused inspection of target framework, public surface, and version metadata;
 - required root names and case;
 - standard ZIP layout without duplicate or backslash entry names;
 - package size below Thunderstore's documented limit;
@@ -92,12 +100,14 @@ The pipeline validates generic Thunderstore requirements and build integrity:
 - description length, dependencies shape, and website URL shape;
 - non-empty UTF-8 Markdown README;
 - 256 by 256 PNG icon;
-- exact placeholder DLL and `BUILD-INFO.txt` hashes/content;
+- exact compiled DLL and `BUILD-INFO.txt` hashes/content;
+- the absence of unexpected package entries, including tests, PDBs, restored
+  reference assemblies, and third-party runtime DLLs;
 - the three-class version mapping.
 
-It deliberately does not validate product behavior, installation paths,
-dependencies, user instructions, or final branding while those contracts remain
-undecided.
+It deliberately does not validate plugin-host behavior, installation paths,
+runtime dependency placement, user instructions, or final branding while those
+contracts remain undecided.
 
 ## Hosted workflow
 
