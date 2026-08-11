@@ -17,7 +17,8 @@ layout, or publication.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
 - **Active story:** RM-13 — Unity lifecycle observability decision probe
-- **Active story status:** Pending implementation
+- **Active story status:** Acceptance evidence complete; awaiting project-owner
+  acceptance
 - **In progress:** None
 
 ## Working rules
@@ -60,7 +61,7 @@ so each implementation depends only on accepted earlier outcomes.
 
 ### RM-13 — Unity lifecycle observability decision probe
 
-**Status:** Pending implementation
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As a maintainer, I want startup and cleanup failures observed in the
 supported DSP build so the activation contract is based on actual Unity

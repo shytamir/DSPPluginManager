@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <AssemblyName>DSPPluginManager.RM13Probe</AssemblyName>
+    <RootNamespace>DSPPluginManager.RM13Probe</RootNamespace>
+    <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="DSPPluginManager">
+      <HintPath>$(DSPPluginManagerAssembly)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="ValidateProbeInputs" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(DSPPluginManagerAssembly)')"
+           Text="DSPPluginManagerAssembly must identify the compiled product assembly." />
+  </Target>
+</Project>

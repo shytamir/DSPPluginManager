@@ -15,7 +15,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Area | State |
 | --- | --- |
 | Roadmap status | Milestone 2: Supervised Unity activation is active |
-| RM-13 Unity lifecycle observability decision probe | Pending implementation |
+| RM-13 Unity lifecycle observability decision probe | Acceptance evidence complete; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -31,9 +31,9 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-12 deterministic candidate reconciliation | Accepted by project owner |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
-| Product contract | Minimal discovery slice defined; remaining migration surface not specified |
+| Product contract | Minimal discovery and lifecycle slices defined; remaining migration surface not specified |
 | Plugin discovery, activation, and lifecycle host | Bounded enumeration, static recognition, and deterministic reconciliation implemented; activation not implemented |
-| Public source-migration contract | Minimal discovery slice specified; lifecycle and service surface not specified |
+| Public source-migration contract | Minimal discovery and lifecycle slices specified; service surface not specified |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
@@ -44,8 +44,10 @@ with its current-run disk sink, and the minimal public discovery contract. An
 installed DSP run entered the host once without BepInEx providing the
 lifecycle, enumerated and statically inspected a seven-candidate fixture tree,
 and logged the same deterministic reconciliation plan as the offline tests. No
-candidate assembly was runtime-loaded or executed. The host does not yet
-activate plugins and exposes no plugin services.
+candidate assembly was runtime-loaded or executed. A later installed decision
+probe selected an explicit two-callback lifecycle seam because private Unity
+messages did not expose failure or destruction completion to the host. The host
+does not yet activate plugins and exposes no plugin services.
 
 ## Purpose and success
 
@@ -91,6 +93,27 @@ evidence or an explicit product decision.
   no callback in the recorded DSP probe.
 - Selected plugins participate as real persistent Unity `MonoBehaviour`
   components on the main thread.
+- The Unity object arrangement is one persistent host root with one owned child
+  object per selected plugin. Each plugin component is attached to its own
+  child so failure and orderly removal can be scoped without disturbing an
+  unrelated plugin.
+- The accepted lifecycle surface extends `PluginBehaviour` with two synchronous
+  callbacks:
+  `public abstract void Activate()` and
+  `public abstract void Deactivate()`. The host invokes them explicitly on the
+  Unity main thread; the concrete instance remains a real `MonoBehaviour` and
+  therefore retains ordinary Unity coroutine access.
+- Normal return from `Activate()` acknowledges successful startup. An exception
+  means startup failed and is retained with complete plugin and phase context;
+  `AddComponent` return alone never acknowledges activation.
+- The supported orderly stop moves an active plugin to stopping, calls
+  `Deactivate()` exactly once while its component and services remain usable,
+  and treats normal return as successful cleanup or an exception as failed
+  cleanup. Component destruction follows the callback and is not the cleanup
+  acknowledgement.
+- Private Unity `Awake` and `OnDestroy` messages remain ambient Unity behavior,
+  not supervised lifecycle callbacks. Required startup or cleanup work must use
+  the explicit callbacks; no process-exit or crash-cleanup guarantee is made.
 - The host reports lifecycle failures without claiming hot reload or managed
   assembly unloading.
 - Managed entry and the selected Unity handoff are each admitted at most once.
@@ -122,8 +145,11 @@ evidence or an explicit product decision.
 - `DSPPluginManager.Contracts.PluginAttribute` is a sealed, non-inherited,
   single-use class marker. Its constructor takes exactly three strings in this
   order: stable identifier, display name, and canonical version.
-- `DSPPluginManager.Contracts.PluginBehaviour` is an abstract
-  `UnityEngine.MonoBehaviour` with no project-owned members in this slice.
+- The implemented discovery-only
+  `DSPPluginManager.Contracts.PluginBehaviour` remains an abstract
+  `UnityEngine.MonoBehaviour` with no project-owned members. RM-13 selected the
+  lifecycle extension recorded above, but did not add production lifecycle
+  members.
 - Identifiers are non-empty ASCII strings containing only letters, digits,
   `.`, `_`, and `-`. Identity comparison is ordinal and case-insensitive.
 - Versions contain exactly three non-negative decimal integer components
@@ -195,10 +221,8 @@ evidence or an explicit product decision.
 
 ## Open steering decisions
 
-- activation acknowledgement semantics after the selected Unity handoff;
-- supported shutdown observation semantics;
-- remaining public lifecycle and service contracts beyond the minimal
-  discovery slice;
+- remaining public service contracts beyond the minimal discovery and
+  lifecycle slices;
 - final host, plugin, configuration, log, and writable-parent locations;
 - configuration format and treatment of existing BepInEx `.cfg` files;
 - first migration consumer and its acceptance matrix;
