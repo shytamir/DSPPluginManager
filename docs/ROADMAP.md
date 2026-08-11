@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-05 — Unity main-thread handoff decision probe
+- **Next story:** RM-06 — Pinned UnityDoorstop managed bootstrap
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -148,7 +148,7 @@ resolver hooks, or Harmony patch ownership.
 
 ### RM-05 — Unity main-thread handoff decision probe
 
-**Status:** Awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As a maintainer, I want both bounded handoff candidates exercised in
 the supported DSP build so the production bootstrap uses evidence rather than
@@ -175,7 +175,7 @@ the default narrow in-memory Cecil handoff.
 
 ### RM-06 — Pinned UnityDoorstop managed bootstrap
 
-**Status:** Planned
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As an operator, I want a reversible manager-owned bootstrap bundle so
 DSP can enter the compiled host exactly once without BepInEx.

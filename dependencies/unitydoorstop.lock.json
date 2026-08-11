@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "name": "UnityDoorstop",
+  "version": "3.4.0.0",
+  "tag": "v3.4.0.0",
+  "architecture": "x64",
+  "peMachine": "0x8664",
+  "sourceRepository": "https://github.com/NeighTools/UnityDoorstop",
+  "sourceCommit": "81919046fa3cff331916f26bb5aec0c5d6d25adb",
+  "releaseAsset": {
+    "fileName": "Doorstop_x64_3.4.0.0.zip",
+    "sourceUrl": "https://github.com/NeighTools/UnityDoorstop/releases/download/v3.4.0.0/Doorstop_x64_3.4.0.0.zip",
+    "length": 16011,
+    "sha256": "6D391BCAFEE7D10E5CF26497ADADCB5B214725FE8B5BA18746453922936925F5"
+  },
+  "proxy": {
+    "archivePath": "winhttp.dll",
+    "fileName": "winhttp.dll",
+    "length": 25088,
+    "sha256": "CF9DD372CA0DDBE01153502C49F8F756197BB260001792FE766F6C0242DC7FC0"
+  },
+  "notice": {
+    "file": "UnityDoorstop-CC0.txt",
+    "sha256": "5450A0955F88694077E9BE602ACB0E1C38A02FB61E0908CB346BDBB3C70C9967"
+  }
+}

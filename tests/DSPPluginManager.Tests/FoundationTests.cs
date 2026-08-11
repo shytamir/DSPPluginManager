@@ -12,6 +12,8 @@ namespace DSPPluginManager.Tests
         private const string ExpectedFramework = ".NETFramework,Version=v4.7.2";
         private const string ExpectedMarkerType =
             "DSPPluginManager.ProductMarker";
+        private const string ExpectedEntrypointType =
+            "DSPPluginManager.Bootstrap.DoorstopEntrypoint";
 
         internal static void Run(string[] args)
         {
@@ -98,10 +100,12 @@ namespace DSPPluginManager.Tests
                 marker != null && !marker.IsPublic,
                 "The internal product marker is missing or unexpectedly public."
             );
+            Type[] exported = assembly.GetExportedTypes();
+            TestAssert.Equal(1, exported.Length, "exported type count");
             TestAssert.Equal(
-                0,
-                assembly.GetExportedTypes().Length,
-                "exported type count"
+                ExpectedEntrypointType,
+                exported[0].FullName,
+                "sole exported bootstrap type"
             );
         }
     }

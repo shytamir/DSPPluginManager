@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DSPPluginManager.UnityHandoff</AssemblyName>
+    <RootNamespace>DSPPluginManager.UnityHandoff</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <HintPath>$(CecilReferencePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

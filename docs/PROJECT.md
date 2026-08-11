@@ -20,18 +20,19 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-02 immutable host environment paths | Accepted by project owner |
 | RM-03 independent bootstrap failure record | Accepted by project owner |
 | RM-04 reserved dependency resolver | Accepted by project owner |
-| RM-05 Unity main-thread handoff decision probe | Acceptance evidence complete; awaiting project-owner acceptance |
+| RM-05 Unity main-thread handoff decision probe | Accepted by project owner |
+| RM-06 pinned UnityDoorstop managed bootstrap | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Being defined and reviewed |
-| Managed process bootstrap and plugin host | Not implemented |
+| Plugin discovery, activation, and lifecycle host | Not implemented |
 | Public source-migration contract | Not specified |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
-The current package payload is a compiled and versioned internal pre-activation
-foundation. It has no managed bootstrap entrypoint, Unity handoff, plugin
-activation, or public plugin contract. A successful package build demonstrates
-repository automation and foundation integrity only, not an available product.
+The temporary Thunderstore package remains a compiled and versioned internal
+foundation, not an installable product. The separately generated RM-06
+acceptance bundle has a validated managed entrypoint and Unity handoff but no
+plugin discovery, activation, lifecycle services, or public plugin contract.
 
 ## Purpose and success
 
@@ -68,8 +69,8 @@ evidence or an explicit product decision.
 
 ### Bootstrap and lifecycle
 
-- The default native boundary is the pinned UnityDoorstop 3.4 generation used by
-  the proven DSP/BepInEx 5.4.17 installation.
+- The default native boundary is the official UnityDoorstop 3.4.0.0 x64
+  `winhttp.dll` release used by the proven DSP/BepInEx 5.4.17 installation.
 - UnityDoorstop targets a project-owned minimal managed entrypoint.
 - The supported Unity handoff is one validated in-memory Cecil insertion into
   `UnityEngine.Application`'s static constructor. The external
@@ -79,6 +80,9 @@ evidence or an explicit product decision.
   components on the main thread.
 - The host reports lifecycle failures without claiming hot reload or managed
   assembly unloading.
+- Managed entry and the selected Unity handoff are each admitted at most once.
+- The early managed entrypoint validates Doorstop's DSP paths, installs the
+  reserved dependency resolver, and does not reference or call Unity APIs.
 
 ### Discovery and candidate selection
 

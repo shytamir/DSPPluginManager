@@ -51,6 +51,11 @@ jobs:
         shell: pwsh
         run: ./scripts/Restore-ManagedDependencies.ps1
 
+      - name: Acquire and validate UnityDoorstop
+        id: doorstop
+        shell: pwsh
+        run: ./scripts/Restore-UnityDoorstop.ps1
+
       - name: Build and test compiled foundation
         id: build
         shell: pwsh
@@ -90,6 +95,13 @@ jobs:
             -ExpectedAssemblyVersion $env:ASSEMBLY_VERSION `
             -ExpectedReleaseLabel $env:RELEASE_LABEL
 
+      - name: Build and validate bootstrap bundle
+        id: bootstrap
+        shell: pwsh
+        run: |
+          $bundle = ./scripts/New-BootstrapBundle.ps1
+          ./scripts/Test-BootstrapBundle.ps1 -BundleRoot $bundle
+
       - name: Upload package and reports
         id: upload
         uses: actions/upload-artifact@v6
@@ -100,6 +112,8 @@ jobs:
             artifacts/BUILD-INFO.txt
             artifacts/PACKAGE-REPORT.md
             artifacts/managed-dependencies/DEPENDENCY-REPORT.md
+            artifacts/unitydoorstop/UNITYDOORSTOP-REPORT.md
+            artifacts/bootstrap-bundle/**
           if-no-files-found: error
           retention-days: 30
 
@@ -110,9 +124,11 @@ jobs:
           CHECKOUT_STATUS: ${{ steps.checkout.outcome }}
           VERSION_STATUS: ${{ steps.version.outcome }}
           DEPENDENCY_STATUS: ${{ steps.dependencies.outcome }}
+          DOORSTOP_STATUS: ${{ steps.doorstop.outcome }}
           BUILD_STATUS: ${{ steps.build.outcome }}
           PACKAGE_STATUS: ${{ steps.package.outcome }}
           TEST_STATUS: ${{ steps.package_test.outcome }}
+          BOOTSTRAP_STATUS: ${{ steps.bootstrap.outcome }}
           UPLOAD_STATUS: ${{ steps.upload.outcome }}
           PACKAGE_VERSION_VALUE: ${{ steps.version.outputs.package_version }}
           ASSEMBLY_VERSION_VALUE: ${{ steps.version.outputs.assembly_version }}
@@ -132,10 +148,12 @@ jobs:
           | Checkout | $env:CHECKOUT_STATUS |
           | Resolve version | $env:VERSION_STATUS |
           | Acquire and validate managed dependencies | $env:DEPENDENCY_STATUS |
+          | Acquire and validate UnityDoorstop 3.4 x64 | $env:DOORSTOP_STATUS |
           | Build and validate compiled foundation | $env:BUILD_STATUS |
           | Build package | $env:PACKAGE_STATUS |
           | Validate package | $env:TEST_STATUS |
+          | Build and validate managed bootstrap bundle | $env:BOOTSTRAP_STATUS |
           | Upload artifacts | $env:UPLOAD_STATUS |
 
-          The packaged DLL is an internal pre-activation foundation only; no runnable plugin host is available.
+          The Thunderstore package remains temporary automation evidence. The separate bootstrap bundle can enter the internal host boundary but cannot discover or activate plugins.
           "@ >> $env:GITHUB_STEP_SUMMARY

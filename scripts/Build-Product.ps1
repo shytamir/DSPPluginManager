@@ -24,20 +24,25 @@ $productProject = Join-Path $RepositoryRoot `
     'src\DSPPluginManager\DSPPluginManager.csproj'
 $testProject = Join-Path $RepositoryRoot `
     'tests\DSPPluginManager.Tests\DSPPluginManager.Tests.csproj'
+$handoffProject = Join-Path $RepositoryRoot `
+    'src\DSPPluginManager.UnityHandoff\DSPPluginManager.UnityHandoff.csproj'
 $packageDirectory = Join-Path $RepositoryRoot 'artifacts\nuget\packages'
 $productOutput = Join-Path $RepositoryRoot 'artifacts\build'
 $testOutput = Join-Path $RepositoryRoot 'artifacts\tests'
+$handoffOutput = Join-Path $RepositoryRoot 'artifacts\bootstrap-components'
 $dependencyRuntime = Join-Path $RepositoryRoot `
     'artifacts\managed-dependencies\runtime'
+$cecilReference = Join-Path $dependencyRuntime 'Mono.Cecil.dll'
 
-foreach ($project in @($productProject, $testProject)) {
+foreach ($project in @($productProject, $testProject, $handoffProject)) {
     if (-not (Test-Path -LiteralPath $project -PathType Leaf)) {
         throw "Required project was not found: $project"
     }
 }
 foreach ($lockFile in @(
         (Join-Path (Split-Path -Parent $productProject) 'packages.lock.json'),
-        (Join-Path (Split-Path -Parent $testProject) 'packages.lock.json')
+        (Join-Path (Split-Path -Parent $testProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $handoffProject) 'packages.lock.json')
     )) {
     if (-not (Test-Path -LiteralPath $lockFile -PathType Leaf)) {
         throw "Required package lock was not found: $lockFile"
@@ -70,6 +75,14 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'Product restore failed.'
     }
+    & dotnet restore $handoffProject `
+        --packages $packageDirectory `
+        --locked-mode `
+        "-p:CecilReferencePath=$cecilReference" `
+        --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unity handoff restore failed.'
+    }
 
     & dotnet build $productProject `
         --no-restore `
@@ -87,6 +100,16 @@ try {
         @properties
     if ($LASTEXITCODE -ne 0) {
         throw 'Foundation test build failed.'
+    }
+
+    & dotnet build $handoffProject `
+        --no-restore `
+        --configuration Release `
+        --output $handoffOutput `
+        "-p:CecilReferencePath=$cecilReference" `
+        @properties
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unity handoff component build failed.'
     }
 }
 finally {

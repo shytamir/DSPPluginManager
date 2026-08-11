@@ -11,10 +11,11 @@ namespace DSPPluginManager.Tests
                 FoundationTests.Run(args);
                 HostEnvironmentPathsTests.Run();
                 BootstrapFailureRecordTests.Run();
+                BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
                 Console.WriteLine(
-                    "Compiled foundation, path, bootstrap diagnostic, and " +
-                    "reserved dependency tests passed."
+                    "Compiled foundation, path, bootstrap entry, diagnostic, " +
+                    "and reserved dependency tests passed."
                 );
                 return 0;
             }

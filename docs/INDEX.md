@@ -7,4 +7,6 @@
   package-pipeline behavior and validation.
 - [RM-05 Unity handoff evidence](RM05-UNITY-HANDOFF-EVIDENCE.md) — recorded DSP
   probe results and the selected production handoff mechanism.
+- [RM-06 managed bootstrap](RM06-MANAGED-BOOTSTRAP.md) — pinned UnityDoorstop
+  provenance, reversible bundle behavior, and installed DSP acceptance evidence.
 - [Archive index](archive/INDEX.md) — completed or superseded documentation.

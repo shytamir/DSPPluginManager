@@ -12,6 +12,8 @@ param(
 $ErrorActionPreference = 'Stop'
 & (Join-Path $PSScriptRoot 'Restore-ManagedDependencies.ps1') `
     -RepositoryRoot $RepositoryRoot
+& (Join-Path $PSScriptRoot 'Restore-UnityDoorstop.ps1') `
+    -RepositoryRoot $RepositoryRoot
 
 if ([string]::IsNullOrWhiteSpace($Commit)) {
     $gitSafeRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path.Replace(
@@ -61,5 +63,11 @@ $packagePath = & (Join-Path $PSScriptRoot 'New-ThunderstorePackage.ps1') `
     -ExpectedAssemblyVersion $version.ASSEMBLY_VERSION `
     -ExpectedReleaseLabel $version.RELEASE_LABEL `
     -RepositoryRoot $RepositoryRoot
+
+$bundlePath = & (Join-Path $PSScriptRoot 'New-BootstrapBundle.ps1') `
+    -RepositoryRoot $RepositoryRoot
+& (Join-Path $PSScriptRoot 'Test-BootstrapBundle.ps1') `
+    -RepositoryRoot $RepositoryRoot `
+    -BundleRoot $bundlePath
 
 Write-Output "Package build passed: $packagePath"
