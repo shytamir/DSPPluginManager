@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DSPPluginManager.Contracts</AssemblyName>
+    <RootNamespace>DSPPluginManager.Contracts</RootNamespace>
+    <Title>DSP Plugin Manager Contracts</Title>
+    <Description>Minimal source-migration contract for DSP plugins.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(UnityEngineCoreModulePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -6,6 +6,8 @@ param(
     [ValidatePattern('^$|^[0-9a-fA-F]{7,40}$')]
     [string]$Commit = '',
 
+    [string]$UnityEngineCoreModulePath = '',
+
     [string]$RepositoryRoot = (Split-Path -Parent $PSScriptRoot)
 )
 
@@ -39,6 +41,7 @@ $buildInfoPath = Join-Path $RepositoryRoot 'artifacts\BUILD-INFO.txt'
     -SemanticVersion $version.SEMANTIC_VERSION `
     -AssemblyVersion $version.ASSEMBLY_VERSION `
     -ReleaseLabel $version.RELEASE_LABEL `
+    -UnityEngineCoreModulePath $UnityEngineCoreModulePath `
     -RepositoryRoot $RepositoryRoot
 & (Join-Path $PSScriptRoot 'Test-BuildVersion.ps1') `
     -DllPath $dllPath `

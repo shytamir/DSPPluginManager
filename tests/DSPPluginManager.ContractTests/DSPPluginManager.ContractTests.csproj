@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>DSPPluginManager.ContractTests</AssemblyName>
+    <RootNamespace>DSPPluginManager.ContractTests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DSPPluginManager\DSPPluginManager.csproj" />
+    <Reference Include="Mono.Cecil">
+      <HintPath>$(CecilReferencePath)</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

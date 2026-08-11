@@ -33,6 +33,9 @@ Copy-Item -LiteralPath (
     Join-Path $artifactsRoot 'build\DSPPluginManager.dll'
 ) -Destination $managerRoot
 Copy-Item -LiteralPath (
+    Join-Path $artifactsRoot 'contracts\DSPPluginManager.Contracts.dll'
+) -Destination $managerRoot
+Copy-Item -LiteralPath (
     Join-Path $artifactsRoot `
         'bootstrap-components\DSPPluginManager.UnityHandoff.dll'
 ) -Destination $managerRoot

@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-08 — Authoritative current-run disk log
+- **Next story:** RM-09 — Minimal discovery contract slice
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -233,7 +233,7 @@ records, safe payload formatting, and a small internal sink boundary.
 
 ### RM-08 — Authoritative current-run disk log
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As an operator, I want one readable current-run log so bootstrap,
 discovery, and later plugin failures can be diagnosed in chronological context.
@@ -260,7 +260,7 @@ output, or plugin-selected sinks.
 
 ### RM-09 — Minimal discovery contract slice
 
-**Status:** Planned
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As a plugin author, I want one exact metadata and base-type contract
 so a compiled plugin can declare its identity and be recognized without

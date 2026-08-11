@@ -23,19 +23,20 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-05 Unity main-thread handoff decision probe | Accepted by project owner |
 | RM-06 pinned UnityDoorstop managed bootstrap | Accepted by project owner |
 | RM-07 source-scoped non-throwing logging core | Accepted by project owner |
-| RM-08 authoritative current-run disk log | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
+| RM-08 authoritative current-run disk log | Accepted by project owner |
+| RM-09 minimal discovery contract slice | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
-| Product contract | Being defined and reviewed |
+| Product contract | Minimal discovery slice defined; remaining migration surface not specified |
 | Plugin discovery, activation, and lifecycle host | Not implemented |
-| Public source-migration contract | Not specified |
+| Public source-migration contract | Minimal discovery slice specified; lifecycle and service surface not specified |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
 The temporary Thunderstore package remains a compiled and versioned internal
 foundation, not an installable product. The separately generated bootstrap
-bundle has a validated managed entrypoint, Unity handoff, and internal logging
-core with its current-run disk sink, but no plugin discovery, activation,
-lifecycle services, or public plugin contract.
+bundle has a validated managed entrypoint, Unity handoff, internal logging core
+with its current-run disk sink, and the minimal public discovery contract. It
+does not yet discover or activate plugins and exposes no plugin services.
 
 ## Purpose and success
 
@@ -103,6 +104,27 @@ evidence or an explicit product decision.
 - The initial product has no plugin dependency, incompatibility, cycle, or
   cross-plugin load-order contract.
 
+### Minimal discovery contract
+
+- The public contract assembly simple name and root namespace are
+  `DSPPluginManager.Contracts`; the assembly is culture-neutral and unsigned.
+  Its assembly version follows the manager build version and is not a claim of
+  binary compatibility across releases.
+- `DSPPluginManager.Contracts.PluginAttribute` is a sealed, non-inherited,
+  single-use class marker. Its constructor takes exactly three strings in this
+  order: stable identifier, display name, and canonical version.
+- `DSPPluginManager.Contracts.PluginBehaviour` is an abstract
+  `UnityEngine.MonoBehaviour` with no project-owned members in this slice.
+- Identifiers are non-empty ASCII strings containing only letters, digits,
+  `.`, `_`, and `-`. Identity comparison is ordinal and case-insensitive.
+- Versions contain exactly three non-negative decimal integer components
+  separated by periods. Leading zeroes are rejected except for the single
+  component `0`; labels and fourth components are not accepted.
+- The contract is a source-migration target. It does not preserve BepInEx
+  identity or claim BepInEx binary compatibility.
+- Unity assemblies are external compilation inputs. The repository, bootstrap
+  bundle, and package artifacts do not redistribute them.
+
 ### Services and paths
 
 - The initial consumer service set is limited to source-scoped disk logging,
@@ -166,9 +188,8 @@ evidence or an explicit product decision.
 
 - activation acknowledgement semantics after the selected Unity handoff;
 - supported shutdown observation semantics;
-- public contract name, namespace, assembly identity, type signatures, and
-  metadata encoding;
-- identifier case sensitivity;
+- remaining public lifecycle and service contracts beyond the minimal
+  discovery slice;
 - final host, plugin, configuration, log, and writable-parent locations;
 - configuration format and treatment of existing BepInEx `.cfg` files;
 - first migration consumer and its acceptance matrix;
