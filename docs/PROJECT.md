@@ -14,7 +14,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 
 | Area | State |
 | --- | --- |
-| Active roadmap | Milestone 1: Deterministic pre-activation host |
+| Roadmap status | Milestone 1 completed; no roadmap is currently active |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -27,7 +27,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-09 minimal discovery contract slice | Accepted by project owner |
 | RM-10 bounded deterministic candidate enumeration | Accepted by project owner |
 | RM-11 static plugin metadata recognition | Accepted by project owner |
-| RM-12 deterministic candidate reconciliation | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
+| RM-12 deterministic candidate reconciliation | Accepted by project owner |
+| Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery slice defined; remaining migration surface not specified |
 | Plugin discovery, activation, and lifecycle host | Bounded enumeration, static recognition, and deterministic reconciliation implemented; activation not implemented |
@@ -38,10 +39,12 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 The temporary Thunderstore package remains a compiled and versioned internal
 foundation, not an installable product. The separately generated bootstrap
 bundle has a validated managed entrypoint, Unity handoff, internal logging core
-with its current-run disk sink, and the minimal public discovery contract. The
-host can enumerate bounded candidate paths, recognize supported metadata
-without executing candidate code, and produce a deterministic reconciliation
-plan. It does not yet activate plugins and exposes no plugin services.
+with its current-run disk sink, and the minimal public discovery contract. An
+installed DSP run entered the host once without BepInEx providing the
+lifecycle, enumerated and statically inspected a seven-candidate fixture tree,
+and logged the same deterministic reconciliation plan as the offline tests. No
+candidate assembly was runtime-loaded or executed. The host does not yet
+activate plugins and exposes no plugin services.
 
 ## Purpose and success
 

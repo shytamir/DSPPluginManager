@@ -2,8 +2,8 @@
 
 ## Status
 
-Implementation and acceptance evidence are complete. RM-06 remains awaiting
-project-owner acceptance.
+Implementation and acceptance evidence were completed, and RM-06 was accepted
+by the project owner.
 
 This document describes the internal bootstrap bundle exercised by RM-06. It
 does not define the final Thunderstore installation layout or a public plugin
@@ -49,7 +49,7 @@ The configuration targets
 runtime overrides off, and leaves Doorstop's environment disable switch
 effective.
 
-The managed entrypoint:
+At RM-06 acceptance, the managed entrypoint:
 
 1. admits only its first call;
 2. requires the installed process to be `DSPGAME.exe` and validates Doorstop's
@@ -65,9 +65,9 @@ Cecil component loads the modified Unity image from memory and never writes it
 back to the game. The installed runner opts into the small
 `bootstrap-checkpoint.txt` by creating a local
 `bootstrap-checkpoint.enabled` marker. A normal bundle does not contain that
-marker or write the checkpoint. This is acceptance instrumentation, not the
-logging service planned by RM-07/RM-08. No plugin discovery or activation
-occurs.
+marker or write the checkpoint. This was acceptance instrumentation, not the
+logging service later delivered by RM-07/RM-08. Plugin discovery and activation
+were outside the RM-06 gate.
 
 ## Collision, disable, and removal
 

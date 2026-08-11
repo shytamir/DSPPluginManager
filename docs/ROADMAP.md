@@ -2,23 +2,24 @@
 
 ## Purpose
 
-This roadmap is the ordered implementation plan and story history for DSP
-Plugin Manager. Current product decisions and status remain authoritative in
+This roadmap was the ordered implementation plan for Milestone 1 and remains
+its story history. Current product decisions and status remain authoritative in
 [`PROJECT.md`](PROJECT.md).
 
-The first milestone is deliberately bounded. It ends when the manager can start
-inside DSP, establish paths and diagnostics, discover plugin candidates without
-executing them, and deterministically select at most one candidate per plugin
-identity. Plugin activation, configuration, keyboard shortcuts, consumer
-migration, and final publication are later milestones.
+The first milestone was deliberately bounded. It ended after the manager
+started inside DSP, established paths and diagnostics, discovered plugin
+candidates without executing them, and deterministically selected at most one
+candidate per plugin identity. Plugin activation, configuration, keyboard
+shortcuts, consumer migration, and final publication remained outside it.
 
-## Current status
+## Completion status
 
-- **Roadmap:** Active
-- **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-12 — Deterministic candidate reconciliation
-- **Next story status:** Awaiting project-owner acceptance
-- **In progress:** None
+- **Roadmap:** Completed
+- **Completed milestone:** Milestone 1 — Deterministic pre-activation host
+- **Stories:** RM-01 through RM-12 accepted by the project owner
+- **Exit check:** Completed; see
+  [`MILESTONE-1-EXIT-EVIDENCE.md`](MILESTONE-1-EXIT-EVIDENCE.md)
+- **Next roadmap:** Not yet planned
 
 ## Working rules
 
@@ -32,12 +33,13 @@ migration, and final publication are later milestones.
 
 ## Existing foundation
 
-The repository already provides three-part build versioning, temporary
-Thunderstore package validation, and reproducible acquisition and integrity
-validation of the accepted HarmonyX/MonoMod/Mono.Cecil stack. These are inputs
-to the stories below, alongside the owner-accepted compiled `net472` foundation,
+At the start of this roadmap, the repository already provided three-part build
+versioning, temporary Thunderstore package validation, and reproducible
+acquisition and integrity validation of the accepted
+HarmonyX/MonoMod/Mono.Cecil stack. These were inputs to the stories below,
+alongside the compiled `net472` foundation,
 immutable environment paths, independent bootstrap failure record, and reserved
-dependency resolver. They are not evidence that a working host exists.
+dependency resolver. They did not alone establish a working host.
 
 ## Milestone 1: Deterministic pre-activation host
 
@@ -348,7 +350,7 @@ multiple plugin models, or public loader APIs.
 
 ### RM-12 — Deterministic candidate reconciliation
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As an operator, I want duplicate placements and versions reconciled
 before activation so the selected plugin set is stable, explainable, and never
@@ -377,13 +379,13 @@ load-order contracts, retry, or fallback.
 
 **Requirements:** R-07 and FM-02 reconciliation policy.
 
-## Milestone 1 exit
+## Milestone 1 exit — completed
 
-Milestone 1 is complete when an installed DSP run reaches the host once without
-BepInEx, opens the documented current-run log, discovers a fixture tree without
-executing candidate code, and reports the same selected/rejected candidate plan
-as the deterministic test suite.
+An installed DSP run reached the host once without BepInEx providing the
+lifecycle, opened the documented current-run log, discovered a fixture tree
+without executing or runtime-loading candidate code, and reported the same
+ordered candidate plan as the deterministic test suite. The result is recorded
+in [`MILESTONE-1-EXIT-EVIDENCE.md`](MILESTONE-1-EXIT-EVIDENCE.md).
 
-This exit does not claim that any plugin can yet be activated or migrated.
-Those capabilities begin with the next roadmap milestone after RM-01 through
-RM-12 have been reviewed and completed.
+This exit did not claim that any plugin could be activated or migrated. Those
+capabilities remained for a later roadmap.

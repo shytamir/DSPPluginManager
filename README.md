@@ -10,8 +10,8 @@ without recreating the whole upstream framework.
 [`docs/PROJECT.md`](docs/PROJECT.md) is the authority for current project
 status, accepted decisions, scope, and open steering decisions.
 
-Active work sequencing and story status are maintained in
-[`docs/ROADMAP.md`](docs/ROADMAP.md).
+The completed first roadmap and its story history are recorded in
+[`docs/ROADMAP.md`](docs/ROADMAP.md). No subsequent roadmap is active yet.
 
 ## Documentation
 

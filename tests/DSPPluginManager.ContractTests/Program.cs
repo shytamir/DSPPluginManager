@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace DSPPluginManager.ContractTests
 {
@@ -8,6 +9,21 @@ namespace DSPPluginManager.ContractTests
         {
             try
             {
+                if (args.Length == 8 &&
+                    args[0] == "--write-milestone1-fixture")
+                {
+                    string[] plan = Milestone1Fixture.Create(
+                        args[1],
+                        args[2],
+                        args[3],
+                        args[4],
+                        args[5],
+                        args[6]
+                    );
+                    File.WriteAllLines(args[7], plan);
+                    Console.WriteLine(args[7]);
+                    return 0;
+                }
                 if (args.Length != 5)
                 {
                     throw new InvalidOperationException(
@@ -23,6 +39,12 @@ namespace DSPPluginManager.ContractTests
                     args[4]
                 );
                 CandidateReconcilerTests.Run(
+                    args[0],
+                    args[1],
+                    args[3],
+                    args[4]
+                );
+                Milestone1DiscoveryTests.Run(
                     args[0],
                     args[1],
                     args[3],

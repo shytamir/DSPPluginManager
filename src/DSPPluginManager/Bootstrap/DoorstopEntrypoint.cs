@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using DSPPluginManager.Dependencies;
+using DSPPluginManager.Discovery;
 using DSPPluginManager.Logging;
 
 namespace DSPPluginManager.Bootstrap
@@ -74,6 +75,7 @@ namespace DSPPluginManager.Bootstrap
                 );
                 resolver.Install();
                 hostLogger.Information("Reserved dependency resolver installed.");
+                RunPreActivationDiscovery(environment);
                 InstallUnityHandoff(environment);
                 hostLogger.Information("Unity main-thread handoff installed.");
             }
@@ -107,6 +109,51 @@ namespace DSPPluginManager.Bootstrap
                 Thread.CurrentThread.ManagedThreadId
             );
             hostLogger.Information("Unity main-thread handoff completed.");
+        }
+
+        private static void RunPreActivationDiscovery(
+            BootstrapEnvironment bootstrapEnvironment
+        )
+        {
+            hostLogger.Information("Pre-activation discovery started.");
+            CandidateDiscoveryPlan plan = CandidateDiscoveryPlanner.Create(
+                bootstrapEnvironment.Paths.PluginDirectory,
+                new PluginInspectionReferences(
+                    Path.Combine(
+                        bootstrapEnvironment.Paths.HostRoot,
+                        "DSPPluginManager.Contracts.dll"
+                    ),
+                    bootstrapEnvironment.Paths.DependencyDirectory,
+                    bootstrapEnvironment.Paths.ManagedDirectory
+                )
+            );
+            foreach (CandidateEnumerationDiagnostic diagnostic in
+                plan.EnumerationDiagnostics)
+            {
+                hostLogger.Warning(
+                    "Discovery enumeration diagnostic: code=" +
+                    diagnostic.Code + " path='" + diagnostic.Path +
+                    "' detail=" + diagnostic.Detail
+                );
+            }
+            foreach (string reportLine in plan.ReportLines)
+            {
+                hostLogger.Information("DiscoveryPlan|" + reportLine);
+            }
+            if (plan.RuntimeLoadedCandidateCount != 0)
+            {
+                throw new InvalidOperationException(
+                    "Pre-activation discovery runtime-loaded " +
+                    plan.RuntimeLoadedCandidateCount + " candidate assemblies."
+                );
+            }
+            hostLogger.Information(
+                "Pre-activation discovery completed: candidates=" +
+                plan.EnumeratedCandidateCount + " entries=" +
+                plan.Reconciliation.Entries.Count +
+                " runtimeLoadedCandidates=" +
+                plan.RuntimeLoadedCandidateCount + "."
+            );
         }
 
         private static void InitializeLogging(
