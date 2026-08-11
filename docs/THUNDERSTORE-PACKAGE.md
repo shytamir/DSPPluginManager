@@ -59,6 +59,18 @@ exception is removed.
 The placeholder icon and empty DLL are generated during the build. Generated
 files and packages remain under `artifacts/` and are not committed.
 
+The build also acquires the manager-owned Harmony stack described by
+`dependencies/managed-dependencies.lock.json`. It validates exact NuGet package
+and DLL hashes, the selected `net35` assets, assembly identities, direct managed
+references, dependency closure, and four retained MIT notices. Generated files
+are staged under `artifacts/managed-dependencies/`; the plugin compile-reference
+directory exposes only `0Harmony.dll`, while MonoMod and Mono.Cecil remain
+implementation dependencies.
+
+The dependency stack is not added to the temporary Thunderstore ZIP. Its final
+installation layout remains a product packaging decision, and the current ZIP
+must not imply one.
+
 ## Build and validation
 
 Run `build.cmd` for a local sequence-1 package, or pass another sequence and
@@ -70,6 +82,7 @@ commit to the PowerShell entry point:
 
 The pipeline validates generic Thunderstore requirements and build integrity:
 
+- exact acquisition and staging of the locked manager-owned Harmony closure;
 - required root names and case;
 - standard ZIP layout without duplicate or backslash entry names;
 - package size below Thunderstore's documented limit;
@@ -90,8 +103,8 @@ undecided.
 
 Every push to `main`, and each manual workflow dispatch, runs
 `.github/workflows/package.yml`. A passing run uploads the package ZIP,
-`BUILD-INFO.txt`, and `PACKAGE-REPORT.md` as one GitHub Actions artifact retained
-for 30 days.
+`BUILD-INFO.txt`, `PACKAGE-REPORT.md`, and `DEPENDENCY-REPORT.md` as one GitHub
+Actions artifact retained for 30 days.
 
 The uploaded GitHub artifact is build evidence only. It is not a Thunderstore
 publication.

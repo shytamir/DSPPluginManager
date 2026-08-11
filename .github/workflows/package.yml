@@ -41,6 +41,11 @@ jobs:
             -Sequence ${{ github.run_number }} `
             -Commit '${{ github.sha }}'
 
+      - name: Acquire and validate managed dependencies
+        id: dependencies
+        shell: pwsh
+        run: ./scripts/Restore-ManagedDependencies.ps1
+
       - name: Build placeholder artifact
         id: build
         shell: pwsh
@@ -87,6 +92,7 @@ jobs:
             artifacts/packages/DSPPluginManager-${{ steps.version.outputs.package_version }}.zip
             artifacts/BUILD-INFO.txt
             artifacts/PACKAGE-REPORT.md
+            artifacts/managed-dependencies/DEPENDENCY-REPORT.md
           if-no-files-found: error
           retention-days: 30
 
@@ -96,6 +102,7 @@ jobs:
         env:
           CHECKOUT_STATUS: ${{ steps.checkout.outcome }}
           VERSION_STATUS: ${{ steps.version.outcome }}
+          DEPENDENCY_STATUS: ${{ steps.dependencies.outcome }}
           BUILD_STATUS: ${{ steps.build.outcome }}
           PACKAGE_STATUS: ${{ steps.package.outcome }}
           TEST_STATUS: ${{ steps.package_test.outcome }}
@@ -117,6 +124,7 @@ jobs:
           | --- | --- |
           | Checkout | $env:CHECKOUT_STATUS |
           | Resolve version | $env:VERSION_STATUS |
+          | Acquire and validate managed dependencies | $env:DEPENDENCY_STATUS |
           | Build and validate placeholder | $env:BUILD_STATUS |
           | Build package | $env:PACKAGE_STATUS |
           | Validate package | $env:TEST_STATUS |

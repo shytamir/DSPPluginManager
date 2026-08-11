@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "targetFramework": ".NETFramework3.5",
+  "assetFramework": "net35",
+  "packages": [
+    {
+      "id": "HarmonyX",
+      "version": "2.5.5",
+      "sourceUrl": "https://api.nuget.org/v3-flatcontainer/harmonyx/2.5.5/harmonyx.2.5.5.nupkg",
+      "packageFile": "harmonyx.2.5.5.nupkg",
+      "packageLength": 358374,
+      "packageSha256": "8F34A1A40995899CAFFE4A14A1BF59C99368829C393A6B515D293CC2CF03A5DC",
+      "nuspecPath": "HarmonyX.nuspec",
+      "licenseType": "file",
+      "licenseValue": "LICENSE",
+      "dependencies": [
+        {
+          "id": "MonoMod.RuntimeDetour",
+          "declaredVersion": "21.8.19.1",
+          "selectedVersion": "21.9.19.1"
+        }
+      ],
+      "asset": {
+        "packagePath": "lib/net35/0Harmony.dll",
+        "fileName": "0Harmony.dll",
+        "length": 189440,
+        "sha256": "7BD2BD6F87C1758047DEF40F2F0F024C877456CE7C01D68031358EE0C615D850",
+        "assemblyName": "0Harmony",
+        "assemblyVersion": "2.5.5.0",
+        "culture": "neutral",
+        "publicKeyToken": "null",
+        "pluginReference": true,
+        "managedReferences": [
+          {
+            "name": "Mono.Cecil",
+            "version": "0.10.4.0",
+            "publicKeyToken": "50cebf1cceb9d05e"
+          },
+          {
+            "name": "MonoMod.RuntimeDetour",
+            "version": "21.8.19.1",
+            "publicKeyToken": "null"
+          },
+          {
+            "name": "MonoMod.Utils",
+            "version": "21.8.19.1",
+            "publicKeyToken": "null"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MonoMod.RuntimeDetour",
+      "version": "21.9.19.1",
+      "sourceUrl": "https://api.nuget.org/v3-flatcontainer/monomod.runtimedetour/21.9.19.1/monomod.runtimedetour.21.9.19.1.nupkg",
+      "packageFile": "monomod.runtimedetour.21.9.19.1.nupkg",
+      "packageLength": 212175,
+      "packageSha256": "7782B7440ECCE9BAA2F3509012B263B196F578BB83BB48E7772044CCAFB83037",
+      "nuspecPath": "MonoMod.RuntimeDetour.nuspec",
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "dependencies": [
+        {
+          "id": "Mono.Cecil",
+          "declaredVersion": "0.10.4",
+          "selectedVersion": "0.10.4"
+        },
+        {
+          "id": "MonoMod.Utils",
+          "declaredVersion": "21.9.19.1",
+          "selectedVersion": "21.9.19.1"
+        }
+      ],
+      "asset": {
+        "packagePath": "lib/net35/MonoMod.RuntimeDetour.dll",
+        "fileName": "MonoMod.RuntimeDetour.dll",
+        "length": 104960,
+        "sha256": "281BFB29C5E9CC4CB98B81E7AFC0171AE12891A7B7370A98568D9E2A3060DB50",
+        "assemblyName": "MonoMod.RuntimeDetour",
+        "assemblyVersion": "21.9.19.1",
+        "culture": "neutral",
+        "publicKeyToken": "null",
+        "pluginReference": false,
+        "managedReferences": [
+          {
+            "name": "Mono.Cecil",
+            "version": "0.10.4.0",
+            "publicKeyToken": "50cebf1cceb9d05e"
+          },
+          {
+            "name": "MonoMod.Utils",
+            "version": "21.9.19.1",
+            "publicKeyToken": "null"
+          }
+        ]
+      }
+    },
+    {
+      "id": "MonoMod.Utils",
+      "version": "21.9.19.1",
+      "sourceUrl": "https://api.nuget.org/v3-flatcontainer/monomod.utils/21.9.19.1/monomod.utils.21.9.19.1.nupkg",
+      "packageFile": "monomod.utils.21.9.19.1.nupkg",
+      "packageLength": 361299,
+      "packageSha256": "0CE0F01C942EFC421B1FD937E47D1117571203FB691A40B350143D0F1E1506E8",
+      "nuspecPath": "MonoMod.Utils.nuspec",
+      "licenseType": "expression",
+      "licenseValue": "MIT",
+      "dependencies": [
+        {
+          "id": "Mono.Cecil",
+          "declaredVersion": "0.10.4",
+          "selectedVersion": "0.10.4"
+        }
+      ],
+      "asset": {
+        "packagePath": "lib/net35/MonoMod.Utils.dll",
+        "fileName": "MonoMod.Utils.dll",
+        "length": 187392,
+        "sha256": "4CC34A5C4278D78CE3F516BB3B43C9A5ED3509672DBBA932E036746A9360A570",
+        "assemblyName": "MonoMod.Utils",
+        "assemblyVersion": "21.9.19.1",
+        "culture": "neutral",
+        "publicKeyToken": "null",
+        "pluginReference": false,
+        "managedReferences": [
+          {
+            "name": "Mono.Cecil",
+            "version": "0.10.4.0",
+            "publicKeyToken": "50cebf1cceb9d05e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "Mono.Cecil",
+      "version": "0.10.4",
+      "sourceUrl": "https://api.nuget.org/v3-flatcontainer/mono.cecil/0.10.4/mono.cecil.0.10.4.nupkg",
+      "packageFile": "mono.cecil.0.10.4.nupkg",
+      "packageLength": 669174,
+      "packageSha256": "3451A4A112A81BE0BF76B8DC2BCA396ACDF0455D80C8961E7903CE1FB35C2A9A",
+      "nuspecPath": "Mono.Cecil.nuspec",
+      "licenseType": "url",
+      "licenseValue": "http://opensource.org/licenses/mit-license.php",
+      "dependencies": [],
+      "asset": {
+        "packagePath": "lib/net35/Mono.Cecil.dll",
+        "fileName": "Mono.Cecil.dll",
+        "length": 339456,
+        "sha256": "7AE470288FFF4A402899C254D0A76CEFEF55877F5C54F96E83C797CC5BB6E2F6",
+        "assemblyName": "Mono.Cecil",
+        "assemblyVersion": "0.10.4.0",
+        "culture": "neutral",
+        "publicKeyToken": "50cebf1cceb9d05e",
+        "pluginReference": false,
+        "managedReferences": []
+      }
+    }
+  ],
+  "notices": [
+    {
+      "file": "HarmonyX-LICENSE.txt",
+      "sourceUrl": "https://raw.githubusercontent.com/BepInEx/HarmonyX/v2.5.5/LICENSE",
+      "upstreamSha256": "7E54AB4766EF78637A05FB3454663A66DE6BB960DBD4C7088890ED76B0844F36",
+      "sha256": "00DE20316BB5F2B227A7219384785E0970AB0C800DAF374C1962E370C33497DE"
+    },
+    {
+      "file": "Harmony-LICENSE.txt",
+      "sourceUrl": "https://raw.githubusercontent.com/BepInEx/HarmonyX/v2.5.5/LICENSE.Harmony",
+      "upstreamSha256": "27E65B8ADEEDD73C2F76088346EFA3756A00E4E88CCA5ACE0C196CE1733EF570",
+      "sha256": "A5883D0C45EB7E176D3D1631220E7F96E958E37064773D40245AE6DB560BBD6D"
+    },
+    {
+      "file": "MonoMod-LICENSE.txt",
+      "sourceUrl": "https://raw.githubusercontent.com/MonoMod/MonoMod/v21.09.19.01/LICENSE",
+      "upstreamSha256": "0B64833222E3C6A426AD29362D26334619FE02EAF2B89EA9C37805521896C920",
+      "sha256": "0B64833222E3C6A426AD29362D26334619FE02EAF2B89EA9C37805521896C920"
+    },
+    {
+      "file": "Mono.Cecil-LICENSE.txt",
+      "sourceUrl": "https://raw.githubusercontent.com/jbevain/cecil/0.10.4/LICENSE.txt",
+      "upstreamSha256": "13D58ECBED676511C0C4C4009BFF107025E50007FF5E7901DC562700EC62509E",
+      "sha256": "13D58ECBED676511C0C4C4009BFF107025E50007FF5E7901DC562700EC62509E"
+    }
+  ]
+}

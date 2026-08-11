@@ -15,6 +15,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Area | State |
 | --- | --- |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
+| Managed Harmony dependency acquisition and integrity lock | Implemented as build infrastructure; runtime resolution not implemented |
 | Product contract | Being defined and reviewed |
 | Managed process bootstrap and plugin host | Not implemented |
 | Public source-migration contract | Not specified |

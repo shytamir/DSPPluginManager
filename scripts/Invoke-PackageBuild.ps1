@@ -10,8 +10,16 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+& (Join-Path $PSScriptRoot 'Restore-ManagedDependencies.ps1') `
+    -RepositoryRoot $RepositoryRoot
+
 if ([string]::IsNullOrWhiteSpace($Commit)) {
-    $Commit = (git -C $RepositoryRoot rev-parse HEAD).Trim()
+    $gitSafeRoot = (Resolve-Path -LiteralPath $RepositoryRoot).Path.Replace(
+        '\',
+        '/'
+    )
+    $Commit = (git -c "safe.directory=$gitSafeRoot" `
+            -C $RepositoryRoot rev-parse HEAD).Trim()
     if ($LASTEXITCODE -ne 0 -or $Commit -notmatch '^[0-9a-fA-F]{40}$') {
         throw 'Could not resolve a full source commit. Pass -Commit explicitly.'
     }
