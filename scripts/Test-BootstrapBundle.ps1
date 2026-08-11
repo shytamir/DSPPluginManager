@@ -40,8 +40,8 @@ if ((Get-Item -LiteralPath $proxy).Length -ne $lock.proxy.length -or
     throw 'Bootstrap bundle proxy does not match the UnityDoorstop lock.'
 }
 
-$config = Get-Content -Raw -LiteralPath (
-    Join-Path $bundlePath 'doorstop_config.ini'
+$configLines = [IO.File]::ReadAllLines(
+    (Join-Path $bundlePath 'doorstop_config.ini')
 )
 foreach ($requiredLine in @(
         'enabled=true',
@@ -49,7 +49,7 @@ foreach ($requiredLine in @(
         'redirectOutputLog=false',
         'ignoreDisableSwitch=false'
     )) {
-    if ($config -cnotmatch ('(?m)^' + [Regex]::Escape($requiredLine) + '$')) {
+    if ($configLines -cnotcontains $requiredLine) {
         throw "Doorstop configuration is missing '$requiredLine'."
     }
 }
