@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-03 — Independent bootstrap failure record
+- **Next story:** RM-04 — Reserved dependency resolver
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -35,8 +35,9 @@ migration, and final publication are later milestones.
 The repository already provides three-part build versioning, temporary
 Thunderstore package validation, and reproducible acquisition and integrity
 validation of the accepted HarmonyX/MonoMod/Mono.Cecil stack. These are inputs
-to the stories below, alongside the owner-accepted compiled `net472` foundation.
-They are not evidence that a working host exists.
+to the stories below, alongside the owner-accepted compiled `net472` foundation,
+immutable environment paths, and independent bootstrap failure record. They are
+not evidence that a working host exists.
 
 ## Milestone 1: Deterministic pre-activation host
 
@@ -94,7 +95,7 @@ management.
 
 ### RM-03 — Independent bootstrap failure record
 
-**Status:** Awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As an operator, I want an early plain-text failure record so a host
 startup failure remains diagnosable before normal logging is available.
@@ -120,7 +121,7 @@ the minimal managed entrypoint.
 
 ### RM-04 — Reserved dependency resolver
 
-**Status:** Planned
+**Status:** Awaiting project-owner acceptance
 
 **Story:** As the host, I want the approved Harmony/Cecil identities resolved
 only from manager-owned files so an accidental or plugin-local copy cannot win

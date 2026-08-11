@@ -15,10 +15,11 @@ namespace DSPPluginManager.Tests
 
         internal static void Run(string[] args)
         {
-            if (args.Length != 3)
+            if (args.Length != 4)
             {
                 throw new InvalidOperationException(
-                    "Expected product DLL, assembly version, and release label."
+                    "Expected product DLL, assembly version, release label, " +
+                    "and managed dependency directory."
                 );
             }
 

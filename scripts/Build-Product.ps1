@@ -27,6 +27,8 @@ $testProject = Join-Path $RepositoryRoot `
 $packageDirectory = Join-Path $RepositoryRoot 'artifacts\nuget\packages'
 $productOutput = Join-Path $RepositoryRoot 'artifacts\build'
 $testOutput = Join-Path $RepositoryRoot 'artifacts\tests'
+$dependencyRuntime = Join-Path $RepositoryRoot `
+    'artifacts\managed-dependencies\runtime'
 
 foreach ($project in @($productProject, $testProject)) {
     if (-not (Test-Path -LiteralPath $project -PathType Leaf)) {
@@ -40,6 +42,9 @@ foreach ($lockFile in @(
     if (-not (Test-Path -LiteralPath $lockFile -PathType Leaf)) {
         throw "Required package lock was not found: $lockFile"
     }
+}
+if (-not (Test-Path -LiteralPath $dependencyRuntime -PathType Container)) {
+    throw "Validated managed dependency directory was not found: $dependencyRuntime"
 }
 
 $properties = @(
@@ -90,9 +95,9 @@ finally {
 
 $productDll = Join-Path $productOutput 'DSPPluginManager.dll'
 $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
-& $testExecutable $productDll $AssemblyVersion $ReleaseLabel
+& $testExecutable $productDll $AssemblyVersion $ReleaseLabel $dependencyRuntime
 if ($LASTEXITCODE -ne 0) {
-    throw 'Compiled foundation tests failed.'
+    throw 'Compiled product tests failed.'
 }
 
 Write-Output "Compiled product build passed: $productDll"

@@ -18,18 +18,19 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
-| RM-03 independent bootstrap failure record | Implemented; awaiting project-owner acceptance |
-| Managed Harmony dependency acquisition and integrity lock | Implemented as build infrastructure; runtime resolution not implemented |
+| RM-03 independent bootstrap failure record | Accepted by project owner |
+| RM-04 reserved dependency resolver | Implemented; awaiting project-owner acceptance |
+| Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Being defined and reviewed |
 | Managed process bootstrap and plugin host | Not implemented |
 | Public source-migration contract | Not specified |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
-The current package payload is a compiled and versioned `net472` foundation
-assembly with no public plugin contract or host behavior. A successful package
-build demonstrates repository automation and compiled-baseline integrity only,
-not an available product.
+The current package payload is a compiled and versioned internal pre-activation
+foundation. It has no managed bootstrap entrypoint, Unity handoff, plugin
+activation, or public plugin contract. A successful package build demonstrates
+repository automation and foundation integrity only, not an available product.
 
 ## Purpose and success
 

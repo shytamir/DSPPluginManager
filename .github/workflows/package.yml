@@ -137,5 +137,5 @@ jobs:
           | Validate package | $env:TEST_STATUS |
           | Upload artifacts | $env:UPLOAD_STATUS |
 
-          The packaged DLL is a compiled foundation only; no plugin-host behavior is available.
+          The packaged DLL is an internal pre-activation foundation only; no runnable plugin host is available.
           "@ >> $env:GITHUB_STEP_SUMMARY
