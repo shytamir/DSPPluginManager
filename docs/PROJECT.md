@@ -14,6 +14,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 
 | Area | State |
 | --- | --- |
+| Active roadmap | Milestone 1: Deterministic pre-activation host |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Managed Harmony dependency acquisition and integrity lock | Implemented as build infrastructure; runtime resolution not implemented |
 | Product contract | Being defined and reviewed |
