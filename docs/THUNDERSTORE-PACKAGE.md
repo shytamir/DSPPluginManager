@@ -55,8 +55,8 @@ those values back from the compiled assembly before packaging.
 - `LICENSE`: repository license.
 - `global.json`: exact .NET SDK used locally and in CI.
 - `src/DSPPluginManager`: compiled product foundation.
-- `tests/DSPPluginManager.Tests`: focused executable foundation and internal
-  path-model checks.
+- `tests/DSPPluginManager.Tests`: focused executable foundation, internal path
+  model, and bootstrap-diagnostic checks.
 - CI run number and triggering commit: automatic patch and diagnostic identity.
 
 The placeholder icon is generated during packaging. Compiled outputs, restored
@@ -94,6 +94,8 @@ The pipeline validates generic Thunderstore requirements and build integrity:
 - focused inspection of target framework, public surface, and version metadata;
 - focused path normalization, containment, immutability, filesystem-conflict,
   and working-directory-independence checks;
+- focused bootstrap failure-record destination, content, multiline-formatting,
+  and non-throwing write-failure checks;
 - required root names and case;
 - standard ZIP layout without duplicate or backslash entry names;
 - package size below Thunderstore's documented limit;

@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-02 — Immutable host environment paths
+- **Next story:** RM-03 — Independent bootstrap failure record
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -67,7 +67,7 @@ deterministic version stamping and CI validation.
 
 ### RM-02 — Immutable host environment paths
 
-**Status:** Awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As host code, I want one validated immutable path model so every
 subsystem uses explicit absolute locations instead of the process working
@@ -94,7 +94,7 @@ management.
 
 ### RM-03 — Independent bootstrap failure record
 
-**Status:** Planned
+**Status:** Awaiting project-owner acceptance
 
 **Story:** As an operator, I want an early plain-text failure record so a host
 startup failure remains diagnosable before normal logging is available.

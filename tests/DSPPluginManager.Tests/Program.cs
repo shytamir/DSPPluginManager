@@ -10,7 +10,10 @@ namespace DSPPluginManager.Tests
             {
                 FoundationTests.Run(args);
                 HostEnvironmentPathsTests.Run();
-                Console.WriteLine("Compiled foundation and path tests passed.");
+                BootstrapFailureRecordTests.Run();
+                Console.WriteLine(
+                    "Compiled foundation, path, and bootstrap diagnostic tests passed."
+                );
                 return 0;
             }
             catch (Exception exception)
