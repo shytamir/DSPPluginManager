@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using Mono.Cecil;
 
 namespace DSPPluginManager.Discovery
@@ -170,6 +171,7 @@ namespace DSPPluginManager.Discovery
 
             List<RecognizedPluginCandidate> candidates =
                 new List<RecognizedPluginCandidate>();
+            string contentHash = ComputeContentHash(path);
             foreach (TypeDefinition type in markedTypes)
             {
                 CustomAttribute[] markers = MarkerAttributes(type).ToArray();
@@ -235,7 +237,8 @@ namespace DSPPluginManager.Discovery
                     version,
                     assembly.Name.FullName,
                     path,
-                    type.FullName
+                    type.FullName,
+                    contentHash
                 ));
             }
 
@@ -394,6 +397,21 @@ namespace DSPPluginManager.Discovery
             return PluginInspectionResult.Rejected(
                 new PluginInspectionDiagnostic(code, path, detail)
             );
+        }
+
+        private static string ComputeContentHash(string path)
+        {
+            using (FileStream stream = new FileStream(
+                path,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete
+            ))
+            using (SHA256 algorithm = SHA256.Create())
+            {
+                return BitConverter.ToString(algorithm.ComputeHash(stream))
+                    .Replace("-", string.Empty);
+            }
         }
 
         private static bool TokensEqual(byte[] left, byte[] right)

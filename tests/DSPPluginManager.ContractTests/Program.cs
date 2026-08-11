@@ -22,8 +22,15 @@ namespace DSPPluginManager.ContractTests
                     args[3],
                     args[4]
                 );
+                CandidateReconcilerTests.Run(
+                    args[0],
+                    args[1],
+                    args[3],
+                    args[4]
+                );
                 Console.WriteLine(
-                    "RM-09 contract and RM-11 static metadata tests passed."
+                    "RM-09 contract, RM-11 metadata, and RM-12 " +
+                    "reconciliation tests passed."
                 );
                 return 0;
             }

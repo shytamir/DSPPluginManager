@@ -210,6 +210,14 @@ namespace DSPPluginManager.ContractTests
                 candidate.TypeName,
                 "plugin type name"
             );
+            TestAssert.True(
+                candidate.ContentHash.Length == 64 &&
+                candidate.ContentHash.All(character =>
+                    character >= '0' && character <= '9' ||
+                    character >= 'A' && character <= 'F'
+                ),
+                "Candidate content hash is not canonical SHA-256."
+            );
         }
 
         private static void ValidateRejected(

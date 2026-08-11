@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-11 — Static plugin metadata recognition
+- **Next story:** RM-12 — Deterministic candidate reconciliation
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -318,7 +318,7 @@ roots, caching, or hot discovery.
 
 ### RM-11 — Static plugin metadata recognition
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As the host, I want candidate metadata inspected without runtime
 loading so rejected or superseded plugin code never contaminates the game
@@ -348,7 +348,7 @@ multiple plugin models, or public loader APIs.
 
 ### RM-12 — Deterministic candidate reconciliation
 
-**Status:** Planned
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As an operator, I want duplicate placements and versions reconciled
 before activation so the selected plugin set is stable, explainable, and never

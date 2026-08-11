@@ -44,7 +44,8 @@ namespace DSPPluginManager.Discovery
             Version version,
             string assemblyIdentity,
             string assemblyPath,
-            string typeName
+            string typeName,
+            string contentHash
         )
         {
             Identifier = identifier ?? throw new ArgumentNullException("identifier");
@@ -57,6 +58,8 @@ namespace DSPPluginManager.Discovery
             AssemblyPath = assemblyPath ??
                 throw new ArgumentNullException("assemblyPath");
             TypeName = typeName ?? throw new ArgumentNullException("typeName");
+            ContentHash = contentHash ??
+                throw new ArgumentNullException("contentHash");
         }
 
         internal string Identifier { get; }
@@ -72,6 +75,8 @@ namespace DSPPluginManager.Discovery
         internal string AssemblyPath { get; }
 
         internal string TypeName { get; }
+
+        internal string ContentHash { get; }
     }
 
     internal sealed class PluginInspectionResult
