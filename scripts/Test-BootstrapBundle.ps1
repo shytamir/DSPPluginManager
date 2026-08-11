@@ -54,23 +54,12 @@ foreach ($requiredLine in @(
     }
 }
 
-$product = [Reflection.Assembly]::ReflectionOnlyLoadFrom(
-    (Join-Path $managerRoot 'DSPPluginManager.dll')
-)
-$entryType = $product.GetType(
-    'DSPPluginManager.Bootstrap.DoorstopEntrypoint',
-    $true,
-    $false
-)
-$mainMethods = @($entryType.GetMethods(
-        [Reflection.BindingFlags]'Public,Static,DeclaredOnly'
-    ) | Where-Object {
-        $_.Name -ceq 'Main' -and
-        $_.ReturnType.FullName -ceq 'System.Void' -and
-        $_.GetParameters().Count -eq 0
-    })
-if ($mainMethods.Count -ne 1) {
-    throw "Manager bundle must expose exactly one public parameterless Main."
+$builtProduct = Join-Path $repositoryPath `
+    'artifacts\build\DSPPluginManager.dll'
+$bundledProduct = Join-Path $managerRoot 'DSPPluginManager.dll'
+if ((Get-FileHash -LiteralPath $bundledProduct -Algorithm SHA256).Hash -cne
+    (Get-FileHash -LiteralPath $builtProduct -Algorithm SHA256).Hash) {
+    throw 'The bundled entry assembly differs from the tested product build.'
 }
 
 Write-Output "Bootstrap bundle validation passed: $bundlePath"

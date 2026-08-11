@@ -107,6 +107,18 @@ namespace DSPPluginManager.Tests
                 exported[0].FullName,
                 "sole exported bootstrap type"
             );
+            MethodInfo main = exported[0].GetMethod(
+                "Main",
+                BindingFlags.Public |
+                    BindingFlags.Static |
+                    BindingFlags.DeclaredOnly
+            );
+            TestAssert.True(
+                main != null &&
+                    main.ReturnType == typeof(void) &&
+                    main.GetParameters().Length == 0,
+                "The public parameterless Doorstop Main entrypoint is missing."
+            );
         }
     }
 }
