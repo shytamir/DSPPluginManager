@@ -1,0 +1,7 @@
+{
+  "name": "DSPPluginManager",
+  "version_number": "{{VERSION_NUMBER}}",
+  "website_url": "https://github.com/shytamir/DSPPluginManager",
+  "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  "dependencies": []
+}

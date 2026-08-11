@@ -1,0 +1,126 @@
+name: Build and test Thunderstore package
+
+run-name: Package build ${{ github.run_number }} from ${{ github.sha }}
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dsp-plugin-manager-package
+  cancel-in-progress: false
+
+jobs:
+  build-test-package:
+    name: Build, validate, and package placeholder
+    runs-on: windows-latest
+
+    steps:
+      - name: Pull source
+        id: checkout
+        uses: actions/checkout@v5
+
+      - name: Confirm triggering commit
+        shell: pwsh
+        run: |
+          $checkedOut = (git rev-parse HEAD).Trim()
+          if ($checkedOut -cne '${{ github.sha }}') {
+            throw "Checkout mismatch: expected ${{ github.sha }}, found $checkedOut."
+          }
+
+      - name: Resolve release version
+        id: version
+        shell: pwsh
+        run: |
+          ./scripts/Set-BuildVersion.ps1 `
+            -Sequence ${{ github.run_number }} `
+            -Commit '${{ github.sha }}'
+
+      - name: Build placeholder artifact
+        id: build
+        shell: pwsh
+        run: |
+          ./scripts/New-DummyArtifact.ps1 `
+            -OutputPath 'artifacts/build/DSPPluginManager.dll'
+          ./scripts/Test-BuildVersion.ps1 `
+            -DllPath 'artifacts/build/DSPPluginManager.dll' `
+            -BuildInfoPath 'artifacts/BUILD-INFO.txt' `
+            -ExpectedPackageVersion $env:PACKAGE_VERSION `
+            -ExpectedSemanticVersion $env:SEMANTIC_VERSION `
+            -ExpectedAssemblyVersion $env:ASSEMBLY_VERSION `
+            -ExpectedReleaseLabel $env:RELEASE_LABEL `
+            -ExpectedCommit '${{ github.sha }}' `
+            -ExpectedSequence ${{ github.run_number }}
+
+      - name: Build Thunderstore package
+        id: package
+        shell: pwsh
+        run: |
+          ./scripts/New-ThunderstorePackage.ps1 `
+            -DllPath 'artifacts/build/DSPPluginManager.dll' `
+            -BuildInfoPath 'artifacts/BUILD-INFO.txt' `
+            -VersionNumber $env:PACKAGE_VERSION
+
+      - name: Validate Thunderstore package
+        id: package_test
+        shell: pwsh
+        run: |
+          ./scripts/Test-ThunderstorePackage.ps1 `
+            -PackagePath "artifacts/packages/DSPPluginManager-$env:PACKAGE_VERSION.zip" `
+            -ExpectedVersion $env:PACKAGE_VERSION `
+            -ExpectedDllPath 'artifacts/build/DSPPluginManager.dll' `
+            -ExpectedBuildInfoPath 'artifacts/BUILD-INFO.txt' `
+            -ExpectedAssemblyVersion $env:ASSEMBLY_VERSION `
+            -ExpectedReleaseLabel $env:RELEASE_LABEL
+
+      - name: Upload package and reports
+        id: upload
+        uses: actions/upload-artifact@v6
+        with:
+          name: DSPPluginManager-${{ steps.version.outputs.package_version }}
+          path: |
+            artifacts/packages/DSPPluginManager-${{ steps.version.outputs.package_version }}.zip
+            artifacts/BUILD-INFO.txt
+            artifacts/PACKAGE-REPORT.md
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Report status
+        if: always()
+        shell: pwsh
+        env:
+          CHECKOUT_STATUS: ${{ steps.checkout.outcome }}
+          VERSION_STATUS: ${{ steps.version.outcome }}
+          BUILD_STATUS: ${{ steps.build.outcome }}
+          PACKAGE_STATUS: ${{ steps.package.outcome }}
+          TEST_STATUS: ${{ steps.package_test.outcome }}
+          UPLOAD_STATUS: ${{ steps.upload.outcome }}
+          PACKAGE_VERSION_VALUE: ${{ steps.version.outputs.package_version }}
+          ASSEMBLY_VERSION_VALUE: ${{ steps.version.outputs.assembly_version }}
+          RELEASE_LABEL_VALUE: ${{ steps.version.outputs.release_label }}
+        run: |
+          @"
+          # DSP Plugin Manager package build
+
+          | Version class | Value |
+          | --- | --- |
+          | Package and semantic version | $env:PACKAGE_VERSION_VALUE |
+          | Declared assembly/file version | $env:ASSEMBLY_VERSION_VALUE |
+          | Diagnostic release label | $env:RELEASE_LABEL_VALUE |
+
+          | Stage | Status |
+          | --- | --- |
+          | Checkout | $env:CHECKOUT_STATUS |
+          | Resolve version | $env:VERSION_STATUS |
+          | Build and validate placeholder | $env:BUILD_STATUS |
+          | Build package | $env:PACKAGE_STATUS |
+          | Validate package | $env:TEST_STATUS |
+          | Upload artifacts | $env:UPLOAD_STATUS |
+
+          The packaged DLL is intentionally empty until the runtime project exists.
+          "@ >> $env:GITHUB_STEP_SUMMARY
