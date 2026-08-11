@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-10 — Bounded deterministic candidate enumeration
+- **Next story:** RM-11 — Static plugin metadata recognition
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -291,7 +291,7 @@ a consumer-shaped compile fixture.
 
 ### RM-10 — Bounded deterministic candidate enumeration
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As the host, I want one configured plugin tree enumerated
 deterministically so filesystem order and path aliases cannot change which
@@ -318,7 +318,7 @@ roots, caching, or hot discovery.
 
 ### RM-11 — Static plugin metadata recognition
 
-**Status:** Planned
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As the host, I want candidate metadata inspected without runtime
 loading so rejected or superseded plugin code never contaminates the game

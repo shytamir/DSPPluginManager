@@ -138,6 +138,7 @@ try {
     & dotnet restore $testProject `
         --packages $packageDirectory `
         --locked-mode `
+        "-p:CecilReferencePath=$cecilReference" `
         --verbosity minimal
     if ($LASTEXITCODE -ne 0) {
         throw 'Product restore failed.'
@@ -180,6 +181,7 @@ try {
         --no-restore `
         --configuration Release `
         --output $productOutput `
+        "-p:CecilReferencePath=$cecilReference" `
         @properties
     if ($LASTEXITCODE -ne 0) {
         throw 'Product build failed.'
@@ -212,6 +214,7 @@ try {
         --no-restore `
         --configuration Release `
         --output $testOutput `
+        "-p:CecilReferencePath=$cecilReference" `
         @properties
     if ($LASTEXITCODE -ne 0) {
         throw 'Foundation test build failed.'
@@ -267,9 +270,15 @@ if ($LASTEXITCODE -ne 0) {
 }
 $contractTestExecutable = Join-Path $contractTestOutput `
     'DSPPluginManager.ContractTests.exe'
-& $contractTestExecutable $contractDll $consumerDll $AssemblyVersion
+$gameManagedDirectory = Split-Path -Parent $UnityEngineCoreModulePath
+& $contractTestExecutable `
+    $contractDll `
+    $consumerDll `
+    $AssemblyVersion `
+    $dependencyRuntime `
+    $gameManagedDirectory
 if ($LASTEXITCODE -ne 0) {
-    throw 'RM-09 contract tests failed.'
+    throw 'Contract and static metadata tests failed.'
 }
 
 Write-Output "Compiled product build passed: $productDll"

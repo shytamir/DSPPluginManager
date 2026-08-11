@@ -6,4 +6,11 @@
     <Product>DSP Plugin Manager</Product>
     <Description>Dyson Sphere Program plugin host foundation.</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Mono.Cecil">
+      <HintPath>$(CecilReferencePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
 </Project>

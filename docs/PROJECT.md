@@ -25,10 +25,11 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-07 source-scoped non-throwing logging core | Accepted by project owner |
 | RM-08 authoritative current-run disk log | Accepted by project owner |
 | RM-09 minimal discovery contract slice | Accepted by project owner |
-| RM-10 bounded deterministic candidate enumeration | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
+| RM-10 bounded deterministic candidate enumeration | Accepted by project owner |
+| RM-11 static plugin metadata recognition | Implementation and acceptance evidence complete; awaiting project-owner acceptance |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery slice defined; remaining migration surface not specified |
-| Plugin discovery, activation, and lifecycle host | Bounded candidate-file enumeration implemented; recognition and activation not implemented |
+| Plugin discovery, activation, and lifecycle host | Bounded enumeration and static metadata recognition implemented; reconciliation and activation not implemented |
 | Public source-migration contract | Minimal discovery slice specified; lifecycle and service surface not specified |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
@@ -37,8 +38,9 @@ The temporary Thunderstore package remains a compiled and versioned internal
 foundation, not an installable product. The separately generated bootstrap
 bundle has a validated managed entrypoint, Unity handoff, internal logging core
 with its current-run disk sink, and the minimal public discovery contract. The
-host can enumerate bounded candidate paths but does not yet recognize or
-activate plugins and exposes no plugin services.
+host can enumerate bounded candidate paths and recognize supported metadata
+without executing candidate code. It does not yet reconcile or activate
+plugins and exposes no plugin services.
 
 ## Purpose and success
 

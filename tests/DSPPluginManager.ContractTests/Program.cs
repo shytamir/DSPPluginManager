@@ -8,15 +8,22 @@ namespace DSPPluginManager.ContractTests
         {
             try
             {
-                if (args.Length != 3)
+                if (args.Length != 5)
                 {
                     throw new InvalidOperationException(
-                        "Expected contract, consumer fixture, and version."
+                        "Expected contract, consumer, version, dependency, " +
+                        "and game-managed inputs."
                     );
                 }
                 ContractSliceTests.Run(args[0], args[1], args[2]);
+                PluginMetadataReaderTests.Run(
+                    args[0],
+                    args[1],
+                    args[3],
+                    args[4]
+                );
                 Console.WriteLine(
-                    "RM-09 contract and static consumer metadata tests passed."
+                    "RM-09 contract and RM-11 static metadata tests passed."
                 );
                 return 0;
             }

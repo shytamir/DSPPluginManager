@@ -19,6 +19,18 @@ namespace DSPPluginManager.Discovery
             get { return StringComparer.OrdinalIgnoreCase; }
         }
 
+        internal static string GetIdentifierComparisonKey(string identifier)
+        {
+            if (!IsValidIdentifier(identifier))
+            {
+                throw new ArgumentException(
+                    "Plugin identifier is invalid.",
+                    "identifier"
+                );
+            }
+            return identifier.ToUpperInvariant();
+        }
+
         internal static bool IsValidIdentifier(string identifier)
         {
             if (string.IsNullOrEmpty(identifier))
