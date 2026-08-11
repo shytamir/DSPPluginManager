@@ -14,7 +14,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 1 completed; no roadmap is currently active |
+| Roadmap status | Milestone 2: Supervised Unity activation is active |
+| RM-13 Unity lifecycle observability decision probe | Pending implementation |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
