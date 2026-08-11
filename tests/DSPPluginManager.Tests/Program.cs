@@ -15,9 +15,11 @@ namespace DSPPluginManager.Tests
                 ReservedDependencyResolverTests.Run(args[3]);
                 LoggingCoreTests.Run();
                 DiskLogSinkTests.Run();
+                CandidateFileEnumeratorTests.Run();
                 Console.WriteLine(
                     "Compiled foundation, path, bootstrap entry, diagnostic, " +
-                    "reserved dependency, and logging tests passed."
+                    "reserved dependency, logging, and candidate enumeration " +
+                    "tests passed."
                 );
                 return 0;
             }

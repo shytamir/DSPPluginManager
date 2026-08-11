@@ -16,7 +16,7 @@ migration, and final publication are later milestones.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 1 — Deterministic pre-activation host
-- **Next story:** RM-09 — Minimal discovery contract slice
+- **Next story:** RM-10 — Bounded deterministic candidate enumeration
 - **Next story status:** Awaiting project-owner acceptance
 - **In progress:** None
 
@@ -260,7 +260,7 @@ output, or plugin-selected sinks.
 
 ### RM-09 — Minimal discovery contract slice
 
-**Status:** Acceptance evidence complete; awaiting project-owner acceptance
+**Status:** Accepted
 
 **Story:** As a plugin author, I want one exact metadata and base-type contract
 so a compiled plugin can declare its identity and be recognized without
@@ -291,7 +291,7 @@ a consumer-shaped compile fixture.
 
 ### RM-10 — Bounded deterministic candidate enumeration
 
-**Status:** Planned
+**Status:** Acceptance evidence complete; awaiting project-owner acceptance
 
 **Story:** As the host, I want one configured plugin tree enumerated
 deterministically so filesystem order and path aliases cannot change which
