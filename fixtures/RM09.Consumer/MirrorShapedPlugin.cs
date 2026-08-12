@@ -14,6 +14,26 @@ namespace DSPPluginManager.RM09Consumer
     {
         private PluginLogger logger;
         private string writableRoot;
+        private PluginConfigurationEntry<bool> lifecycleSetting;
+
+        public MirrorShapedPlugin()
+        {
+            try
+            {
+                PluginConfiguration configuration = Config;
+                if (configuration == null)
+                {
+                    throw new InvalidOperationException(
+                        "Configuration unexpectedly returned null."
+                    );
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                MirrorActivationEvidence.ConfigurationUnavailableDuringConstruction =
+                    true;
+            }
+        }
 
         public void CaptureLogger()
         {
@@ -35,6 +55,15 @@ namespace DSPPluginManager.RM09Consumer
             MirrorActivationEvidence.ActivationCount++;
             MirrorActivationEvidence.LoggerAvailable = Logger != null;
             MirrorActivationEvidence.WritableRoot = WritableRoot;
+            MirrorActivationEvidence.ConfigurationAvailable = Config != null;
+            lifecycleSetting = Config.Bind(
+                "Lifecycle",
+                "Enabled",
+                false,
+                "RM-31 lifecycle configuration fixture."
+            );
+            MirrorActivationEvidence.ConfigurationValue =
+                lifecycleSetting.Value;
             MirrorActivationEvidence.InitiallyEnabled = enabled;
             MirrorActivationEvidence.AttachedGameObject = gameObject != null;
             Logger.Information("RM-19 activation acknowledged.");
@@ -48,6 +77,11 @@ namespace DSPPluginManager.RM09Consumer
         public override void Deactivate()
         {
             MirrorActivationEvidence.DeactivationCount++;
+            MirrorActivationEvidence.ConfigurationAvailableDuringDeactivation =
+                Config != null;
+            MirrorActivationEvidence.ConfigurationValueDuringDeactivation =
+                lifecycleSetting.Value;
+            Config.Save();
         }
     }
 
@@ -86,6 +120,28 @@ namespace DSPPluginManager.RM09Consumer
         internal static bool LoggerAvailable { get; set; }
 
         internal static string WritableRoot { get; set; }
+
+        internal static bool ConfigurationAvailable { get; set; }
+
+        internal static bool ConfigurationValue { get; set; }
+
+        internal static bool ConfigurationUnavailableDuringConstruction
+        {
+            get;
+            set;
+        }
+
+        internal static bool ConfigurationAvailableDuringDeactivation
+        {
+            get;
+            set;
+        }
+
+        internal static bool ConfigurationValueDuringDeactivation
+        {
+            get;
+            set;
+        }
 
         internal static bool InitiallyEnabled { get; set; }
 

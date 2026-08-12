@@ -13,9 +13,16 @@ namespace DSPPluginManager.RM22CleanupFailure
     public sealed class CleanupFailurePlugin : PluginBehaviour
     {
         private static int cleanupCount;
+        private PluginConfigurationEntry<bool> lifecycleSetting;
 
         public override void Activate()
         {
+            lifecycleSetting = Config.Bind(
+                "Lifecycle",
+                "Enabled",
+                true,
+                "RM-31 unavailable-source lifecycle fixture."
+            );
         }
 
         public override void Deactivate()
@@ -38,6 +45,8 @@ namespace DSPPluginManager.RM22CleanupFailure
                 "writableRootAvailable=" +
                     (!string.IsNullOrWhiteSpace(WritableRoot) &&
                      Directory.Exists(WritableRoot)),
+                "configurationAvailable=" + (Config != null),
+                "configurationValue=" + lifecycleSetting.Value,
                 "componentAvailable=" +
                     (enabled && gameObject != null),
                 "contractAvailable=" +

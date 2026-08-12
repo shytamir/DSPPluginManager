@@ -228,6 +228,7 @@ namespace DSPPluginManager.Bootstrap
                 new SelectedCandidateLoader(),
                 logDispatcher,
                 environment.Paths.WritableOutputDirectory,
+                environment.Paths.ConfigurationDirectory,
                 unityHost
             );
             System.Collections.Generic.IReadOnlyList<PluginActivationOutcome>

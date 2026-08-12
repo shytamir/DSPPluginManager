@@ -1,4 +1,5 @@
 using System;
+using DSPPluginManager.Configuration;
 using DSPPluginManager.Discovery;
 using DSPPluginManager.Logging;
 
@@ -10,7 +11,9 @@ namespace DSPPluginManager.Lifecycle
             RecognizedPluginCandidate candidate,
             Type pluginType,
             SourceLogger logger,
-            string writableRoot
+            string writableRoot,
+            PluginConfigurationScope configurationScope,
+            PluginConfigurationDocument configurationDocument
         )
         {
             Candidate = candidate ?? throw new ArgumentNullException(
@@ -23,6 +26,10 @@ namespace DSPPluginManager.Lifecycle
             WritableRoot = writableRoot ?? throw new ArgumentNullException(
                 "writableRoot"
             );
+            ConfigurationScope = configurationScope ??
+                throw new ArgumentNullException("configurationScope");
+            ConfigurationDocument = configurationDocument ??
+                throw new ArgumentNullException("configurationDocument");
         }
 
         internal RecognizedPluginCandidate Candidate { get; }
@@ -32,6 +39,10 @@ namespace DSPPluginManager.Lifecycle
         internal SourceLogger Logger { get; }
 
         internal string WritableRoot { get; }
+
+        internal PluginConfigurationScope ConfigurationScope { get; }
+
+        internal PluginConfigurationDocument ConfigurationDocument { get; }
     }
 
     internal sealed class PluginActivationInvocationResult

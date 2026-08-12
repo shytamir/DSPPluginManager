@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Security;
+using System.Text;
 using DSPPluginManager.Discovery;
 
 namespace DSPPluginManager.Configuration
@@ -19,12 +20,14 @@ namespace DSPPluginManager.Configuration
             string identifier,
             string filePath,
             PluginConfigurationSourceState sourceState,
+            string contents,
             Exception failure
         )
         {
             Identifier = identifier;
             FilePath = filePath;
             SourceState = sourceState;
+            Contents = contents;
             Failure = failure;
         }
 
@@ -35,6 +38,8 @@ namespace DSPPluginManager.Configuration
         internal PluginConfigurationSourceState SourceState { get; }
 
         internal Exception Failure { get; }
+
+        internal string Contents { get; }
 
         internal bool IsUsable
         {
@@ -122,7 +127,8 @@ namespace DSPPluginManager.Configuration
                     return Available(
                         canonicalIdentifier,
                         filePath,
-                        PluginConfigurationSourceState.Missing
+                        PluginConfigurationSourceState.Missing,
+                        string.Empty
                     );
                 }
                 if (fileKind == ConfigurationPathKind.Directory)
@@ -138,13 +144,21 @@ namespace DSPPluginManager.Configuration
                 }
 
                 using (Stream stream = fileSystem.OpenRead(filePath))
+                using (StreamReader reader = new StreamReader(
+                    stream,
+                    new UTF8Encoding(false, true),
+                    true
+                ))
                 {
+                    bool empty = stream.Length == 0;
+                    string contents = reader.ReadToEnd();
                     return Available(
                         canonicalIdentifier,
                         filePath,
-                        stream.Length == 0
+                        empty
                             ? PluginConfigurationSourceState.Empty
-                            : PluginConfigurationSourceState.Present
+                            : PluginConfigurationSourceState.Present,
+                        contents
                     );
                 }
             }
@@ -161,13 +175,15 @@ namespace DSPPluginManager.Configuration
         private static PluginConfigurationScope Available(
             string identifier,
             string filePath,
-            PluginConfigurationSourceState sourceState
+            PluginConfigurationSourceState sourceState,
+            string contents
         )
         {
             return new PluginConfigurationScope(
                 identifier,
                 filePath,
                 sourceState,
+                contents,
                 null
             );
         }
@@ -182,6 +198,7 @@ namespace DSPPluginManager.Configuration
                 identifier,
                 filePath,
                 PluginConfigurationSourceState.Unavailable,
+                null,
                 failure
             );
         }
@@ -238,7 +255,8 @@ namespace DSPPluginManager.Configuration
         {
             return exception is IOException ||
                 exception is UnauthorizedAccessException ||
-                exception is SecurityException;
+                exception is SecurityException ||
+                exception is DecoderFallbackException;
         }
 
         private static bool IsDriveRelative(string path)

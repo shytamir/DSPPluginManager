@@ -39,11 +39,14 @@ namespace DSPPluginManager.RM23HarmonyLifecycle
         private bool allPatchesRemoved;
         private string activationClosure;
         private string cleanupClosure;
+        private bool activationConfigurationAvailable;
+        private bool cleanupConfigurationAvailable;
 
         public override void Activate()
         {
             activationCount++;
             activationThread = Thread.CurrentThread.ManagedThreadId;
+            activationConfigurationAvailable = Config != null;
             target = AccessTools.Method(
                 typeof(HarmonyPatchTarget),
                 "Compute",
@@ -99,6 +102,7 @@ namespace DSPPluginManager.RM23HarmonyLifecycle
         {
             cleanupCount++;
             cleanupThread = Thread.CurrentThread.ManagedThreadId;
+            cleanupConfigurationAvailable = Config != null;
             cleanupClosure = CaptureExactClosure();
             try
             {
@@ -155,6 +159,10 @@ namespace DSPPluginManager.RM23HarmonyLifecycle
                 "cleanupCount=" + cleanupCount,
                 "activationThread=" + activationThread,
                 "cleanupThread=" + cleanupThread,
+                "activationConfigurationAvailable=" +
+                    activationConfigurationAvailable,
+                "cleanupConfigurationAvailable=" +
+                    cleanupConfigurationAvailable,
                 "patchedResult=" + patchedResult,
                 "ownedRemovalResult=" + ownedRemovalResult,
                 "finalResult=" + finalResult,

@@ -23,6 +23,8 @@ namespace DSPPluginManager.UnityHost
 
         internal PluginBehaviour Instance { get; private set; }
 
+        internal PluginConfigurationService Configuration { get; private set; }
+
         internal PluginActivationInvocationResult ActivationResult
         {
             get;
@@ -40,6 +42,21 @@ namespace DSPPluginManager.UnityHost
                 );
             }
             Instance = instance ?? throw new ArgumentNullException("instance");
+        }
+
+        internal void RetainConfiguration(
+            PluginConfigurationService configuration
+        )
+        {
+            if (Configuration != null)
+            {
+                throw new InvalidOperationException(
+                    "The plugin object already owns configuration services."
+                );
+            }
+            Configuration = configuration ?? throw new ArgumentNullException(
+                "configuration"
+            );
         }
 
         internal void RetainActivationResult(

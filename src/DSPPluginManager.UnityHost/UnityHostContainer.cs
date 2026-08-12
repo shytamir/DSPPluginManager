@@ -98,6 +98,26 @@ namespace DSPPluginManager.UnityHost
                 return slot.ActivationResult;
             }
 
+            try
+            {
+                PluginConfigurationService configuration =
+                    new PluginConfigurationService(
+                        request.ConfigurationScope,
+                        request.ConfigurationDocument,
+                        request.Logger.Warning
+                    );
+                slot.RetainConfiguration(configuration);
+            }
+            catch (Exception exception)
+            {
+                return RetainFailure(
+                    slot,
+                    null,
+                    "service-preparation",
+                    exception
+                );
+            }
+
             PluginBehaviour instance;
             try
             {
@@ -135,6 +155,9 @@ namespace DSPPluginManager.UnityHost
                 );
                 instance.InitializeLogger(logger);
                 instance.InitializeWritableRoot(request.WritableRoot);
+                instance.InitializeConfiguration(
+                    slot.Configuration.Handle
+                );
                 instance.enabled = true;
             }
             catch (Exception exception)

@@ -15,10 +15,17 @@ namespace DSPPluginManager.RM22CleanupSuccess
     {
         private static int cleanupCount;
         private int activateThread;
+        private PluginConfigurationEntry<bool> lifecycleSetting;
 
         public override void Activate()
         {
             activateThread = Thread.CurrentThread.ManagedThreadId;
+            lifecycleSetting = Config.Bind(
+                "Lifecycle",
+                "Enabled",
+                true,
+                "RM-31 cleanup lifecycle fixture."
+            );
             StartCoroutine(RequestOrderlyExit());
         }
 
@@ -35,6 +42,8 @@ namespace DSPPluginManager.RM22CleanupSuccess
                 "writableRootAvailable=" +
                     (!string.IsNullOrWhiteSpace(WritableRoot) &&
                      Directory.Exists(WritableRoot)),
+                "configurationAvailable=" + (Config != null),
+                "configurationValue=" + lifecycleSetting.Value,
                 "componentAvailable=" +
                     (enabled && gameObject != null),
                 "contractAvailable=" +

@@ -67,6 +67,7 @@ namespace DSPPluginManager.Tests
                     "RM-28 typed configuration, " +
                     "RM-29 atomic configuration persistence, " +
                     "RM-30 exact shortcut polling, " +
+                    "RM-31 configuration lifecycle integration, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;

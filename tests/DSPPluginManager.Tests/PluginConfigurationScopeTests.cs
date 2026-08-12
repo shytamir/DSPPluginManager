@@ -301,6 +301,8 @@ namespace DSPPluginManager.Tests
             TestAssert.Equal(state, scope.SourceState, field + " state");
             TestAssert.Equal<Exception>(null, scope.Failure,
                 field + " failure");
+            TestAssert.True(scope.Contents != null,
+                field + " contents must be available.");
         }
 
         private static void AssertUnavailable(
@@ -317,6 +319,8 @@ namespace DSPPluginManager.Tests
             );
             TestAssert.True(scope.Failure != null,
                 "Unavailable scope did not retain its failure.");
+            TestAssert.Equal<string>(null, scope.Contents,
+                "unavailable source contents");
             foreach (string part in messageParts)
             {
                 TestAssert.True(

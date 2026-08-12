@@ -65,6 +65,10 @@ namespace DSPPluginManager.HarmonyTests
             );
             string pluginDirectory = Path.Combine(sandbox, "plugins");
             string writableParent = Path.Combine(sandbox, "writable");
+            string configurationDirectory = Path.Combine(
+                sandbox,
+                "configuration"
+            );
             Directory.CreateDirectory(pluginDirectory);
             Directory.CreateDirectory(writableParent);
 
@@ -123,6 +127,7 @@ namespace DSPPluginManager.HarmonyTests
                             new SelectedCandidateLoader(),
                             new LogDispatcher(sink),
                             writableParent,
+                            configurationDirectory,
                             unityHost
                         );
 
@@ -318,6 +323,8 @@ namespace DSPPluginManager.HarmonyTests
                 {
                     { "activationCount", "1" },
                     { "cleanupCount", "1" },
+                    { "activationConfigurationAvailable", "True" },
+                    { "cleanupConfigurationAvailable", "True" },
                     { "patchedResult", "112" },
                     { "ownedRemovalResult", "102" },
                     { "finalResult", "2" },

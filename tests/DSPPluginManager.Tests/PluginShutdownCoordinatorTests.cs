@@ -33,6 +33,14 @@ namespace DSPPluginManager.Tests
                 Guid.NewGuid().ToString("N")
             );
             Directory.CreateDirectory(writableParent);
+            string configurationDirectory = Path.Combine(
+                writableParent,
+                "configuration"
+            );
+            Directory.CreateDirectory(Path.Combine(
+                configurationDirectory,
+                FailureIdentifier + ".cfg"
+            ));
             try
             {
                 PluginMetadataReader reader = new PluginMetadataReader(
@@ -67,6 +75,7 @@ namespace DSPPluginManager.Tests
                         new SelectedCandidateLoader(),
                         new LogDispatcher(sink),
                         writableParent,
+                        configurationDirectory,
                         unityHost
                     );
 
@@ -76,6 +85,14 @@ namespace DSPPluginManager.Tests
                     activations.Count == 2 &&
                     activations[0].IsActive && activations[1].IsActive,
                     "RM-22 fixtures did not become active."
+                );
+                TestAssert.True(
+                    sink.Contains(
+                        FailureIdentifier,
+                        "configuration source",
+                        "unavailable"
+                    ),
+                    "Unavailable configuration diagnostic lost plugin identity."
                 );
 
                 IReadOnlyList<PluginStopOutcome> stops = coordinator.StopAll();
@@ -108,6 +125,20 @@ namespace DSPPluginManager.Tests
                 );
                 AssertDestroyed(unityHostPath, facadePath, FailureIdentifier);
                 AssertDestroyed(unityHostPath, facadePath, SuccessIdentifier);
+                TestAssert.True(
+                    Directory.Exists(Path.Combine(
+                        configurationDirectory,
+                        FailureIdentifier + ".cfg"
+                    )),
+                    "Write-blocked configuration path was replaced or deleted."
+                );
+                TestAssert.True(
+                    File.Exists(Path.Combine(
+                        configurationDirectory,
+                        SuccessIdentifier + ".cfg"
+                    )),
+                    "Stopped plugin configuration file was deleted."
+                );
                 int failureLog = sink.IndexOf(
                     FailureIdentifier,
                     "RM-22 failure fixture cleanup entered."
@@ -206,6 +237,8 @@ namespace DSPPluginManager.Tests
                 "cleanupCount=1",
                 "loggerAvailable=True",
                 "writableRootAvailable=True",
+                "configurationAvailable=True",
+                "configurationValue=True",
                 "componentAvailable=True",
                 "contractAvailable=True",
                 "unityAvailable=True"
@@ -254,6 +287,12 @@ namespace DSPPluginManager.Tests
                 "GetOrCreatePluginObject",
                 BindingFlags.Instance | BindingFlags.NonPublic
             ).Invoke(container, new object[] { identifier });
+            TestAssert.True(slot.GetType().GetProperty(
+                    "Configuration",
+                    BindingFlags.Instance | BindingFlags.NonPublic
+                ).GetValue(slot, null) != null,
+                identifier + " released configuration before stop completed."
+            );
             TestAssert.Equal(null, slot.GetType().GetProperty(
                 "Instance",
                 BindingFlags.Instance | BindingFlags.NonPublic
@@ -284,6 +323,22 @@ namespace DSPPluginManager.Tests
                 return records.FindIndex(record =>
                     record.Source.Identifier == identifier &&
                     record.Message == message
+                );
+            }
+
+            internal bool Contains(
+                string identifier,
+                params string[] messageParts
+            )
+            {
+                return records.Exists(record =>
+                    record.Source.Identifier == identifier &&
+                    Array.TrueForAll(messageParts, part =>
+                        record.Message.IndexOf(
+                            part,
+                            StringComparison.OrdinalIgnoreCase
+                        ) >= 0
+                    )
                 );
             }
         }

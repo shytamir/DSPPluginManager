@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DSPPluginManager.Configuration;
 using DSPPluginManager.Discovery;
 using DSPPluginManager.Hosting;
 using DSPPluginManager.Loading;
@@ -13,6 +14,7 @@ namespace DSPPluginManager.Lifecycle
         private readonly SelectedCandidateLoader loader;
         private readonly LogDispatcher dispatcher;
         private readonly string writableParent;
+        private readonly string configurationDirectory;
         private readonly UnityHostBridge unityHost;
         private readonly Dictionary<string, PluginLifecycleRecord> records;
         private readonly Dictionary<string, PluginActivationOutcome> outcomes;
@@ -23,6 +25,7 @@ namespace DSPPluginManager.Lifecycle
             SelectedCandidateLoader loader,
             LogDispatcher dispatcher,
             string writableParent,
+            string configurationDirectory,
             UnityHostBridge unityHost
         )
         {
@@ -38,6 +41,14 @@ namespace DSPPluginManager.Lifecycle
                 );
             }
             this.writableParent = writableParent;
+            if (string.IsNullOrWhiteSpace(configurationDirectory))
+            {
+                throw new ArgumentException(
+                    "The configuration directory is required.",
+                    "configurationDirectory"
+                );
+            }
+            this.configurationDirectory = configurationDirectory;
             this.unityHost = unityHost ?? throw new ArgumentNullException(
                 "unityHost"
             );
@@ -109,12 +120,24 @@ namespace DSPPluginManager.Lifecycle
                             selected.Candidate.DisplayName
                         )
                     );
+                    PluginConfigurationScope configurationScope =
+                        PluginConfigurationScope.Create(
+                            configurationDirectory,
+                            selected.Candidate.Identifier
+                        );
+                    PluginConfigurationDocument configurationDocument =
+                        LoadConfiguration(
+                            configurationScope,
+                            logger
+                        );
                     PluginActivationRequest request =
                         new PluginActivationRequest(
                             selected.Candidate,
                             runtimeLoad.PluginType,
                             logger,
-                            writableRoot
+                            writableRoot,
+                            configurationScope,
+                            configurationDocument
                         );
 
                     phase = "unity-activation";
@@ -289,6 +312,37 @@ namespace DSPPluginManager.Lifecycle
                 diagnostic.Code + ": " + diagnostic.Detail,
                 diagnostic.Exception
             );
+        }
+
+        private static PluginConfigurationDocument LoadConfiguration(
+            PluginConfigurationScope scope,
+            SourceLogger logger
+        )
+        {
+            if (!scope.IsUsable)
+            {
+                logger.Warning(
+                    "Plugin '" + scope.Identifier + "' configuration source '" +
+                    scope.FilePath + "' was unavailable; defaults remain " +
+                    "usable and writes are blocked for this process. " +
+                    scope.Failure
+                );
+                return PluginConfigurationDocument.Parse(string.Empty);
+            }
+
+            PluginConfigurationDocument document =
+                PluginConfigurationDocument.Parse(scope.Contents);
+            foreach (ConfigurationDocumentDiagnostic diagnostic in
+                document.Diagnostics)
+            {
+                logger.Warning(
+                    "Plugin '" + scope.Identifier + "' configuration parse " +
+                    "diagnostic " + diagnostic.Code + " at line " +
+                    diagnostic.LineNumber + ": " + diagnostic.Detail +
+                    " Source='" + diagnostic.LineText + "'."
+                );
+            }
+            return document;
         }
 
         private static void RequireAccepted(

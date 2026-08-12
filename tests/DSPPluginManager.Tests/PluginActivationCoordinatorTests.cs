@@ -36,6 +36,20 @@ namespace DSPPluginManager.Tests
                 Guid.NewGuid().ToString("N")
             );
             Directory.CreateDirectory(writableParent);
+            string configurationDirectory = Path.Combine(
+                writableParent,
+                "configuration"
+            );
+            Directory.CreateDirectory(configurationDirectory);
+            File.WriteAllText(
+                Path.Combine(
+                    configurationDirectory,
+                    SuccessIdentifier + ".cfg"
+                ),
+                "[Lifecycle]\r\n" +
+                "Enabled = true\r\n" +
+                "malformed line\r\n"
+            );
 
             AssemblyLoadEventHandler observerInstaller = null;
             PropertyInfo observerProperty = null;
@@ -77,6 +91,7 @@ namespace DSPPluginManager.Tests
                         new SelectedCandidateLoader(),
                         new LogDispatcher(sink),
                         writableParent,
+                        configurationDirectory,
                         unityHost
                     );
                 AssertMissingDependencyFailure(
@@ -159,6 +174,7 @@ namespace DSPPluginManager.Tests
                     coordinator,
                     sink,
                     writableParent,
+                    unityHostPath,
                     facadePath,
                     stateSeenInsideActivate
                 );
@@ -376,6 +392,7 @@ namespace DSPPluginManager.Tests
             PluginActivationCoordinator coordinator,
             CollectingSink sink,
             string writableParent,
+            string unityHostPath,
             string facadePath,
             PluginLifecycleState stateSeenInsideActivate
         )
@@ -402,6 +419,18 @@ namespace DSPPluginManager.Tests
             TestAssert.Equal(true,
                 ReadEvidence<bool>(evidence, "LoggerAvailable"),
                 "logger availability during activation");
+            TestAssert.Equal(true,
+                ReadEvidence<bool>(evidence, "ConfigurationAvailable"),
+                "configuration availability during activation");
+            TestAssert.Equal(true,
+                ReadEvidence<bool>(
+                    evidence,
+                    "ConfigurationUnavailableDuringConstruction"
+                ),
+                "configuration construction boundary");
+            TestAssert.Equal(true,
+                ReadEvidence<bool>(evidence, "ConfigurationValue"),
+                "stored configuration value during activation");
             TestAssert.Equal(
                 Path.Combine(writableParent, SuccessIdentifier),
                 ReadEvidence<string>(evidence, "WritableRoot"),
@@ -413,12 +442,61 @@ namespace DSPPluginManager.Tests
             TestAssert.Equal(true,
                 ReadEvidence<bool>(evidence, "AttachedGameObject"),
                 "Unity attachment during activation");
+            Assembly unityHost = Assembly.LoadFrom(
+                Path.GetFullPath(unityHostPath)
+            );
+            object container = unityHost.GetType(
+                "DSPPluginManager.UnityHost.UnityHostEntrypoint",
+                true,
+                false
+            ).GetProperty(
+                "Current",
+                BindingFlags.Static | BindingFlags.NonPublic
+            ).GetValue(null, null);
+            object slot = container.GetType().GetMethod(
+                "GetOrCreatePluginObject",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            ).Invoke(container, new object[] { SuccessIdentifier });
+            object configurationService = slot.GetType().GetProperty(
+                "Configuration",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            ).GetValue(slot, null);
+            TestAssert.True(configurationService != null,
+                "The active plugin slot did not retain its configuration service.");
+            object preparedHandle = configurationService.GetType().GetProperty(
+                "Handle",
+                BindingFlags.Instance | BindingFlags.NonPublic
+            ).GetValue(configurationService, null);
+            object componentHandle = active.Instance.GetType().GetProperty(
+                "Config"
+            ).GetValue(active.Instance, null);
+            TestAssert.True(object.ReferenceEquals(
+                    preparedHandle,
+                    componentHandle
+                ),
+                "The component did not receive the retained configuration handle."
+            );
             TestAssert.True(
                 sink.Records.Exists(record =>
                     record.Source.Identifier == SuccessIdentifier &&
                     record.Message == "RM-19 activation acknowledged."
                 ),
                 "Successful activation lost plugin log attribution."
+            );
+            TestAssert.True(
+                sink.Records.Exists(record =>
+                    record.Source.Identifier == SuccessIdentifier &&
+                    record.Severity == LogSeverity.Warning &&
+                    record.Message.IndexOf(
+                        "configuration parse diagnostic",
+                        StringComparison.Ordinal
+                    ) >= 0 &&
+                    record.Message.IndexOf(
+                        "line 3",
+                        StringComparison.Ordinal
+                    ) >= 0
+                ),
+                "Malformed configuration diagnostic lost plugin context."
             );
 
             PluginActivationOutcome repeated = coordinator.Activate(
@@ -481,6 +559,7 @@ namespace DSPPluginManager.Tests
                     }),
                     new LogDispatcher(sink),
                     writableParent,
+                    Path.Combine(writableParent, "configuration"),
                     unityHost
                 );
             PluginActivationOutcome outcome = coordinator.Activate(
