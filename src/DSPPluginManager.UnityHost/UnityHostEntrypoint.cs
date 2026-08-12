@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using DSPPluginManager.Lifecycle;
 
 namespace DSPPluginManager.UnityHost
 {
@@ -43,6 +44,13 @@ namespace DSPPluginManager.UnityHost
                     );
                 }
             }
+        }
+
+        internal static PluginActivationInvocationResult ActivateSelected(
+            PluginActivationRequest request
+        )
+        {
+            return Current.ActivateSelected(request);
         }
     }
 }

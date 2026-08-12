@@ -10,6 +10,26 @@ namespace UnityEngine
 
         public string name { get; set; }
 
+        public static bool operator ==(Object left, Object right)
+        {
+            return ReferenceEquals(left, right);
+        }
+
+        public static bool operator !=(Object left, Object right)
+        {
+            return !ReferenceEquals(left, right);
+        }
+
+        public override bool Equals(object value)
+        {
+            return ReferenceEquals(this, value);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public static void DontDestroyOnLoad(Object target)
         {
             if (target == null)
@@ -56,6 +76,7 @@ namespace UnityEngine
 
     public class Behaviour : Component
     {
+        public bool enabled { get; set; } = true;
     }
 
     public class MonoBehaviour : Behaviour
@@ -93,6 +114,8 @@ namespace UnityEngine
 
     public class GameObject : Object
     {
+        private readonly List<Component> components = new List<Component>();
+
         public GameObject(string name)
         {
             this.name = name;
@@ -104,6 +127,35 @@ namespace UnityEngine
         public bool activeSelf { get; private set; }
 
         public Transform transform { get; private set; }
+
+        public Component AddComponent(Type componentType)
+        {
+            if (componentType == null)
+            {
+                throw new ArgumentNullException("componentType");
+            }
+            if (!typeof(Component).IsAssignableFrom(componentType) ||
+                componentType.IsAbstract)
+            {
+                throw new ArgumentException(
+                    "The requested type is not a concrete component.",
+                    "componentType"
+                );
+            }
+
+            Component component = (Component)Activator.CreateInstance(
+                componentType,
+                true
+            );
+            component.gameObject = this;
+            components.Add(component);
+            return component;
+        }
+
+        internal int AttachedComponentCount
+        {
+            get { return components.Count; }
+        }
     }
 
     public static class FacadeRuntime
@@ -150,7 +202,7 @@ namespace UnityEngine
 
         public static int AttachedComponentCount(GameObject gameObject)
         {
-            return 0;
+            return gameObject.AttachedComponentCount;
         }
 
         public static void LoadRepresentativeScene()

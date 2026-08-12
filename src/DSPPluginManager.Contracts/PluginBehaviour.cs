@@ -39,6 +39,10 @@ namespace DSPPluginManager.Contracts
             }
         }
 
+        public abstract void Activate();
+
+        public abstract void Deactivate();
+
         internal void InitializeLogger(PluginLogger value)
         {
             if (value == null)

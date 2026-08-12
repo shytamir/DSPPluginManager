@@ -11,6 +11,10 @@
       <HintPath>$(DSPPluginManagerAssemblyPath)</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="DSPPluginManager.Contracts">
+      <HintPath>$(DSPPluginManagerContractsAssemblyPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>$(UnityEngineCoreModulePath)</HintPath>
       <Private>false</Private>
@@ -22,5 +26,7 @@
            Text="DSPPluginManagerAssemblyPath must identify the compiled host assembly." />
     <Error Condition="!Exists('$(UnityEngineCoreModulePath)')"
            Text="UnityEngineCoreModulePath must identify the Unity compilation input." />
+    <Error Condition="!Exists('$(DSPPluginManagerContractsAssemblyPath)')"
+           Text="DSPPluginManagerContractsAssemblyPath must identify the compiled contract assembly." />
   </Target>
 </Project>

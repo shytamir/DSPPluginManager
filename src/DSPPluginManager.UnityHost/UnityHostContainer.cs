@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using DSPPluginManager.Contracts;
 using DSPPluginManager.Discovery;
+using DSPPluginManager.Lifecycle;
 using UnityEngine;
 
 namespace DSPPluginManager.UnityHost
@@ -69,6 +71,91 @@ namespace DSPPluginManager.UnityHost
             return created;
         }
 
+        internal PluginActivationInvocationResult ActivateSelected(
+            PluginActivationRequest request
+        )
+        {
+            RequireMainThread();
+            if (request == null)
+            {
+                throw new ArgumentNullException("request");
+            }
+            PluginObjectSlot slot = GetOrCreatePluginObject(
+                request.Candidate.Identifier
+            );
+            if (slot.ActivationResult != null)
+            {
+                return slot.ActivationResult;
+            }
+
+            PluginBehaviour instance;
+            try
+            {
+                Component component = slot.GameObject.AddComponent(
+                    request.PluginType
+                );
+                instance = component as PluginBehaviour;
+                if (instance == null ||
+                    instance.GetType() != request.PluginType)
+                {
+                    throw new InvalidOperationException(
+                        "Unity did not attach the exact inspected plugin type."
+                    );
+                }
+                slot.RetainInstance(instance);
+            }
+            catch (Exception exception)
+            {
+                return RetainFailure(
+                    slot,
+                    slot.Instance,
+                    "component-construction",
+                    exception
+                );
+            }
+
+            try
+            {
+                PluginLogger logger = new PluginLogger(
+                    request.Candidate.Identifier,
+                    request.Candidate.DisplayName,
+                    request.Logger.Information,
+                    request.Logger.Warning,
+                    request.Logger.Error
+                );
+                instance.InitializeLogger(logger);
+                instance.InitializeWritableRoot(request.WritableRoot);
+                instance.enabled = true;
+            }
+            catch (Exception exception)
+            {
+                return RetainFailure(
+                    slot,
+                    instance,
+                    "service-preparation",
+                    exception
+                );
+            }
+
+            try
+            {
+                instance.Activate();
+                PluginActivationInvocationResult active =
+                    PluginActivationInvocationResult.Active(instance);
+                slot.RetainActivationResult(active);
+                return active;
+            }
+            catch (Exception exception)
+            {
+                return RetainFailure(
+                    slot,
+                    instance,
+                    "activation",
+                    exception
+                );
+            }
+        }
+
         internal void RequireMainThread()
         {
             if (Thread.CurrentThread.ManagedThreadId != mainThreadId)
@@ -77,6 +164,23 @@ namespace DSPPluginManager.UnityHost
                     "Unity host access must remain on its creation thread."
                 );
             }
+        }
+
+        private static PluginActivationInvocationResult RetainFailure(
+            PluginObjectSlot slot,
+            object instance,
+            string phase,
+            Exception exception
+        )
+        {
+            PluginActivationInvocationResult failure =
+                PluginActivationInvocationResult.Failed(
+                    instance,
+                    phase,
+                    exception
+                );
+            slot.RetainActivationResult(failure);
+            return failure;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using DSPPluginManager.Contracts;
@@ -28,6 +29,26 @@ namespace DSPPluginManager.RM09Consumer
                 "Mirror fixture snapshot."
             );
         }
+
+        public override void Activate()
+        {
+            MirrorActivationEvidence.ActivationCount++;
+            MirrorActivationEvidence.LoggerAvailable = Logger != null;
+            MirrorActivationEvidence.WritableRoot = WritableRoot;
+            MirrorActivationEvidence.InitiallyEnabled = enabled;
+            MirrorActivationEvidence.AttachedGameObject = gameObject != null;
+            Logger.Information("RM-19 activation acknowledged.");
+            Action observer = MirrorActivationEvidence.Observer;
+            if (observer != null)
+            {
+                observer();
+            }
+        }
+
+        public override void Deactivate()
+        {
+            MirrorActivationEvidence.DeactivationCount++;
+        }
     }
 
     internal static class MirrorLoggingHelper
@@ -54,5 +75,22 @@ namespace DSPPluginManager.RM09Consumer
             );
             return path;
         }
+    }
+
+    internal static class MirrorActivationEvidence
+    {
+        internal static int ActivationCount { get; set; }
+
+        internal static int DeactivationCount { get; set; }
+
+        internal static bool LoggerAvailable { get; set; }
+
+        internal static string WritableRoot { get; set; }
+
+        internal static bool InitiallyEnabled { get; set; }
+
+        internal static bool AttachedGameObject { get; set; }
+
+        internal static Action Observer { get; set; }
     }
 }

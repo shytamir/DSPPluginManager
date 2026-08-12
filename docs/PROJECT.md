@@ -20,7 +20,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-15 deterministic lifecycle state record | Accepted by project owner |
 | RM-16 plugin logging contract slice | Accepted by project owner |
 | RM-17 plugin writable-root contract slice | Accepted by project owner |
-| RM-18 persistent Unity host container | Acceptance conditions met; awaiting project-owner acceptance |
+| RM-18 persistent Unity host container | Accepted by project owner |
+| RM-19 one selected plugin activation | Acceptance conditions met; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -37,8 +38,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; remaining migration surface not specified |
-| Plugin discovery, activation, and lifecycle host | Discovery, reconciliation, selected-candidate runtime loading, lifecycle state records, and the persistent Unity container implemented; activation not implemented |
-| Public source-migration contract | Minimal discovery, plugin-logging, and writable-root slices implemented; lifecycle and remaining service surfaces not implemented |
+| Plugin discovery, activation, and lifecycle host | One reconciled candidate can be runtime-loaded and activated once with supervised lifecycle state on the persistent Unity container; multi-plugin continuation and shutdown are not implemented |
+| Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, and writable-root slices implemented; remaining service surfaces not implemented |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
@@ -53,12 +54,13 @@ That installed exit did not runtime-load or execute a candidate. A later
 installed decision probe selected an explicit two-callback lifecycle seam
 because private Unity messages did not expose failure or destruction completion
 to the host. The selected-candidate runtime boundary and deterministic
-per-candidate lifecycle state record are implemented and fixture-validated but
-are not yet invoked by the host. The validated handoff now creates one retained
-persistent Unity root and owns per-plugin child slots without loading a
-candidate or attaching a plugin component. The public plugin-logging and
-writable-root slices are implemented, but the host does not yet provision those
-services because plugin activation is not implemented.
+per-candidate lifecycle state record now drive one supervised production
+activation path. The validated handoff creates one retained persistent Unity
+root, attaches the exact selected plugin type once on its owned child, prepares
+its attributed logger and writable root before explicit startup, and retains
+`Active` only after normal `Activate()` return. Multi-plugin failure
+continuation, runtime behavior qualification, and orderly shutdown remain later
+roadmap work.
 
 ## Purpose and success
 
@@ -189,9 +191,9 @@ evidence or an explicit product decision.
   single-use class marker. Its constructor takes exactly three strings in this
   order: stable identifier, display name, and canonical version.
 - The implemented `DSPPluginManager.Contracts.PluginBehaviour` remains an
-  abstract `UnityEngine.MonoBehaviour`. It now exposes only the read-only
-  plugin-logging handle recorded below; RM-13 selected the lifecycle extension
-  recorded above but did not add production lifecycle members.
+  abstract `UnityEngine.MonoBehaviour`. Its public surface is limited to the
+  read-only `Logger` and `WritableRoot` properties plus the parameterless
+  abstract `Activate()` and `Deactivate()` lifecycle callbacks recorded above.
 - Identifiers are non-empty ASCII strings containing only letters, digits,
   `.`, `_`, and `-`. Identity comparison is ordinal and case-insensitive.
 - Versions contain exactly three non-negative decimal integer components

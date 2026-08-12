@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-18 — Persistent Unity host container
+- **Active story:** RM-19 — One selected plugin activation
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -208,7 +208,7 @@ watching, or confinement claims.
 
 ### RM-18 — Persistent Unity host container
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As the host, I want one persistent Unity container created at the
 validated handoff so plugin components survive scene changes without duplicate
@@ -237,7 +237,7 @@ manager-facing enable/disable controls.
 
 ### RM-19 — One selected plugin activation
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As an operator, I want one selected candidate activated once as a
 real Unity component so its accepted startup behavior can run without BepInEx.

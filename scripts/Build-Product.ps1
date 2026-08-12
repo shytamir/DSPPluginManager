@@ -168,6 +168,7 @@ try {
         --packages $packageDirectory `
         --locked-mode `
         "-p:DSPPluginManagerAssemblyPath=$(Join-Path $productOutput 'DSPPluginManager.dll')" `
+        "-p:DSPPluginManagerContractsAssemblyPath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
         "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
         --verbosity minimal
     if ($LASTEXITCODE -ne 0) {
@@ -217,6 +218,7 @@ try {
         --configuration Release `
         --output $handoffOutput `
         "-p:DSPPluginManagerAssemblyPath=$productDll" `
+        "-p:DSPPluginManagerContractsAssemblyPath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
         "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
         @properties
     if ($LASTEXITCODE -ne 0) {
@@ -297,7 +299,9 @@ $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
     $ReleaseLabel `
     $dependencyRuntime `
     $unityHostDll `
-    $facadeDll
+    $facadeDll `
+    $contractDll `
+    $consumerDll
 if ($LASTEXITCODE -ne 0) {
     throw 'Compiled product tests failed.'
 }

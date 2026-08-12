@@ -4,6 +4,9 @@ using System.Reflection;
 using System.Threading;
 using DSPPluginManager.Dependencies;
 using DSPPluginManager.Discovery;
+using DSPPluginManager.Hosting;
+using DSPPluginManager.Lifecycle;
+using DSPPluginManager.Loading;
 using DSPPluginManager.Logging;
 
 namespace DSPPluginManager.Bootstrap
@@ -15,7 +18,11 @@ namespace DSPPluginManager.Bootstrap
         private static ReservedDependencyResolver resolver;
         private static BootstrapEnvironment environment;
         private static DiskLogSink diskLogSink;
+        private static LogDispatcher logDispatcher;
         private static SourceLogger hostLogger;
+        private static CandidateDiscoveryPlan discoveryPlan;
+        private static UnityHostBridge unityHost;
+        private static PluginActivationCoordinator activationCoordinator;
 
         public static void Main()
         {
@@ -75,7 +82,7 @@ namespace DSPPluginManager.Bootstrap
                 );
                 resolver.Install();
                 hostLogger.Information("Reserved dependency resolver installed.");
-                RunPreActivationDiscovery(environment);
+                discoveryPlan = RunPreActivationDiscovery(environment);
                 InstallUnityHandoff(environment);
                 hostLogger.Information("Unity main-thread handoff installed.");
             }
@@ -112,6 +119,7 @@ namespace DSPPluginManager.Bootstrap
             hostLogger.Information(
                 "Unity main-thread handoff completed. " + containerOutcome
             );
+            ActivateFirstSelectedCandidate();
         }
 
         private static string EnsureUnityHostCreated(
@@ -122,41 +130,66 @@ namespace DSPPluginManager.Bootstrap
                 bootstrapEnvironment.Paths.HostRoot,
                 "DSPPluginManager.UnityHost.dll"
             );
-            Assembly unityHostAssembly = Assembly.LoadFrom(unityHostPath);
-            Type entrypoint = unityHostAssembly.GetType(
-                "DSPPluginManager.UnityHost.UnityHostEntrypoint",
-                true,
-                false
+            unityHost = new UnityHostBridge(unityHostPath);
+            return unityHost.EnsureCreated(
+                Thread.CurrentThread.ManagedThreadId
             );
-            MethodInfo ensureCreated = entrypoint.GetMethod(
-                "EnsureCreated",
-                BindingFlags.Public | BindingFlags.Static
-            );
-            if (ensureCreated == null)
-            {
-                throw new MissingMethodException(
-                    entrypoint.FullName,
-                    "EnsureCreated"
-                );
-            }
-
-            try
-            {
-                return (string)ensureCreated.Invoke(
-                    null,
-                    new object[] { Thread.CurrentThread.ManagedThreadId }
-                );
-            }
-            catch (TargetInvocationException exception)
-            {
-                throw new InvalidOperationException(
-                    "The persistent Unity host root could not be created.",
-                    exception.InnerException ?? exception
-                );
-            }
         }
 
-        private static void RunPreActivationDiscovery(
+        private static void ActivateFirstSelectedCandidate()
+        {
+            CandidateReconciliationEntry selected = null;
+            foreach (CandidateReconciliationEntry entry in
+                discoveryPlan.Reconciliation.Entries)
+            {
+                if (entry.State == CandidateReconciliationState.Selected)
+                {
+                    selected = entry;
+                    break;
+                }
+            }
+            if (selected == null)
+            {
+                hostLogger.Information(
+                    "No selected plugin candidate is available for RM-19 " +
+                    "single-candidate activation."
+                );
+                return;
+            }
+
+            activationCoordinator = new PluginActivationCoordinator(
+                new SelectedCandidateLoader(),
+                logDispatcher,
+                environment.Paths.WritableOutputDirectory,
+                unityHost
+            );
+            PluginActivationOutcome outcome =
+                activationCoordinator.Activate(selected);
+            if (outcome.IsActive)
+            {
+                hostLogger.Information(
+                    "Plugin activation acknowledged: identifier=" +
+                    selected.Candidate.Identifier + " version=" +
+                    selected.Candidate.Version.ToString(3) + " type='" +
+                    selected.Candidate.TypeName + "'."
+                );
+                return;
+            }
+
+            PluginLifecycleFailure failure = outcome.Lifecycle.Failure;
+            hostLogger.Error(
+                "Plugin activation failed: identifier=" +
+                selected.Candidate.Identifier + " version=" +
+                selected.Candidate.Version.ToString(3) + " type='" +
+                selected.Candidate.TypeName + "' phase=" +
+                (failure == null ? "<unavailable>" : failure.Phase) + ". " +
+                (failure == null
+                    ? "No failure context was retained."
+                    : failure.ExceptionText)
+            );
+        }
+
+        private static CandidateDiscoveryPlan RunPreActivationDiscovery(
             BootstrapEnvironment bootstrapEnvironment
         )
         {
@@ -199,6 +232,7 @@ namespace DSPPluginManager.Bootstrap
                 " runtimeLoadedCandidates=" +
                 plan.RuntimeLoadedCandidateCount + "."
             );
+            return plan;
         }
 
         private static void InitializeLogging(
@@ -216,8 +250,8 @@ namespace DSPPluginManager.Bootstrap
             ILogSink sink = diskLogSink == null
                 ? (ILogSink)NullLogSink.Instance
                 : diskLogSink;
-            LogDispatcher dispatcher = new LogDispatcher(sink);
-            hostLogger = dispatcher.CreateLogger(
+            logDispatcher = new LogDispatcher(sink);
+            hostLogger = logDispatcher.CreateLogger(
                 new LogSourceContext(
                     LogSourceKind.Host,
                     "dsp-plugin-manager",

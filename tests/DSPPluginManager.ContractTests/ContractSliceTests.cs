@@ -207,13 +207,29 @@ namespace DSPPluginManager.ContractTests
                     "The plugin writable root must be public read-only."
                 );
                 TestAssert.Equal(
-                    "get_Logger,get_WritableRoot",
+                    "Activate,Deactivate,get_Logger,get_WritableRoot",
                     string.Join(",", pluginBase.Methods
                         .Where(method => method.IsPublic && !method.IsConstructor)
                         .Select(method => method.Name)
                         .OrderBy(name => name, StringComparer.Ordinal)),
-                    "public base service methods"
+                    "public base contract methods"
                 );
+                foreach (string callbackName in new[]
+                {
+                    "Activate", "Deactivate"
+                })
+                {
+                    MethodDefinition callback = pluginBase.Methods.Single(
+                        method => method.Name == callbackName
+                    );
+                    TestAssert.True(
+                        callback.IsPublic && callback.IsAbstract &&
+                        callback.Parameters.Count == 0 &&
+                        callback.ReturnType.FullName == "System.Void",
+                        callbackName +
+                            " must be a public abstract parameterless void callback."
+                    );
+                }
 
                 TypeDefinition logger = types.Single(type =>
                     type.FullName == "DSPPluginManager.Contracts.PluginLogger"
@@ -304,6 +320,21 @@ namespace DSPPluginManager.ContractTests
                     ),
                     "Fixture references the wrong contract."
                 );
+                foreach (string callbackName in new[]
+                {
+                    "Activate", "Deactivate"
+                })
+                {
+                    MethodDefinition callback = plugin.Methods.Single(
+                        method => method.Name == callbackName
+                    );
+                    TestAssert.True(
+                        callback.IsPublic && callback.IsVirtual &&
+                        !callback.IsAbstract && callback.Parameters.Count == 0 &&
+                        callback.ReturnType.FullName == "System.Void",
+                        "Fixture does not implement " + callbackName + "."
+                    );
+                }
 
                 FieldDefinition retainedLogger = plugin.Fields.Single(field =>
                     field.Name == "logger"
