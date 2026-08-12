@@ -67,6 +67,26 @@ namespace DSPPluginManager.Configuration
             return false;
         }
 
+        internal bool TryClaimSerializedValue(
+            string section,
+            string key,
+            out string serializedValue
+        )
+        {
+            ConfigurationDefinition definition =
+                new ConfigurationDefinition(section, key);
+            StoredValue stored;
+            if (values.TryGetValue(definition, out stored))
+            {
+                values.Remove(definition);
+                serializedValue = stored.SerializedValue;
+                return true;
+            }
+
+            serializedValue = null;
+            return false;
+        }
+
         internal static PluginConfigurationDocument Parse(string contents)
         {
             if (contents == null)

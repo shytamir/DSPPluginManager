@@ -16,14 +16,14 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 3 active; RM-24 through RM-26 accepted, and RM-27 acceptance gate met awaiting project-owner acceptance |
+| Roadmap status | Milestone 3 active; RM-24 through RM-27 accepted, and RM-28 acceptance gate met awaiting project-owner acceptance |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
-| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration file ownership, sectioned parsing, and shortcut scalar conversion are implemented while typed binding, persistence, and Unity input polling remain pending |
+| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration ownership, parsing, typed binding, and shortcut scalar conversion are implemented while persistence, lifecycle integration, and Unity input polling remain pending |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and shortcut slices implemented; the latter two await their backing services |
 | Consumer migrations | Mirror selected first; migration not started |
@@ -43,12 +43,13 @@ orderly cleanup, the bounded configuration and shortcut compile contract,
 manager-owned per-plugin configuration scopes, and the pinned manager-owned
 Harmony closure. The configuration document parser retains valid unbound scalar
 values for later binding, and the keyboard-shortcut scalar has its bounded
-canonical codec. Typed entry binding, persistence, and Unity input polling are
-not implemented yet. The temporary
-Thunderstore package remains internal automation evidence rather than an
-installable product. Consumer migration has not started. The approved Milestone
-3 roadmap is active with RM-24 through RM-26 accepted and RM-27's acceptance
-gate met, awaiting project-owner acceptance.
+canonical codec. The late host can claim those values into stable Boolean,
+string, and shortcut entries with isolated default retention. Persistence,
+lifecycle integration, and Unity input polling are not implemented yet. The
+temporary Thunderstore package remains internal automation evidence rather than
+an installable product. Consumer migration has not started. The approved
+Milestone 3 roadmap is active with RM-24 through RM-27 accepted and RM-28's
+acceptance gate met, awaiting project-owner acceptance.
 
 ## Purpose and success
 
@@ -282,6 +283,17 @@ evidence or an explicit product decision.
 - The only initial configuration codecs are Boolean, non-null string, and
   `KeyboardShortcut`. Missing values use the supplied default. Malformed stored
   values are scoped warnings and also retain the supplied default.
+- Boolean input is case-insensitive and its canonical text is lowercase.
+  String scalars keep Unicode, `;`, and `=` literally and use `\\`, `\n`, `\r`,
+  `\t`, and `\uXXXX` escapes for backslash, control characters, surrogates, and
+  boundary whitespace. Unknown or incomplete escapes are malformed stored
+  values rather than literal text.
+- Binding claims a matching unbound scalar. The first successful bind owns its
+  type, default, and description; rebinding the same type returns the identical
+  entry without replacing those attributes, while another type is a synchronous
+  contextual contract error. Assigning an equal value is an in-memory no-op;
+  assigning a different value updates the authoritative entry for later
+  persistence.
 - A new bind and a changed value autosave; `Save()` explicitly writes the whole
   current snapshot. Bound and unbound definitions are emitted deterministically
   as human-readable UTF-8. Persistence publishes a completed same-directory

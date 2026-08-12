@@ -21,6 +21,7 @@ namespace DSPPluginManager.Tests
                 );
                 RM24ContractBehaviorTests.Run(args[6]);
                 RM27ShortcutContractTests.Run(args[6]);
+                RM28TypedConfigurationTests.Run(args[4], args[6]);
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
@@ -60,6 +61,7 @@ namespace DSPPluginManager.Tests
                     "candidate enumeration, RM-24 contract behavior, " +
                     "RM-26 configuration parsing, " +
                     "RM-27 shortcut scalar, " +
+                    "RM-28 typed configuration, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;
