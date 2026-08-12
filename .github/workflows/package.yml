@@ -102,6 +102,16 @@ jobs:
           $bundle = ./scripts/New-BootstrapBundle.ps1
           ./scripts/Test-BootstrapBundle.ps1 -BundleRoot $bundle
 
+      - name: Build and validate migration-reference kit
+        id: migration
+        shell: pwsh
+        run: |
+          $kit = ./scripts/New-MigrationReferenceKit.ps1
+          ./scripts/Test-MigrationReferenceKit.ps1 `
+            -KitRoot $kit `
+            -ExpectedCommit '${{ github.sha }}' `
+            -ExpectedSequence ${{ github.run_number }}
+
       - name: Upload package and reports
         id: upload
         uses: actions/upload-artifact@v6
@@ -114,6 +124,7 @@ jobs:
             artifacts/managed-dependencies/DEPENDENCY-REPORT.md
             artifacts/unitydoorstop/UNITYDOORSTOP-REPORT.md
             artifacts/bootstrap-bundle/**
+            artifacts/migration-reference-kit/**
           if-no-files-found: error
           retention-days: 30
 
@@ -129,6 +140,7 @@ jobs:
           PACKAGE_STATUS: ${{ steps.package.outcome }}
           TEST_STATUS: ${{ steps.package_test.outcome }}
           BOOTSTRAP_STATUS: ${{ steps.bootstrap.outcome }}
+          MIGRATION_STATUS: ${{ steps.migration.outcome }}
           UPLOAD_STATUS: ${{ steps.upload.outcome }}
           PACKAGE_VERSION_VALUE: ${{ steps.version.outputs.package_version }}
           ASSEMBLY_VERSION_VALUE: ${{ steps.version.outputs.assembly_version }}
@@ -153,6 +165,7 @@ jobs:
           | Build package | $env:PACKAGE_STATUS |
           | Validate package | $env:TEST_STATUS |
           | Build and validate managed bootstrap bundle | $env:BOOTSTRAP_STATUS |
+          | Build and validate migration-reference kit | $env:MIGRATION_STATUS |
           | Upload artifacts | $env:UPLOAD_STATUS |
 
           The Thunderstore package remains temporary automation evidence. The separate bootstrap bundle can enter the internal host boundary but cannot discover or activate plugins.

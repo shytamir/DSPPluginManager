@@ -17,9 +17,10 @@ consumer or establish the final publishable package.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
-- **Active story:** RM-32 — Both-consumer configuration pattern qualification
-- **Active story status:** Acceptance gate met; awaiting project-owner
-  acceptance
+- **Active story:** RM-33 — Migration drift specification and implementer
+  instructions
+- **Active story status:** Acceptance gate met; awaiting project-owner review
+  and acceptance
 - **In progress:** None
 
 ## Working rules
@@ -45,16 +46,18 @@ parser, RM-27 delivered the normalized shortcut scalar and codec, and RM-28
 delivered typed binding and in-memory mutation. RM-29 delivered deterministic
 atomic persistence, and RM-30 delivered exact non-consuming Unity input
 polling. RM-31 delivered one retained configuration service across supported
-activation and cleanup and was accepted by the project owner. RM-32 has met its
-acceptance gate with isolated Mirror- and Guide-shaped qualification fixtures.
-Required plugin startup work uses explicit `Activate()` after host services are
-prepared; ambient private Unity `Awake` is not a supervised startup boundary.
+activation and cleanup. RM-32's isolated Mirror- and Guide-shaped qualification
+fixtures were accepted by the project owner. RM-33 has met its acceptance gate
+with revision-pinned compile references and implementer instructions awaiting
+project-owner review. Required plugin startup work uses explicit `Activate()`
+after host services are prepared; ambient private Unity `Awake` is not a
+supervised startup boundary.
 
-The remaining host requirements are R-13 through R-15 from the private feature
-map. FM-05 requires safe per-plugin persistence, including Guide's late-bound
-save-specific keys. FM-06 requires the exact non-consuming keyboard-combination
-behavior used by both consumers. Mirror is the selected first migration
-consumer, but both mapped consumer patterns constrain this milestone.
+The configuration and shortcut host requirements R-13 through R-15 from the
+private feature map are implemented and deterministically qualified. Mirror is
+the selected first migration consumer, but both mapped consumer patterns
+constrain this milestone. Installed migration-readiness qualification remains
+RM-34.
 
 ## Milestone 3: Configuration and shortcut migration readiness
 
@@ -356,7 +359,7 @@ consumer source changes.
 
 ### RM-32 — Both-consumer configuration pattern qualification
 
-**Status:** Acceptance gate met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a migration maintainer, I want both mapped configuration patterns
 exercised before real repository changes so host omissions are found upstream.
@@ -391,7 +394,7 @@ mapped consumer shapes.
 
 ### RM-33 — Migration drift specification and implementer instructions
 
-**Status:** Pending
+**Status:** Acceptance gate met; awaiting project-owner review and acceptance
 
 **Story:** As a Mirror or Guide implementer, I want one authoritative migration
 document so source, configuration, build, package, and user-documentation changes

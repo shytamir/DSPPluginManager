@@ -53,6 +53,15 @@ $buildInfoPath = Join-Path $RepositoryRoot 'artifacts\BUILD-INFO.txt'
     -ExpectedCommit $Commit `
     -ExpectedSequence $Sequence
 
+$migrationKitPath = & (
+    Join-Path $PSScriptRoot 'New-MigrationReferenceKit.ps1'
+) -RepositoryRoot $RepositoryRoot
+& (Join-Path $PSScriptRoot 'Test-MigrationReferenceKit.ps1') `
+    -KitRoot $migrationKitPath `
+    -ExpectedCommit $Commit `
+    -ExpectedSequence $Sequence `
+    -RepositoryRoot $RepositoryRoot
+
 $packagePath = & (Join-Path $PSScriptRoot 'New-ThunderstorePackage.ps1') `
     -DllPath $dllPath `
     -BuildInfoPath $buildInfoPath `
