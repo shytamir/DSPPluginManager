@@ -6,39 +6,20 @@ This document is the authority for current product status, accepted product
 decisions, scope boundaries, and open steering decisions.
 
 It is not a work log, roadmap, design specification, implementation guide, or
-validation record. Work sequence and story history belong in
-[`ROADMAP.md`](ROADMAP.md). Detailed behavior and implementation documentation
-belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
+validation record. Active planning belongs in [`ROADMAP.md`](ROADMAP.md), and
+completed story history belongs in the
+[roadmap archive](archive/ROADMAP-MILESTONE-1.md). Detailed behavior and
+implementation documentation belong in separate topic documents listed by
+[`INDEX.md`](INDEX.md).
 
 ## Current status
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 2 completed; next roadmap not yet planned |
-| RM-13 Unity lifecycle observability decision probe | Accepted by project owner |
-| RM-14 selected assembly runtime loader | Accepted by project owner |
-| RM-15 deterministic lifecycle state record | Accepted by project owner |
-| RM-16 plugin logging contract slice | Accepted by project owner |
-| RM-17 plugin writable-root contract slice | Accepted by project owner |
-| RM-18 persistent Unity host container | Accepted by project owner |
-| RM-19 one selected plugin activation | Accepted by project owner |
-| RM-20 activation failure isolation | Accepted by project owner |
-| RM-21 exercised Unity runtime delivery | Accepted by project owner |
-| RM-22 observable orderly shutdown | Accepted by project owner |
-| RM-23 Harmony availability through plugin lifecycle | Accepted by project owner |
+| Roadmap status | Planning pending |
+| Milestone 1 | Completed and accepted by project owner |
+| Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
-| RM-01 compiled host foundation | Accepted by project owner |
-| RM-02 immutable host environment paths | Accepted by project owner |
-| RM-03 independent bootstrap failure record | Accepted by project owner |
-| RM-04 reserved dependency resolver | Accepted by project owner |
-| RM-05 Unity main-thread handoff decision probe | Accepted by project owner |
-| RM-06 pinned UnityDoorstop managed bootstrap | Accepted by project owner |
-| RM-07 source-scoped non-throwing logging core | Accepted by project owner |
-| RM-08 authoritative current-run disk log | Accepted by project owner |
-| RM-09 minimal discovery contract slice | Accepted by project owner |
-| RM-10 bounded deterministic candidate enumeration | Accepted by project owner |
-| RM-11 static plugin metadata recognition | Accepted by project owner |
-| RM-12 deterministic candidate reconciliation | Accepted by project owner |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
@@ -48,45 +29,20 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
-The temporary Thunderstore package remains a compiled and versioned internal
-foundation, not an installable product. The separately generated bootstrap
-bundle has a validated managed entrypoint, Unity handoff, internal logging core
-with its current-run disk sink, and the minimal public discovery contract. An
-installed DSP run entered the host once without BepInEx providing the
-lifecycle, enumerated and statically inspected a seven-candidate fixture tree,
-and logged the same deterministic reconciliation plan as the offline tests.
-That installed exit did not runtime-load or execute a candidate. A later
-installed decision probe selected an explicit two-callback lifecycle seam
-because private Unity messages did not expose failure or destruction completion
-to the host. The selected-candidate runtime boundary and deterministic
-per-candidate lifecycle state record now drive one supervised production
-activation path. The validated handoff creates one retained persistent Unity
-root, attaches exact selected plugin types on separately owned children,
-prepares attributed logger and writable-root services before explicit startup,
-and retains `Active` only after normal `Activate()` return. Construction,
-runtime-dependency, and explicit-startup failures retain complete attributable
-context; a partially attached failed component is removed while unrelated
-selected candidates continue. An installed guide-shaped fixture received one
-ordinary `Awake` before rendered-frame `Update`, resumed `yield return null` on
-a later frame, cancelled one exact coroutine handle, and retained the same
-component and host root across an active-scene round trip. These observations
-qualify only the exercised ordinary Unity behavior; unclaimed Unity messages
-remain ambient and unsupervised. A manager-owned Unity quit signal now invokes
-each active plugin's explicit `Deactivate()` once on the main thread before
-component destruction. An installed two-plugin run retained services through
-both callbacks, continued after one attributable cleanup exception, recorded
-`StopFailed` and `Stopped`, then flushed and closed the current-run log. These
-logical terminal outcomes do not claim crash cleanup or managed assembly
-unloading. A later installed fixture compiled only against the manager-owned
-`0Harmony` reference and loaded the exact four-assembly pinned closure from the
-manager dependency directory. It applied an attributable postfix, removed only
-its own patches during orderly cleanup, and retained the stack through cleanup;
-an independent Harmony patch failure did not prevent a non-Harmony fixture from
-completing its lifecycle. The completed Milestone 2 installed exit then combined
-the accepted candidate plan, selected-only runtime activation, ordinary Unity
-delivery, failure isolation, orderly terminal outcomes, and Harmony teardown in
-one restored DSP run. Detailed results are retained in the
-[Milestone 2 evidence record](MILESTONE-2-EXIT-EVIDENCE.md).
+Milestones 1 and 2 established the deterministic pre-activation host and
+supervised Unity activation lifecycle, then validated both in installed DSP.
+Their accepted stories and exit summaries are retained in the
+[roadmap archive](archive/ROADMAP-MILESTONE-1.md); detailed installed outcomes
+are retained in the [Milestone 1](archive/MILESTONE-1-EXIT-EVIDENCE.md) and
+[Milestone 2](MILESTONE-2-EXIT-EVIDENCE.md) evidence records.
+
+The manager currently provides bounded candidate discovery and reconciliation,
+selected-only activation as independent persistent Unity components,
+source-scoped logging, plugin writable roots, isolated lifecycle failures,
+orderly cleanup, and the pinned manager-owned Harmony closure. The temporary
+Thunderstore package remains internal automation evidence rather than an
+installable product. Consumer migration has not started, and planning for the
+next roadmap is pending.
 
 ## Purpose and success
 
