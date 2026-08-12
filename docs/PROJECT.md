@@ -16,17 +16,17 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Planning pending |
+| Roadmap status | Milestone 3 active; RM-24 pending implementation |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
-| Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; remaining migration surface not specified |
+| Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; configuration and shortcut contract work is pending in RM-24 |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, and writable-root slices implemented; remaining service surfaces not implemented |
-| Consumer migrations | Not started |
+| Consumer migrations | Mirror selected first; migration not started |
 | Installable or publishable product package | Not available |
 
 Milestones 1 and 2 established the deterministic pre-activation host and
@@ -41,8 +41,8 @@ selected-only activation as independent persistent Unity components,
 source-scoped logging, plugin writable roots, isolated lifecycle failures,
 orderly cleanup, and the pinned manager-owned Harmony closure. The temporary
 Thunderstore package remains internal automation evidence rather than an
-installable product. Consumer migration has not started, and planning for the
-next roadmap is pending.
+installable product. Consumer migration has not started. The approved Milestone
+3 roadmap is active with RM-24 pending implementation.
 
 ## Purpose and success
 
@@ -269,7 +269,7 @@ evidence or an explicit product decision.
   and writable-root slices;
 - final host, plugin, configuration, log, and writable-parent locations;
 - configuration format and treatment of existing BepInEx `.cfg` files;
-- first migration consumer and its acceptance matrix;
+- Mirror's migration acceptance matrix;
 - final Thunderstore dependency, installation layout, and publication policy.
 
 These decisions require focused evidence. An implementation task must not settle
