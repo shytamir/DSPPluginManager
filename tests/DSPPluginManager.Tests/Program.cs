@@ -11,6 +11,7 @@ namespace DSPPluginManager.Tests
                 FoundationTests.Run(args);
                 HostEnvironmentPathsTests.Run();
                 PluginWritableRootPathTests.Run();
+                PluginConfigurationScopeTests.Run();
                 UnityHostContainerTests.Run(
                     args[0],
                     args[4],
@@ -49,7 +50,8 @@ namespace DSPPluginManager.Tests
                 CandidateFileEnumeratorTests.Run();
                 PluginLifecycleRecordTests.Run();
                 Console.WriteLine(
-                    "Compiled foundation, host/plugin paths, Unity container, " +
+                    "Compiled foundation, host/plugin/configuration paths, " +
+                    "Unity container, " +
                     "bootstrap entry, diagnostic, " +
                     "reserved dependency, activation failure isolation, " +
                     "runtime-delivery metadata, orderly shutdown, logging, " +

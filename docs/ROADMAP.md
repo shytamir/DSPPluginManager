@@ -17,7 +17,7 @@ consumer or establish the final publishable package.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
-- **Active story:** RM-24 — Public configuration and shortcut contract slice
+- **Active story:** RM-25 — Per-plugin configuration ownership and file policy
 - **Active story status:** Acceptance gate met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -38,10 +38,11 @@ consumer or establish the final publishable package.
 
 Milestones 1 and 2 delivered the deterministic pre-activation host, supervised
 Unity lifecycle, plugin logger and writable root, and the pinned manager-owned
-Harmony closure. The public plugin contract currently has no configuration or
-shortcut surface. Required plugin startup work uses explicit `Activate()` after
-host services are prepared; ambient private Unity `Awake` is not a supervised
-startup boundary.
+Harmony closure. RM-24 delivered the bounded public configuration and shortcut
+compile contract; its backing storage and Unity input behavior remain
+deliberately absent. Required plugin startup work uses explicit `Activate()`
+after host services are prepared; ambient private Unity `Awake` is not a
+supervised startup boundary.
 
 The remaining host requirements are R-13 through R-15 from the private feature
 map. FM-05 requires safe per-plugin persistence, including Guide's late-bound
@@ -53,7 +54,7 @@ consumer, but both mapped consumer patterns constrain this milestone.
 
 ### RM-24 — Public configuration and shortcut contract slice
 
-**Status:** Acceptance gate met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a plugin implementer, I want the complete bounded configuration
 and shortcut surface fixed before storage work begins so migration code has one
@@ -90,7 +91,7 @@ migration.
 
 ### RM-25 — Per-plugin configuration ownership and file policy
 
-**Status:** Pending
+**Status:** Acceptance gate met; awaiting project-owner acceptance
 
 **Story:** As an operator, I want every plugin configuration file owned by its
 validated identity so plugins cannot collide or select arbitrary host paths.

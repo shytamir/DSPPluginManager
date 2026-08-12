@@ -16,14 +16,14 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 3 active; RM-24 acceptance gate met and awaiting project-owner acceptance |
+| Roadmap status | Milestone 3 active; RM-24 accepted and RM-25 acceptance gate met, awaiting project-owner acceptance |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
-| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration storage and Unity input behavior remain pending |
+| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration file ownership is implemented while parsing, persistence, and Unity input behavior remain pending |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and shortcut slices implemented; the latter two await their backing services |
 | Consumer migrations | Mirror selected first; migration not started |
@@ -39,13 +39,14 @@ are retained in the [Milestone 1](archive/MILESTONE-1-EXIT-EVIDENCE.md) and
 The manager currently provides bounded candidate discovery and reconciliation,
 selected-only activation as independent persistent Unity components,
 source-scoped logging, plugin writable roots, isolated lifecycle failures,
-orderly cleanup, the bounded configuration and shortcut compile contract, and
-the pinned manager-owned Harmony closure. Configuration persistence and Unity
-input polling are not implemented yet. The temporary
+orderly cleanup, the bounded configuration and shortcut compile contract,
+manager-owned per-plugin configuration scopes, and the pinned manager-owned
+Harmony closure. Configuration parsing, persistence, and Unity input polling
+are not implemented yet. The temporary
 Thunderstore package remains internal automation evidence rather than an
 installable product. Consumer migration has not started. The approved Milestone
-3 roadmap is active with RM-24's acceptance gate met and awaiting project-owner
-acceptance.
+3 roadmap is active with RM-24 accepted and RM-25's acceptance gate met,
+awaiting project-owner acceptance.
 
 ## Purpose and success
 

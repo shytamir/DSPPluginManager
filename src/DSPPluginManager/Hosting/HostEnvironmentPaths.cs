@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using DSPPluginManager.Configuration;
 
 namespace DSPPluginManager.Hosting
 {
@@ -46,6 +47,16 @@ namespace DSPPluginManager.Hosting
         {
             return PluginWritableRootPath.Create(
                 WritableOutputDirectory,
+                identifier
+            );
+        }
+
+        internal PluginConfigurationScope CreatePluginConfigurationScope(
+            string identifier
+        )
+        {
+            return PluginConfigurationScope.Create(
+                ConfigurationDirectory,
                 identifier
             );
         }

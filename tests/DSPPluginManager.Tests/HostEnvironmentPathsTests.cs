@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using DSPPluginManager.Configuration;
 using DSPPluginManager.Hosting;
 
 namespace DSPPluginManager.Tests
@@ -141,6 +142,22 @@ namespace DSPPluginManager.Tests
             );
             TestAssert.True(Directory.Exists(pluginRoot),
                 "Host-derived plugin writable root was not initialized.");
+
+            PluginConfigurationScope configuration =
+                first.CreatePluginConfigurationScope("Fixture.Plugin");
+            TestAssert.Equal(
+                Path.Combine(
+                    first.ConfigurationDirectory,
+                    "fixture.plugin.cfg"
+                ),
+                configuration.FilePath,
+                "host-derived plugin configuration file"
+            );
+            TestAssert.Equal(
+                PluginConfigurationSourceState.Missing,
+                configuration.SourceState,
+                "host-derived configuration state"
+            );
         }
 
         private static void VerifyEmptyAndRelativeInputs(string[] validInputs)
