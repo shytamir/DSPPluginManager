@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DSPPluginManager.RM32MirrorQualification</AssemblyName>
+    <RootNamespace>DSPPluginManager.RM32MirrorQualification</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="DSPPluginManager.Contracts">
+      <HintPath>$(PluginContractReferencePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(HarmonyReferencePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(UnityEngineCoreModulePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

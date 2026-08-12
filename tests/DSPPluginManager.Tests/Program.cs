@@ -25,6 +25,13 @@ namespace DSPPluginManager.Tests
                 RM28TypedConfigurationTests.Run(args[4], args[6]);
                 RM29ConfigurationPersistenceTests.Run(args[4], args[6]);
                 RM30ShortcutPollingTests.Run(args[5], args[6], args[13]);
+                RM32ConsumerQualificationTests.Run(
+                    args[4],
+                    args[6],
+                    args[13],
+                    args[14],
+                    args[15]
+                );
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
@@ -68,6 +75,7 @@ namespace DSPPluginManager.Tests
                     "RM-29 atomic configuration persistence, " +
                     "RM-30 exact shortcut polling, " +
                     "RM-31 configuration lifecycle integration, " +
+                    "RM-32 consumer configuration qualification, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;

@@ -44,6 +44,10 @@ $inputFacadeProject = Join-Path $RepositoryRoot `
     'fixtures\UnityInputReferenceFacade\UnityInputReferenceFacade.csproj'
 $consumerProject = Join-Path $RepositoryRoot `
     'fixtures\RM09.Consumer\DSPPluginManager.RM09Consumer.csproj'
+$rm32MirrorProject = Join-Path $RepositoryRoot `
+    'fixtures\RM32.MirrorQualification\DSPPluginManager.RM32MirrorQualification.csproj'
+$rm32GuideProject = Join-Path $RepositoryRoot `
+    'fixtures\RM32.GuideQualification\DSPPluginManager.RM32GuideQualification.csproj'
 $constructionFailureProject = Join-Path $RepositoryRoot `
     'fixtures\RM20.ConstructionFailure\DSPPluginManager.RM20ConstructionFailure.csproj'
 $activationFailureProject = Join-Path $RepositoryRoot `
@@ -71,6 +75,10 @@ $inputFacadeOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\unity-input-reference'
 $consumerOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm09-consumer'
+$rm32MirrorOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\rm32-mirror-qualification'
+$rm32GuideOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\rm32-guide-qualification'
 $constructionFailureOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm20-construction-failure'
 $activationFailureOutput = Join-Path $RepositoryRoot `
@@ -102,6 +110,8 @@ foreach ($project in @(
         $facadeProject,
         $inputFacadeProject,
         $consumerProject,
+        $rm32MirrorProject,
+        $rm32GuideProject,
         $constructionFailureProject,
         $activationFailureProject,
         $runtimeDeliveryProject,
@@ -125,6 +135,8 @@ foreach ($lockFile in @(
         (Join-Path (Split-Path -Parent $facadeProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $inputFacadeProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $consumerProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $rm32MirrorProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $rm32GuideProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $constructionFailureProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $activationFailureProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $runtimeDeliveryProject) 'packages.lock.json'),
@@ -295,6 +307,25 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'RM-09 consumer fixture restore failed.'
     }
+    & dotnet restore $rm32MirrorProject `
+        --packages $packageDirectory `
+        --locked-mode `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:PluginContractReferencePath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
+        "-p:HarmonyReferencePath=$harmonyReference" `
+        --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        throw 'RM-32 Mirror qualification fixture restore failed.'
+    }
+    & dotnet restore $rm32GuideProject `
+        --packages $packageDirectory `
+        --locked-mode `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:PluginContractReferencePath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
+        --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        throw 'RM-32 Guide qualification fixture restore failed.'
+    }
     foreach ($failureProject in @(
             $constructionFailureProject,
             $activationFailureProject
@@ -393,6 +424,27 @@ try {
         @properties
     if ($LASTEXITCODE -ne 0) {
         throw 'RM-09 consumer fixture build failed.'
+    }
+    & dotnet build $rm32MirrorProject `
+        --no-restore `
+        --configuration Release `
+        --output $rm32MirrorOutput `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:PluginContractReferencePath=$contractDll" `
+        "-p:HarmonyReferencePath=$harmonyReference" `
+        @properties
+    if ($LASTEXITCODE -ne 0) {
+        throw 'RM-32 Mirror qualification fixture build failed.'
+    }
+    & dotnet build $rm32GuideProject `
+        --no-restore `
+        --configuration Release `
+        --output $rm32GuideOutput `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:PluginContractReferencePath=$contractDll" `
+        @properties
+    if ($LASTEXITCODE -ne 0) {
+        throw 'RM-32 Guide qualification fixture build failed.'
     }
     $failureBuilds = @(
         [pscustomobject]@{
@@ -520,6 +572,10 @@ $unityHostDll = Join-Path $handoffOutput 'DSPPluginManager.UnityHost.dll'
 $contractDll = Join-Path $contractOutput 'DSPPluginManager.Contracts.dll'
 $consumerDll = Join-Path $consumerOutput `
     'DSPPluginManager.RM09Consumer.dll'
+$rm32MirrorDll = Join-Path $rm32MirrorOutput `
+    'DSPPluginManager.RM32MirrorQualification.dll'
+$rm32GuideDll = Join-Path $rm32GuideOutput `
+    'DSPPluginManager.RM32GuideQualification.dll'
 $constructionFailureDll = Join-Path $constructionFailureOutput `
     'DSPPluginManager.RM20ConstructionFailure.dll'
 $activationFailureDll = Join-Path $activationFailureOutput `
@@ -541,6 +597,8 @@ if (Test-Path -LiteralPath $staleTestCecil -PathType Leaf) {
 foreach ($outputDirectory in @(
         $contractOutput,
         $consumerOutput,
+        $rm32MirrorOutput,
+        $rm32GuideOutput,
         $constructionFailureOutput,
         $activationFailureOutput,
         $runtimeDeliveryOutput,
@@ -569,13 +627,15 @@ $reservedOutputNames = @(
 )
 foreach ($fixtureOutput in @(
         $harmonyFailureOutput,
-        $harmonyLifecycleOutput
+        $harmonyLifecycleOutput,
+        $rm32MirrorOutput,
+        $rm32GuideOutput
     )) {
     foreach ($reservedName in $reservedOutputNames) {
         if (Test-Path -LiteralPath (
                 Join-Path $fixtureOutput $reservedName
             )) {
-            throw "Manager-owned dependency leaked into RM-23 fixture output: $fixtureOutput\$reservedName"
+            throw "Manager-owned dependency leaked into fixture output: $fixtureOutput\$reservedName"
         }
     }
 }
@@ -594,7 +654,9 @@ $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
     $runtimeDeliveryDll `
     $cleanupFailureDll `
     $cleanupSuccessDll `
-    $UnityEngineInputLegacyModulePath
+    $UnityEngineInputLegacyModulePath `
+    $rm32MirrorDll `
+    $rm32GuideDll
 if ($LASTEXITCODE -ne 0) {
     throw 'Compiled product tests failed.'
 }

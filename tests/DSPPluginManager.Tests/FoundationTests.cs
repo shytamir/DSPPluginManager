@@ -17,7 +17,7 @@ namespace DSPPluginManager.Tests
 
         internal static void Run(string[] args)
         {
-            if (args.Length != 14)
+            if (args.Length != 16)
             {
                 throw new InvalidOperationException(
                     "Expected product DLL, assembly version, release label, " +
@@ -25,7 +25,7 @@ namespace DSPPluginManager.Tests
                     "plugin contract, selected consumer fixture, and two " +
                     "activation-failure fixtures, and the runtime-delivery " +
                     "fixture, two orderly-cleanup fixtures, and the Unity " +
-                    "input facade."
+                    "input facade, and the two RM-32 consumer fixtures."
                 );
             }
 

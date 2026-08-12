@@ -17,7 +17,7 @@ consumer or establish the final publishable package.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
-- **Active story:** RM-31 — Configuration service lifecycle integration
+- **Active story:** RM-32 — Both-consumer configuration pattern qualification
 - **Active story status:** Acceptance gate met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -44,10 +44,11 @@ configuration scopes. RM-26 delivered the value-preserving untyped document
 parser, RM-27 delivered the normalized shortcut scalar and codec, and RM-28
 delivered typed binding and in-memory mutation. RM-29 delivered deterministic
 atomic persistence, and RM-30 delivered exact non-consuming Unity input
-polling. RM-31 has now met its acceptance gate with one retained configuration
-service integrated across supported activation and cleanup. Required plugin
-startup work uses explicit `Activate()` after host services are prepared;
-ambient private Unity `Awake` is not a supervised startup boundary.
+polling. RM-31 delivered one retained configuration service across supported
+activation and cleanup and was accepted by the project owner. RM-32 has met its
+acceptance gate with isolated Mirror- and Guide-shaped qualification fixtures.
+Required plugin startup work uses explicit `Activate()` after host services are
+prepared; ambient private Unity `Awake` is not a supervised startup boundary.
 
 The remaining host requirements are R-13 through R-15 from the private feature
 map. FM-05 requires safe per-plugin persistence, including Guide's late-bound
@@ -315,7 +316,7 @@ buffering, continuous/key-up queries, conflict management, or device expansion.
 
 ### RM-31 — Configuration service lifecycle integration
 
-**Status:** Acceptance gate met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a plugin implementer, I want my configuration handle ready for
 supported startup and retained through cleanup so lifecycle behavior is
@@ -355,7 +356,7 @@ consumer source changes.
 
 ### RM-32 — Both-consumer configuration pattern qualification
 
-**Status:** Pending
+**Status:** Acceptance gate met; awaiting project-owner acceptance
 
 **Story:** As a migration maintainer, I want both mapped configuration patterns
 exercised before real repository changes so host omissions are found upstream.

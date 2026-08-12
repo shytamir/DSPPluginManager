@@ -16,14 +16,14 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 3 active; RM-24 through RM-30 accepted, and RM-31 acceptance gate met awaiting project-owner acceptance |
+| Roadmap status | Milestone 3 active; RM-24 through RM-31 accepted, and RM-32 acceptance gate met awaiting project-owner acceptance |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
-| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration ownership, parsing, typed binding, deterministic persistence, lifecycle integration, shortcut scalar conversion, and exact Unity input polling are implemented |
+| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration ownership, parsing, typed binding, deterministic persistence, lifecycle integration, shortcut scalar conversion, and exact Unity input polling are implemented, and both mapped consumer configuration patterns have passed deterministic qualification |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and exact shortcut-polling slices implemented with their required host services |
 | Consumer migrations | Mirror selected first; migration not started |
@@ -51,8 +51,9 @@ Unity main thread and retains one configuration service per selected plugin from
 pre-construction scope loading through supported activation and cleanup. The
 temporary Thunderstore package remains internal automation evidence rather than
 an installable product. Consumer migration has not started. The approved
-Milestone 3 roadmap is active with RM-24 through RM-30 accepted and RM-31's
-acceptance gate met, awaiting project-owner acceptance.
+Milestone 3 roadmap is active with RM-24 through RM-31 accepted and RM-32's
+both-consumer configuration qualification acceptance gate met, awaiting
+project-owner acceptance.
 
 ## Purpose and success
 
