@@ -85,12 +85,18 @@ public static class RM34Keyboard
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(IntPtr window);
 
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint SendInput(
         uint count,
         INPUT[] inputs,
         int size
     );
+
+    [DllImport("user32.dll")]
+    private static extern uint MapVirtualKey(uint code, uint mapType);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct INPUT
@@ -136,29 +142,55 @@ public static class RM34Keyboard
         public ushort parameterHigh;
     }
 
-    public static void SendChord(byte[] keys, int holdMilliseconds)
+    private static void SendKey(byte key, bool keyUp)
     {
-        INPUT[] down = new INPUT[keys.Length];
-        INPUT[] up = new INPUT[keys.Length];
-        for (int index = 0; index < keys.Length; index++)
+        INPUT[] input = new INPUT[1];
+        input[0].type = 1;
+        input[0].input.keyboard.virtualKey = key;
+        input[0].input.keyboard.scanCode = (ushort)MapVirtualKey(key, 0);
+        input[0].input.keyboard.flags = keyUp ? 2u : 0u;
+        if (SendInput(1, input, Marshal.SizeOf(typeof(INPUT))) != 1)
         {
-            down[index].type = 1;
-            down[index].input.keyboard.virtualKey = keys[index];
-            up[index].type = 1;
-            up[index].input.keyboard.virtualKey =
-                keys[keys.Length - index - 1];
-            up[index].input.keyboard.flags = 2;
+            throw new InvalidOperationException(
+                "Windows did not accept an RM-34 keyboard event."
+            );
         }
-        int size = Marshal.SizeOf(typeof(INPUT));
-        if (SendInput((uint)down.Length, down, size) != down.Length)
+    }
+
+    public static void SendChord(
+        IntPtr expectedWindow,
+        byte[] keys,
+        int frameMilliseconds
+    )
+    {
+        if (GetForegroundWindow() != expectedWindow)
             throw new InvalidOperationException(
-                "Windows did not accept the complete key-down chord."
+                "DSP lost foreground focus before RM-34 input."
             );
-        Thread.Sleep(holdMilliseconds);
-        if (SendInput((uint)up.Length, up, size) != up.Length)
-            throw new InvalidOperationException(
-                "Windows did not accept the complete key-up chord."
-            );
+
+        int pressed = 0;
+        try
+        {
+            // The last key is the primary key. Press modifiers separately so
+            // Unity observes them as held before the primary GetKeyDown frame.
+            for (; pressed < keys.Length - 1; pressed++)
+            {
+                SendKey(keys[pressed], false);
+                Thread.Sleep(frameMilliseconds);
+            }
+            SendKey(keys[keys.Length - 1], false);
+            pressed++;
+            Thread.Sleep(frameMilliseconds * 2);
+        }
+        finally
+        {
+            while (pressed > 0)
+            {
+                pressed--;
+                SendKey(keys[pressed], true);
+                Thread.Sleep(frameMilliseconds);
+            }
+        }
     }
 }
 '@
@@ -247,8 +279,25 @@ function Send-KeyChord {
     if (-not $activated) {
         throw 'The installed DSP window could not receive RM-34 input.'
     }
-    Start-Sleep -Milliseconds 250
-    [RM34Keyboard]::SendChord($VirtualKeys, 350)
+    $focusDeadline = [DateTime]::UtcNow.AddSeconds(3)
+    while ([DateTime]::UtcNow -lt $focusDeadline -and
+        [RM34Keyboard]::GetForegroundWindow() -ne
+            $Process.MainWindowHandle) {
+        $null = [RM34Keyboard]::SetForegroundWindow(
+            $Process.MainWindowHandle
+        )
+        Start-Sleep -Milliseconds 100
+    }
+    if ([RM34Keyboard]::GetForegroundWindow() -ne
+        $Process.MainWindowHandle) {
+        throw 'DSP did not retain foreground focus for RM-34 input.'
+    }
+    Start-Sleep -Milliseconds 500
+    [RM34Keyboard]::SendChord(
+        $Process.MainWindowHandle,
+        $VirtualKeys,
+        100
+    )
     Start-Sleep -Milliseconds 250
 }
 
@@ -352,14 +401,14 @@ function Invoke-InstalledRun {
         Wait-File $guideActivated $process $deadline
 
         if ($Run -eq 1) {
-            Send-KeyChord $process ([byte[]](0x10, 0x41, 0x78))
+            Send-KeyChord $process ([byte[]](0xA0, 0x41, 0x78))
             Start-Sleep -Milliseconds 750
             if (Test-Path -LiteralPath $mirrorPoll -PathType Leaf) {
                 throw 'The Mirror exact shortcut accepted an additional keyboard key.'
             }
         }
         Send-UntilEvidence `
-            $process ([byte[]](0x10, 0x78)) $mirrorPoll $deadline
+            $process ([byte[]](0xA0, 0x78)) $mirrorPoll $deadline
         Send-UntilEvidence `
             $process ([byte[]](0x77)) $guidePoll $deadline
 
