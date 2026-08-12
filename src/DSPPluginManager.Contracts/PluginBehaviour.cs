@@ -8,6 +8,7 @@ namespace DSPPluginManager.Contracts
     {
         private PluginLogger logger;
         private string writableRoot;
+        private PluginConfiguration configuration;
 
         public PluginLogger Logger
         {
@@ -36,6 +37,21 @@ namespace DSPPluginManager.Contracts
                 }
 
                 return writableRoot;
+            }
+        }
+
+        public PluginConfiguration Config
+        {
+            get
+            {
+                if (configuration == null)
+                {
+                    throw new InvalidOperationException(
+                        "The host has not prepared the plugin configuration."
+                    );
+                }
+
+                return configuration;
             }
         }
 
@@ -99,6 +115,22 @@ namespace DSPPluginManager.Contracts
             }
 
             writableRoot = normalized;
+        }
+
+        internal void InitializeConfiguration(PluginConfiguration value)
+        {
+            if (value == null)
+            {
+                throw new ArgumentNullException("value");
+            }
+            if (configuration != null)
+            {
+                throw new InvalidOperationException(
+                    "The plugin configuration has already been prepared."
+                );
+            }
+
+            configuration = value;
         }
 
         private static bool IsDriveRelative(string path)

@@ -18,7 +18,8 @@ consumer or establish the final publishable package.
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
 - **Active story:** RM-24 — Public configuration and shortcut contract slice
-- **Active story status:** Pending implementation
+- **Active story status:** Acceptance gate met; awaiting project-owner
+  acceptance
 - **In progress:** None
 
 ## Working rules
@@ -52,7 +53,7 @@ consumer, but both mapped consumer patterns constrain this milestone.
 
 ### RM-24 — Public configuration and shortcut contract slice
 
-**Status:** Pending implementation
+**Status:** Acceptance gate met; awaiting project-owner acceptance
 
 **Story:** As a plugin implementer, I want the complete bounded configuration
 and shortcut surface fixed before storage work begins so migration code has one

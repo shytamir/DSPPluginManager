@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DSPPluginManager.Discovery;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace DSPPluginManager.ContractTests
 {
@@ -112,7 +113,7 @@ namespace DSPPluginManager.ContractTests
                 TypeDefinition[] types = assembly.MainModule.Types
                     .Where(type => type.IsPublic)
                     .ToArray();
-                TestAssert.Equal(3, types.Length, "public contract type count");
+                TestAssert.Equal(6, types.Length, "public contract type count");
 
                 TypeDefinition marker = types.Single(type =>
                     type.FullName == PluginContractRules.MetadataTypeName
@@ -172,7 +173,7 @@ namespace DSPPluginManager.ContractTests
                     "Unity assembly identity"
                 );
                 TestAssert.Equal(
-                    "Logger,WritableRoot",
+                    "Config,Logger,WritableRoot",
                     string.Join(",", pluginBase.Properties
                         .Select(property => property.Name)
                         .OrderBy(name => name, StringComparer.Ordinal)),
@@ -206,8 +207,22 @@ namespace DSPPluginManager.ContractTests
                     writableRootProperty.SetMethod == null,
                     "The plugin writable root must be public read-only."
                 );
+                PropertyDefinition configurationProperty =
+                    pluginBase.Properties.Single(property =>
+                        property.Name == "Config"
+                    );
                 TestAssert.Equal(
-                    "Activate,Deactivate,get_Logger,get_WritableRoot",
+                    "DSPPluginManager.Contracts.PluginConfiguration",
+                    configurationProperty.PropertyType.FullName,
+                    "base configuration property type"
+                );
+                TestAssert.True(
+                    configurationProperty.GetMethod.IsPublic &&
+                    configurationProperty.SetMethod == null,
+                    "The plugin configuration handle must be public read-only."
+                );
+                TestAssert.Equal(
+                    "Activate,Deactivate,get_Config,get_Logger,get_WritableRoot",
                     string.Join(",", pluginBase.Methods
                         .Where(method => method.IsPublic && !method.IsConstructor)
                         .Select(method => method.Name)
@@ -273,6 +288,7 @@ namespace DSPPluginManager.ContractTests
                     TestAssert.True(field.IsPrivate && field.IsInitOnly,
                         fieldName + " attribution must be immutable.");
                 }
+                ValidateConfigurationContract(assembly);
                 TestAssert.True(
                     !assembly.MainModule.AssemblyReferences.Any(reference =>
                         reference.Name == "BepInEx"
@@ -280,6 +296,190 @@ namespace DSPPluginManager.ContractTests
                     "The contract must not reference BepInEx."
                 );
             }
+        }
+
+        private static void ValidateConfigurationContract(
+            AssemblyDefinition assembly
+        )
+        {
+            TypeDefinition configuration = assembly.MainModule.GetType(
+                "DSPPluginManager.Contracts.PluginConfiguration"
+            );
+            TestAssert.True(
+                configuration != null && configuration.IsPublic &&
+                configuration.IsSealed,
+                "PluginConfiguration must be public and sealed."
+            );
+            TestAssert.True(
+                !configuration.Methods.Any(method =>
+                    method.IsPublic && method.IsConstructor
+                ),
+                "Plugins must not construct configuration handles."
+            );
+            MethodDefinition[] binds = configuration.Methods.Where(method =>
+                method.IsPublic && method.Name == "Bind"
+            ).ToArray();
+            TestAssert.Equal(3, binds.Length, "configuration Bind overloads");
+            TestAssert.Equal(
+                "DSPPluginManager.Contracts.KeyboardShortcut," +
+                "System.Boolean,System.String",
+                string.Join(",", binds
+                    .Select(method => method.Parameters[2].ParameterType.FullName)
+                    .OrderBy(name => name, StringComparer.Ordinal)),
+                "configuration value domain"
+            );
+            foreach (MethodDefinition bind in binds)
+            {
+                TestAssert.Equal(
+                    "System.String,System.String," +
+                    bind.Parameters[2].ParameterType.FullName +
+                    ",System.String",
+                    string.Join(",", bind.Parameters.Select(parameter =>
+                        parameter.ParameterType.FullName
+                    )),
+                    "Bind parameter contract"
+                );
+                GenericInstanceType returnType =
+                    bind.ReturnType as GenericInstanceType;
+                TestAssert.True(
+                    returnType != null &&
+                    returnType.ElementType.FullName ==
+                        "DSPPluginManager.Contracts.PluginConfigurationEntry`1" &&
+                    returnType.GenericArguments.Single().FullName ==
+                        bind.Parameters[2].ParameterType.FullName,
+                    "Bind must return the matching closed entry."
+                );
+            }
+            TestAssert.Equal(
+                "Bind,Bind,Bind,Save",
+                string.Join(",", configuration.Methods
+                    .Where(method => method.IsPublic && !method.IsConstructor)
+                    .Select(method => method.Name)
+                    .OrderBy(name => name, StringComparer.Ordinal)),
+                "configuration public methods"
+            );
+            MethodDefinition configurationConstructor =
+                configuration.Methods.Single(method => method.IsConstructor);
+            TestAssert.True(
+                configurationConstructor.IsAssembly &&
+                configurationConstructor.Parameters.Count == 4 &&
+                configurationConstructor.Parameters.Take(3).All(parameter =>
+                    parameter.ParameterType.FullName.StartsWith(
+                        "System.Func`5<",
+                        StringComparison.Ordinal
+                    )
+                ) && configurationConstructor.Parameters[3]
+                    .ParameterType.FullName == "System.Action",
+                "The host-only configuration delegation seam is invalid."
+            );
+
+            TypeDefinition entry = assembly.MainModule.GetType(
+                "DSPPluginManager.Contracts.PluginConfigurationEntry`1"
+            );
+            TestAssert.True(
+                entry != null && entry.IsPublic && entry.IsSealed,
+                "PluginConfigurationEntry<T> must be public and sealed."
+            );
+            TestAssert.True(
+                !entry.Methods.Any(method =>
+                    method.IsPublic && method.IsConstructor
+                ),
+                "Plugins must not construct configuration entries."
+            );
+            PropertyDefinition value = entry.Properties.Single(property =>
+                property.Name == "Value"
+            );
+            TestAssert.True(
+                value.GetMethod.IsPublic && value.SetMethod.IsPublic,
+                "Configuration entry Value must be publicly read/write."
+            );
+            TestAssert.Equal(
+                "get_Value,set_Value",
+                string.Join(",", entry.Methods
+                    .Where(method => method.IsPublic && !method.IsConstructor)
+                    .Select(method => method.Name)
+                    .OrderBy(name => name, StringComparer.Ordinal)),
+                "entry public methods"
+            );
+            MethodDefinition entryConstructor = entry.Methods.Single(method =>
+                method.IsConstructor
+            );
+            TestAssert.True(
+                entryConstructor.IsAssembly &&
+                entryConstructor.Parameters.Count == 2 &&
+                entryConstructor.Parameters[0].ParameterType.FullName.StartsWith(
+                    "System.Func`1<",
+                    StringComparison.Ordinal
+                ) && entryConstructor.Parameters[1]
+                    .ParameterType.FullName.StartsWith(
+                        "System.Action`1<",
+                        StringComparison.Ordinal
+                    ),
+                "The host-only entry delegation seam is invalid."
+            );
+
+            TypeDefinition shortcut = assembly.MainModule.GetType(
+                "DSPPluginManager.Contracts.KeyboardShortcut"
+            );
+            TestAssert.True(
+                shortcut != null && shortcut.IsPublic && shortcut.IsSealed &&
+                shortcut.IsValueType,
+                "KeyboardShortcut must be a public readonly value type."
+            );
+            TestAssert.True(
+                shortcut.CustomAttributes.Any(attribute =>
+                    attribute.AttributeType.FullName ==
+                        "System.Runtime.CompilerServices.IsReadOnlyAttribute"
+                ),
+                "KeyboardShortcut must be readonly."
+            );
+            TestAssert.True(
+                shortcut.Interfaces.Any(implementation =>
+                    implementation.InterfaceType.FullName ==
+                        "System.IEquatable`1<DSPPluginManager.Contracts.KeyboardShortcut>"
+                ),
+                "KeyboardShortcut must implement value equality."
+            );
+            MethodDefinition shortcutConstructor = shortcut.Methods.Single(
+                method => method.IsPublic && method.IsConstructor
+            );
+            TestAssert.Equal(
+                "UnityEngine.KeyCode,UnityEngine.KeyCode[]",
+                string.Join(",", shortcutConstructor.Parameters.Select(parameter =>
+                    parameter.ParameterType.FullName
+                )),
+                "shortcut constructor parameters"
+            );
+            TestAssert.True(
+                shortcutConstructor.Parameters[1].CustomAttributes.Any(attribute =>
+                    attribute.AttributeType.FullName ==
+                        "System.ParamArrayAttribute"
+                ),
+                "Shortcut held keys must be a params array."
+            );
+            PropertyDefinition unset = shortcut.Properties.Single(property =>
+                property.Name == "Unset"
+            );
+            TestAssert.True(
+                unset.GetMethod.IsPublic && unset.GetMethod.IsStatic &&
+                unset.SetMethod == null,
+                "Unset must be a public get-only static property."
+            );
+            TestAssert.Equal(
+                "Equals,Equals,GetHashCode,IsDown,ToString,get_Unset," +
+                "op_Equality,op_Inequality",
+                string.Join(",", shortcut.Methods
+                    .Where(method => method.IsPublic && !method.IsConstructor)
+                    .Select(method => method.Name)
+                    .OrderBy(name => name, StringComparer.Ordinal)),
+                "shortcut public methods"
+            );
+            TestAssert.True(
+                !assembly.MainModule.AssemblyReferences.Any(reference =>
+                    reference.Name == "UnityEngine.InputLegacyModule"
+                ),
+                "The contract must not reference Unity input implementation."
+            );
         }
 
         private static void ValidateConsumer(string path)
@@ -406,7 +606,83 @@ namespace DSPPluginManager.ContractTests
                     )),
                     "output helper parameters"
                 );
+
+                ValidateConfigurationConsumerShapes(assembly);
             }
+        }
+
+        private static void ValidateConfigurationConsumerShapes(
+            AssemblyDefinition assembly
+        )
+        {
+            TypeDefinition mirror = assembly.MainModule.GetType(
+                "DSPPluginManager.RM09Consumer.MirrorConfigurationShape"
+            );
+            TypeDefinition guide = assembly.MainModule.GetType(
+                "DSPPluginManager.RM09Consumer.GuideConfigurationShape"
+            );
+            TestAssert.True(
+                mirror != null && guide != null,
+                "RM-24 consumer-shaped fixtures are missing."
+            );
+
+            MethodReference[] mirrorCalls = mirror.Methods
+                .SelectMany(method => method.Body == null
+                    ? Enumerable.Empty<Instruction>()
+                    : method.Body.Instructions)
+                .Select(instruction => instruction.Operand as MethodReference)
+                .Where(method => method != null)
+                .ToArray();
+            TestAssert.Equal(
+                3,
+                mirrorCalls.Count(method =>
+                    method.DeclaringType.FullName ==
+                        "DSPPluginManager.Contracts.PluginConfiguration" &&
+                    method.Name == "Bind"
+                ),
+                "Mirror-shaped fixed binds"
+            );
+            TestAssert.True(
+                mirrorCalls.Any(method =>
+                    method.DeclaringType.FullName ==
+                        "DSPPluginManager.Contracts.KeyboardShortcut" &&
+                    method.Name == "IsDown"
+                ) && mirrorCalls.Any(method =>
+                    method.Name == "ToString"
+                ),
+                "Mirror-shaped shortcut polling/display calls are missing."
+            );
+
+            MethodReference[] guideCalls = guide.Methods
+                .SelectMany(method => method.Body == null
+                    ? Enumerable.Empty<Instruction>()
+                    : method.Body.Instructions)
+                .Select(instruction => instruction.Operand as MethodReference)
+                .Where(method => method != null)
+                .ToArray();
+            TestAssert.Equal(
+                3,
+                guideCalls.Count(method =>
+                    method.DeclaringType.FullName ==
+                        "DSPPluginManager.Contracts.PluginConfiguration" &&
+                    method.Name == "Bind"
+                ),
+                "Guide-shaped fixed and late binds"
+            );
+            TestAssert.True(
+                guideCalls.Any(method =>
+                    method.DeclaringType.FullName ==
+                        "DSPPluginManager.Contracts.PluginConfiguration" &&
+                    method.Name == "Save"
+                ),
+                "Guide-shaped explicit save call is missing."
+            );
+            TestAssert.True(
+                !assembly.MainModule.AssemblyReferences.Any(reference =>
+                    reference.Name == "BepInEx"
+                ),
+                "RM-24 fixtures must not reference BepInEx."
+            );
         }
 
         private static AssemblyDefinition Read(string path)

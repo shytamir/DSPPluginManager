@@ -5,6 +5,24 @@ using System.Linq;
 
 namespace UnityEngine
 {
+    public enum KeyCode
+    {
+        None = 0,
+        A = 97,
+        K = 107,
+        F8 = 289,
+        F9 = 290,
+        RightShift = 303,
+        LeftShift = 304,
+        RightControl = 305,
+        LeftControl = 306,
+        RightAlt = 307,
+        LeftAlt = 308,
+        Mouse0 = 323,
+        Mouse6 = 329,
+        JoystickButton0 = 330
+    }
+
     public class Object
     {
         private static int nextInstanceId;

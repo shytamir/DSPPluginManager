@@ -17,6 +17,7 @@ namespace DSPPluginManager.Tests
                     args[5],
                     args[6]
                 );
+                RM24ContractBehaviorTests.Run(args[6]);
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
@@ -52,7 +53,7 @@ namespace DSPPluginManager.Tests
                     "bootstrap entry, diagnostic, " +
                     "reserved dependency, activation failure isolation, " +
                     "runtime-delivery metadata, orderly shutdown, logging, " +
-                    "candidate enumeration, " +
+                    "candidate enumeration, RM-24 contract behavior, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;
