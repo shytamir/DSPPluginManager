@@ -6,6 +6,9 @@
 - [Mirror and Guide migration instructions](MIGRATION.md) — authoritative
   source, build, test, configuration-drift, and blocked packaging substitutions
   for the two mapped consumers.
+- [RM-34 installed exit-test design](RM34-EXIT-TEST-DESIGN.md) — frozen
+  two-launch stimuli, observations, retained evidence, and restoration gate for
+  Milestone 3.
 - [Milestone 2 exit evidence](MILESTONE-2-EXIT-EVIDENCE.md) — integrated
   installed DSP results, tested artifact identities, and restoration record.
 - [RM-13 lifecycle evidence](RM13-LIFECYCLE-EVIDENCE.md) — installed DSP
