@@ -14,6 +14,8 @@ param(
 
     [string]$UnityEngineCoreModulePath = '',
 
+    [string]$UnityEngineInputLegacyModulePath = '',
+
     [string]$RepositoryRoot = ''
 )
 
@@ -38,6 +40,8 @@ $contractProject = Join-Path $RepositoryRoot `
     'src\DSPPluginManager.Contracts\DSPPluginManager.Contracts.csproj'
 $facadeProject = Join-Path $RepositoryRoot `
     'fixtures\UnityReferenceFacade\UnityReferenceFacade.csproj'
+$inputFacadeProject = Join-Path $RepositoryRoot `
+    'fixtures\UnityInputReferenceFacade\UnityInputReferenceFacade.csproj'
 $consumerProject = Join-Path $RepositoryRoot `
     'fixtures\RM09.Consumer\DSPPluginManager.RM09Consumer.csproj'
 $constructionFailureProject = Join-Path $RepositoryRoot `
@@ -63,6 +67,8 @@ $handoffOutput = Join-Path $RepositoryRoot 'artifacts\bootstrap-components'
 $contractOutput = Join-Path $RepositoryRoot 'artifacts\contracts'
 $facadeOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\unity-reference'
+$inputFacadeOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\unity-input-reference'
 $consumerOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm09-consumer'
 $constructionFailureOutput = Join-Path $RepositoryRoot `
@@ -94,6 +100,7 @@ foreach ($project in @(
         $unityHostProject,
         $contractProject,
         $facadeProject,
+        $inputFacadeProject,
         $consumerProject,
         $constructionFailureProject,
         $activationFailureProject,
@@ -116,6 +123,7 @@ foreach ($lockFile in @(
         (Join-Path (Split-Path -Parent $unityHostProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $contractProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $facadeProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $inputFacadeProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $consumerProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $constructionFailureProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $activationFailureProject) 'packages.lock.json'),
@@ -192,6 +200,41 @@ try {
         throw 'Unity compile reference must be the neutral unsigned UnityEngine.CoreModule 0.0.0.0 identity.'
     }
 
+    & dotnet restore $inputFacadeProject `
+        --packages $packageDirectory `
+        --locked-mode `
+        "-p:UnityEngineCoreModulePath=$facadeDll" `
+        --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unity input compile-reference facade restore failed.'
+    }
+    & dotnet build $inputFacadeProject `
+        --no-restore `
+        --configuration Release `
+        --output $inputFacadeOutput `
+        "-p:UnityEngineCoreModulePath=$facadeDll" `
+        @facadeProperties
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unity input compile-reference facade build failed.'
+    }
+    $inputFacadeDll = Join-Path $inputFacadeOutput `
+        'UnityEngine.InputLegacyModule.dll'
+    if ([string]::IsNullOrWhiteSpace($UnityEngineInputLegacyModulePath)) {
+        $UnityEngineInputLegacyModulePath = $inputFacadeDll
+    }
+    $UnityEngineInputLegacyModulePath = (
+        Resolve-Path -LiteralPath $UnityEngineInputLegacyModulePath
+    ).Path
+    $inputIdentity = [Reflection.AssemblyName]::GetAssemblyName(
+        $UnityEngineInputLegacyModulePath
+    )
+    $inputToken = $inputIdentity.GetPublicKeyToken()
+    if ($inputIdentity.Name -cne 'UnityEngine.InputLegacyModule' -or
+        $inputIdentity.Version.ToString() -cne '0.0.0.0' -or
+        ($null -ne $inputToken -and $inputToken.Length -ne 0)) {
+        throw 'Unity input compile reference must be the neutral unsigned UnityEngine.InputLegacyModule 0.0.0.0 identity.'
+    }
+
     & dotnet restore $testProject `
         --packages $packageDirectory `
         --locked-mode `
@@ -230,6 +273,7 @@ try {
         "-p:DSPPluginManagerAssemblyPath=$(Join-Path $productOutput 'DSPPluginManager.dll')" `
         "-p:DSPPluginManagerContractsAssemblyPath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
         "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:UnityEngineInputLegacyModulePath=$UnityEngineInputLegacyModulePath" `
         --verbosity minimal
     if ($LASTEXITCODE -ne 0) {
         throw 'Unity host restore failed.'
@@ -332,6 +376,7 @@ try {
         "-p:DSPPluginManagerAssemblyPath=$productDll" `
         "-p:DSPPluginManagerContractsAssemblyPath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
         "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:UnityEngineInputLegacyModulePath=$UnityEngineInputLegacyModulePath" `
         @properties
     if ($LASTEXITCODE -ne 0) {
         throw 'Persistent Unity host build failed.'
@@ -510,6 +555,11 @@ foreach ($outputDirectory in @(
         )) {
         throw "Unity compile input leaked into build output: $outputDirectory"
     }
+    if (Test-Path -LiteralPath (
+            Join-Path $outputDirectory 'UnityEngine.InputLegacyModule.dll'
+        )) {
+        throw "Unity input compile input leaked into build output: $outputDirectory"
+    }
 }
 $reservedOutputNames = @(
     '0Harmony.dll',
@@ -543,7 +593,8 @@ $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
     $activationFailureDll `
     $runtimeDeliveryDll `
     $cleanupFailureDll `
-    $cleanupSuccessDll
+    $cleanupSuccessDll `
+    $UnityEngineInputLegacyModulePath
 if ($LASTEXITCODE -ne 0) {
     throw 'Compiled product tests failed.'
 }
@@ -560,7 +611,8 @@ $harmonyTestExecutable = Join-Path $harmonyTestOutput `
     $contractDll `
     $cleanupSuccessDll `
     $harmonyFailureDll `
-    $harmonyLifecycleDll
+    $harmonyLifecycleDll `
+    $UnityEngineInputLegacyModulePath
 if ($LASTEXITCODE -ne 0) {
     throw 'RM-23 isolated Harmony lifecycle tests failed.'
 }

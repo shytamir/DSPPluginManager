@@ -24,6 +24,7 @@ namespace DSPPluginManager.UnityHost
             {
                 if (current == null)
                 {
+                    UnityShortcutPollingBridge.Install(unityMainThreadId);
                     current = UnityHostContainer.Create(unityMainThreadId);
                     return "Persistent Unity host root created.";
                 }

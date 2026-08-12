@@ -17,7 +17,7 @@ consumer or establish the final publishable package.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
-- **Active story:** RM-29 — Deterministic autosave and atomic replacement
+- **Active story:** RM-30 — Exact non-consuming shortcut polling
 - **Active story status:** Acceptance gate met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -42,11 +42,11 @@ Harmony closure. RM-24 delivered the bounded public configuration and shortcut
 compile contract, and RM-25 delivered separate manager-owned per-plugin
 configuration scopes. RM-26 delivered the value-preserving untyped document
 parser, RM-27 delivered the normalized shortcut scalar and codec, and RM-28
-delivered typed binding and in-memory mutation. RM-29 has now met its acceptance
-gate with deterministic atomic persistence; Unity input behavior remains
-deliberately absent. Required plugin startup work uses explicit `Activate()`
-after host services are prepared; ambient private Unity `Awake` is not a
-supervised startup boundary.
+delivered typed binding and in-memory mutation. RM-29 delivered deterministic
+atomic persistence, and RM-30 has now met its acceptance gate with exact
+non-consuming Unity input polling. Required plugin startup work uses explicit
+`Activate()` after host services are prepared; ambient private Unity `Awake` is
+not a supervised startup boundary.
 
 The remaining host requirements are R-13 through R-15 from the private feature
 map. FM-05 requires safe per-plugin persistence, including Guide's late-bound
@@ -238,7 +238,7 @@ events, or enumeration APIs.
 
 ### RM-29 — Deterministic autosave and atomic replacement
 
-**Status:** Acceptance gate met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As an operator, I want configuration changes persisted without
 destroying the last usable file so a failed save cannot silently erase settings.
@@ -277,7 +277,7 @@ configuration UI.
 
 ### RM-30 — Exact non-consuming shortcut polling
 
-**Status:** Pending
+**Status:** Acceptance gate met; awaiting project-owner acceptance
 
 **Story:** As a plugin implementer, I want configured shortcuts evaluated with
 the established exact-combination rule so F8/F9 behavior does not drift during

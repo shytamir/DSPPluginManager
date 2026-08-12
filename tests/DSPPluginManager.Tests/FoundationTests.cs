@@ -17,14 +17,15 @@ namespace DSPPluginManager.Tests
 
         internal static void Run(string[] args)
         {
-            if (args.Length != 13)
+            if (args.Length != 14)
             {
                 throw new InvalidOperationException(
                     "Expected product DLL, assembly version, release label, " +
                     "managed dependency directory, Unity host, facade, " +
                     "plugin contract, selected consumer fixture, and two " +
                     "activation-failure fixtures, and the runtime-delivery " +
-                    "fixture, and two orderly-cleanup fixtures."
+                    "fixture, two orderly-cleanup fixtures, and the Unity " +
+                    "input facade."
                 );
             }
 

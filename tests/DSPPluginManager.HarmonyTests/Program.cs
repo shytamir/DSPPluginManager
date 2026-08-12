@@ -26,12 +26,13 @@ namespace DSPPluginManager.HarmonyTests
         {
             try
             {
-                if (args.Length != 7)
+                if (args.Length != 8)
                 {
                     throw new InvalidOperationException(
                         "Expected dependency directory, Unity host, facade, " +
                         "contract, non-Harmony fixture, Harmony failure " +
-                        "fixture, and Harmony lifecycle fixture."
+                        "fixture, Harmony lifecycle fixture, and Unity input " +
+                        "facade."
                     );
                 }
                 Run(args);
@@ -56,6 +57,7 @@ namespace DSPPluginManager.HarmonyTests
             string nonHarmonyPath = Path.GetFullPath(args[4]);
             string failurePath = Path.GetFullPath(args[5]);
             string harmonyPath = Path.GetFullPath(args[6]);
+            string inputFacadePath = Path.GetFullPath(args[7]);
             string sandbox = Path.Combine(
                 Path.GetTempPath(),
                 "DSPPluginManager.HarmonyTests",
@@ -81,6 +83,7 @@ namespace DSPPluginManager.HarmonyTests
                 {
                     resolver.Install();
                     Assembly.LoadFrom(facadePath);
+                    Assembly.LoadFrom(inputFacadePath);
                     PluginMetadataReader reader = new PluginMetadataReader(
                         new PluginInspectionReferences(
                             contractPath,

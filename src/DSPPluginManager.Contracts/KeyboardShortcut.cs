@@ -183,6 +183,16 @@ namespace DSPPluginManager.Contracts
             return mainKey == KeyCode.None ? string.Empty : ToString();
         }
 
+        internal KeyCode MainKey
+        {
+            get { return mainKey; }
+        }
+
+        internal bool ContainsHeldKey(KeyCode key)
+        {
+            return Array.IndexOf(heldKeys ?? Array.Empty<KeyCode>(), key) >= 0;
+        }
+
         internal static bool TryParse(
             string serializedValue,
             out KeyboardShortcut shortcut

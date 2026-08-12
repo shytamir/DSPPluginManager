@@ -17,12 +17,14 @@ namespace DSPPluginManager.Tests
                     args[0],
                     args[4],
                     args[5],
-                    args[6]
+                    args[6],
+                    args[13]
                 );
                 RM24ContractBehaviorTests.Run(args[6]);
                 RM27ShortcutContractTests.Run(args[6]);
                 RM28TypedConfigurationTests.Run(args[4], args[6]);
                 RM29ConfigurationPersistenceTests.Run(args[4], args[6]);
+                RM30ShortcutPollingTests.Run(args[5], args[6], args[13]);
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
@@ -64,6 +66,7 @@ namespace DSPPluginManager.Tests
                     "RM-27 shortcut scalar, " +
                     "RM-28 typed configuration, " +
                     "RM-29 atomic configuration persistence, " +
+                    "RM-30 exact shortcut polling, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;

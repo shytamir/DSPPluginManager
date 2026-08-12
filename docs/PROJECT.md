@@ -16,16 +16,16 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 3 active; RM-24 through RM-28 accepted, and RM-29 acceptance gate met awaiting project-owner acceptance |
+| Roadmap status | Milestone 3 active; RM-24 through RM-29 accepted, and RM-30 acceptance gate met awaiting project-owner acceptance |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
-| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration ownership, parsing, typed binding, deterministic persistence, and shortcut scalar conversion are implemented while lifecycle integration and Unity input polling remain pending |
+| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration ownership, parsing, typed binding, deterministic persistence, shortcut scalar conversion, and exact Unity input polling are implemented while configuration lifecycle integration remains pending |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
-| Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration awaits lifecycle preparation and shortcut polling awaits its Unity input bridge |
+| Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and exact shortcut-polling slices implemented; configuration awaits lifecycle preparation |
 | Consumer migrations | Mirror selected first; migration not started |
 | Installable or publishable product package | Not available |
 
@@ -46,10 +46,11 @@ values for later binding, and the keyboard-shortcut scalar has its bounded
 canonical codec. The late host can claim those values into stable Boolean,
 string, and shortcut entries with isolated default retention, then autosave a
 deterministic complete snapshot through same-directory atomic replacement.
-Lifecycle integration and Unity input polling are not implemented yet. The
-temporary Thunderstore package remains internal automation evidence rather
+The late host now installs exact, non-consuming keyboard polling on its admitted
+Unity main thread. Configuration lifecycle integration is not implemented yet.
+The temporary Thunderstore package remains internal automation evidence rather
 than an installable product. Consumer migration has not started. The approved
-Milestone 3 roadmap is active with RM-24 through RM-28 accepted and RM-29's
+Milestone 3 roadmap is active with RM-24 through RM-29 accepted and RM-30's
 acceptance gate met, awaiting project-owner acceptance.
 
 ## Purpose and success

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>UnityEngine.InputLegacyModule</AssemblyName>
+    <RootNamespace>UnityEngine</RootNamespace>
+    <Description>Compile and input-test facade; not a Unity implementation.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(UnityEngineCoreModulePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="ValidateUnityInputFacadeInputs" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(UnityEngineCoreModulePath)')"
+           Text="UnityEngineCoreModulePath must identify the Unity facade compilation input." />
+  </Target>
+</Project>

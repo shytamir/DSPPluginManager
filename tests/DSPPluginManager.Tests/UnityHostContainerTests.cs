@@ -15,7 +15,8 @@ namespace DSPPluginManager.Tests
             string productPath,
             string unityHostPath,
             string facadePath,
-            string contractPath
+            string contractPath,
+            string inputFacadePath
         )
         {
             Assembly product = FindLoadedAssembly(productPath);
@@ -28,6 +29,7 @@ namespace DSPPluginManager.Tests
             );
 
             Assembly facade = Assembly.LoadFrom(Path.GetFullPath(facadePath));
+            Assembly.LoadFrom(Path.GetFullPath(inputFacadePath));
             Type runtime = facade.GetType("UnityEngine.FacadeRuntime", true);
             InvokeStatic(runtime, "Reset");
 
@@ -54,6 +56,7 @@ namespace DSPPluginManager.Tests
             TestAssert.True(
                 references.Contains("DSPPluginManager") &&
                 references.Contains("UnityEngine.CoreModule") &&
+                references.Contains("UnityEngine.InputLegacyModule") &&
                 references.Contains("DSPPluginManager.Contracts") &&
                 !references.Contains("DSPPluginManager.RM09Consumer"),
                 "The late Unity host has an invalid assembly boundary."
