@@ -2,23 +2,22 @@
 
 ## Purpose
 
-This roadmap is the ordered implementation plan and story history for
+This roadmap records the completed implementation plan and story history for
 Milestone 2. Current product decisions and status remain authoritative in
 [`PROJECT.md`](PROJECT.md). The completed first roadmap is retained in the
 [documentation archive](archive/ROADMAP-MILESTONE-1.md).
 
-Milestone 2 is deliberately bounded around supervised Unity activation. It
-starts from the accepted deterministic candidate plan and stops before
+Milestone 2 was deliberately bounded around supervised Unity activation. It
+started from the accepted deterministic candidate plan and stopped before
 configuration, configurable shortcuts, real-consumer migration, final package
 layout, or publication.
 
 ## Current status
 
-- **Roadmap:** Active
-- **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-23 — Harmony availability through plugin lifecycle
-- **Active story status:** Acceptance conditions met; awaiting project-owner
-  acceptance
+- **Roadmap:** Completed
+- **Active milestone:** None
+- **Active story:** None
+- **Active story status:** None
 - **In progress:** None
 
 ## Working rules
@@ -43,21 +42,22 @@ and produced the same seven-entry candidate plan as the offline tests without
 runtime-loading or executing candidate code.
 
 Those accepted outcomes and the pinned manager-owned HarmonyX/MonoMod/Mono.Cecil
-stack are inputs to the stories below. They are not evidence that a plugin can
-yet be runtime-loaded, activated, supervised, or stopped.
+stack were inputs to the stories below. At the start of the roadmap, they were
+not evidence that a plugin could be runtime-loaded, activated, supervised, or
+stopped.
 
 ## Milestone 2: Supervised Unity activation
 
-Milestone 2 picks up at the accepted Milestone 1 reconciliation plan. It ends
-when selected fixture plugins can be loaded and supervised as real persistent
+Milestone 2 picked up at the accepted Milestone 1 reconciliation plan. It ended
+when selected fixture plugins could be loaded and supervised as real persistent
 Unity components, receive the first two required plugin services before
 startup, continue through the exercised Unity runtime behavior, and follow one
-observable orderly stop path. It also exercises the pinned manager-owned
+observable orderly stop path. It also exercised the pinned manager-owned
 Harmony stack through that lifecycle.
 
 Configuration, configurable shortcuts, real-consumer migration, final package
-layout, and publication remain outside this milestone. The stories are ordered
-so each implementation depends only on accepted earlier outcomes.
+layout, and publication remained outside this milestone. The stories were
+ordered so each implementation depended only on accepted earlier outcomes.
 
 ### RM-13 — Unity lifecycle observability decision probe
 
@@ -349,7 +349,7 @@ ordering.
 
 ### RM-23 — Harmony availability through plugin lifecycle
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a Mirror maintainer, I want the pinned manager-owned Harmony stack
 usable through activation and cleanup so plugins do not provision private
@@ -377,15 +377,17 @@ Harmony versions, shims, or a public MonoMod/Cecil contract.
 
 **Requirements:** R-17, R-18, and FM-08/09.
 
-## Milestone 2 exit
+## Milestone 2 exit — completed
 
-Milestone 2 is complete when an installed DSP run consumes the Milestone 1
-candidate plan, runtime-loads only selected fixture assemblies, activates
+The installed exit run consumed the Milestone 1 candidate cases within one
+12-entry plan, runtime-loaded only the six selected fixtures, and activated five
 independent real Unity components with logger and writable-root services ready
-before startup, demonstrates the exercised frame/coroutine/persistence behavior,
-isolates one activation failure, applies and removes one manager-provisioned
-Harmony patch, and records observable orderly stop outcomes before the
-current-run log closes.
+before startup. It demonstrated the exercised frame, coroutine, scene, and
+persistence behavior; isolated one activation failure; applied and removed one
+manager-provisioned Harmony patch; recorded four `Stopped` and one `StopFailed`
+orderly outcomes; and closed the current-run log after those outcomes. The
+[installed evidence record](MILESTONE-2-EXIT-EVIDENCE.md) retains the exact
+results, artifact identities, and restoration boundary.
 
-This exit does not claim configuration, configurable shortcuts, a migrated real
+This exit did not claim configuration, configurable shortcuts, a migrated real
 consumer, dependency-graph planning, or a publishable installation package.

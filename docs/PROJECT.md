@@ -14,7 +14,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 2: Supervised Unity activation is active |
+| Roadmap status | Milestone 2 completed; next roadmap not yet planned |
 | RM-13 Unity lifecycle observability decision probe | Accepted by project owner |
 | RM-14 selected assembly runtime loader | Accepted by project owner |
 | RM-15 deterministic lifecycle state record | Accepted by project owner |
@@ -25,7 +25,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-20 activation failure isolation | Accepted by project owner |
 | RM-21 exercised Unity runtime delivery | Accepted by project owner |
 | RM-22 observable orderly shutdown | Accepted by project owner |
-| RM-23 Harmony availability through plugin lifecycle | Acceptance conditions met in installed DSP; awaiting project-owner acceptance |
+| RM-23 Harmony availability through plugin lifecycle | Accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -40,6 +40,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-11 static plugin metadata recognition | Accepted by project owner |
 | RM-12 deterministic candidate reconciliation | Accepted by project owner |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
+| Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
 | Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; remaining migration surface not specified |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
@@ -81,7 +82,11 @@ unloading. A later installed fixture compiled only against the manager-owned
 manager dependency directory. It applied an attributable postfix, removed only
 its own patches during orderly cleanup, and retained the stack through cleanup;
 an independent Harmony patch failure did not prevent a non-Harmony fixture from
-completing its lifecycle.
+completing its lifecycle. The completed Milestone 2 installed exit then combined
+the accepted candidate plan, selected-only runtime activation, ordinary Unity
+delivery, failure isolation, orderly terminal outcomes, and Harmony teardown in
+one restored DSP run. Detailed results are retained in the
+[Milestone 2 evidence record](MILESTONE-2-EXIT-EVIDENCE.md).
 
 ## Purpose and success
 

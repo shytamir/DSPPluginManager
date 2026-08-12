@@ -24,6 +24,29 @@ namespace DSPPluginManager.ContractTests
                     Console.WriteLine(args[7]);
                     return 0;
                 }
+                if (args.Length == 13 &&
+                    args[0] == "--write-milestone2-fixture")
+                {
+                    string[] plan = Milestone2Fixture.Create(
+                        args[1],
+                        args[2],
+                        args[3],
+                        args[4],
+                        args[5],
+                        args[6],
+                        new[]
+                        {
+                            args[7],
+                            args[8],
+                            args[9],
+                            args[10],
+                            args[11]
+                        }
+                    );
+                    File.WriteAllLines(args[12], plan);
+                    Console.WriteLine(args[12]);
+                    return 0;
+                }
                 if (args.Length != 5)
                 {
                     throw new InvalidOperationException(
