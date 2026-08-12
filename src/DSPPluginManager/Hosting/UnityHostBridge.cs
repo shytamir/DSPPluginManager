@@ -11,6 +11,7 @@ namespace DSPPluginManager.Hosting
         private readonly Type entrypoint;
         private readonly MethodInfo ensureCreated;
         private readonly MethodInfo activateSelected;
+        private readonly MethodInfo stopPlugin;
 
         internal UnityHostBridge(string unityHostAssemblyPath)
             : this(unityHostAssemblyPath, null)
@@ -77,13 +78,20 @@ namespace DSPPluginManager.Hosting
                 "ActivateSelected",
                 BindingFlags.NonPublic | BindingFlags.Static
             );
-            if (ensureCreated == null || activateSelected == null)
+            stopPlugin = entrypoint.GetMethod(
+                "StopPlugin",
+                BindingFlags.NonPublic | BindingFlags.Static
+            );
+            if (ensureCreated == null || activateSelected == null ||
+                stopPlugin == null)
             {
                 throw new MissingMethodException(
                     entrypoint.FullName,
                     ensureCreated == null
                         ? "EnsureCreated"
-                        : "ActivateSelected"
+                        : activateSelected == null
+                            ? "ActivateSelected"
+                            : "StopPlugin"
                 );
             }
         }
@@ -150,6 +158,15 @@ namespace DSPPluginManager.Hosting
                     request ?? throw new ArgumentNullException("request")
                 },
                 "The selected plugin could not be invoked by the Unity host."
+            );
+        }
+
+        internal PluginStopInvocationResult StopPlugin(string identifier)
+        {
+            return Invoke<PluginStopInvocationResult>(
+                stopPlugin,
+                new object[] { identifier },
+                "The active plugin could not be stopped by the Unity host."
             );
         }
 

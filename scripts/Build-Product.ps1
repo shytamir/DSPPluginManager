@@ -44,6 +44,10 @@ $activationFailureProject = Join-Path $RepositoryRoot `
     'fixtures\RM20.ActivationFailure\DSPPluginManager.RM20ActivationFailure.csproj'
 $runtimeDeliveryProject = Join-Path $RepositoryRoot `
     'fixtures\RM21.RuntimeDelivery\DSPPluginManager.RM21RuntimeDelivery.csproj'
+$cleanupFailureProject = Join-Path $RepositoryRoot `
+    'fixtures\RM22.CleanupFailure\DSPPluginManager.RM22CleanupFailure.csproj'
+$cleanupSuccessProject = Join-Path $RepositoryRoot `
+    'fixtures\RM22.CleanupSuccess\DSPPluginManager.RM22CleanupSuccess.csproj'
 $packageDirectory = Join-Path $RepositoryRoot 'artifacts\nuget\packages'
 $productOutput = Join-Path $RepositoryRoot 'artifacts\build'
 $testOutput = Join-Path $RepositoryRoot 'artifacts\tests'
@@ -60,6 +64,10 @@ $activationFailureOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm20-activation-failure'
 $runtimeDeliveryOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm21-runtime-delivery'
+$cleanupFailureOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\rm22-cleanup-failure'
+$cleanupSuccessOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\rm22-cleanup-success'
 $dependencyRuntime = Join-Path $RepositoryRoot `
     'artifacts\managed-dependencies\runtime'
 $cecilReference = Join-Path $dependencyRuntime 'Mono.Cecil.dll'
@@ -75,7 +83,9 @@ foreach ($project in @(
         $consumerProject,
         $constructionFailureProject,
         $activationFailureProject,
-        $runtimeDeliveryProject
+        $runtimeDeliveryProject,
+        $cleanupFailureProject,
+        $cleanupSuccessProject
     )) {
     if (-not (Test-Path -LiteralPath $project -PathType Leaf)) {
         throw "Required project was not found: $project"
@@ -92,7 +102,9 @@ foreach ($lockFile in @(
         (Join-Path (Split-Path -Parent $consumerProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $constructionFailureProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $activationFailureProject) 'packages.lock.json'),
-        (Join-Path (Split-Path -Parent $runtimeDeliveryProject) 'packages.lock.json')
+        (Join-Path (Split-Path -Parent $runtimeDeliveryProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $cleanupFailureProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $cleanupSuccessProject) 'packages.lock.json')
     )) {
     if (-not (Test-Path -LiteralPath $lockFile -PathType Leaf)) {
         throw "Required package lock was not found: $lockFile"
@@ -232,6 +244,20 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'RM-21 runtime-delivery fixture restore failed.'
     }
+    foreach ($cleanupProject in @(
+            $cleanupFailureProject,
+            $cleanupSuccessProject
+        )) {
+        & dotnet restore $cleanupProject `
+            --packages $packageDirectory `
+            --locked-mode `
+            "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+            "-p:PluginContractReferencePath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
+            --verbosity minimal
+        if ($LASTEXITCODE -ne 0) {
+            throw "RM-22 cleanup fixture restore failed: $cleanupProject"
+        }
+    }
 
     & dotnet build $productProject `
         --no-restore `
@@ -310,6 +336,28 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'RM-21 runtime-delivery fixture build failed.'
     }
+    $cleanupBuilds = @(
+        [pscustomobject]@{
+            Project = $cleanupFailureProject
+            Output = $cleanupFailureOutput
+        },
+        [pscustomobject]@{
+            Project = $cleanupSuccessProject
+            Output = $cleanupSuccessOutput
+        }
+    )
+    foreach ($cleanupBuild in $cleanupBuilds) {
+        & dotnet build $cleanupBuild.Project `
+            --no-restore `
+            --configuration Release `
+            --output $cleanupBuild.Output `
+            "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+            "-p:PluginContractReferencePath=$contractDll" `
+            @properties
+        if ($LASTEXITCODE -ne 0) {
+            throw "RM-22 cleanup fixture build failed: $($cleanupBuild.Project)"
+        }
+    }
 
     & dotnet build $testProject `
         --no-restore `
@@ -356,6 +404,10 @@ $activationFailureDll = Join-Path $activationFailureOutput `
     'DSPPluginManager.RM20ActivationFailure.dll'
 $runtimeDeliveryDll = Join-Path $runtimeDeliveryOutput `
     'DSPPluginManager.RM21RuntimeDelivery.dll'
+$cleanupFailureDll = Join-Path $cleanupFailureOutput `
+    'DSPPluginManager.RM22CleanupFailure.dll'
+$cleanupSuccessDll = Join-Path $cleanupSuccessOutput `
+    'DSPPluginManager.RM22CleanupSuccess.dll'
 $staleTestCecil = Join-Path $testOutput 'Mono.Cecil.dll'
 if (Test-Path -LiteralPath $staleTestCecil -PathType Leaf) {
     Remove-Item -LiteralPath $staleTestCecil -Force
@@ -366,6 +418,8 @@ foreach ($outputDirectory in @(
         $constructionFailureOutput,
         $activationFailureOutput,
         $runtimeDeliveryOutput,
+        $cleanupFailureOutput,
+        $cleanupSuccessOutput,
         $handoffOutput
     )) {
     if (Test-Path -LiteralPath (
@@ -386,7 +440,9 @@ $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
     $consumerDll `
     $constructionFailureDll `
     $activationFailureDll `
-    $runtimeDeliveryDll
+    $runtimeDeliveryDll `
+    $cleanupFailureDll `
+    $cleanupSuccessDll
 if ($LASTEXITCODE -ne 0) {
     throw 'Compiled product tests failed.'
 }

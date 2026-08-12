@@ -134,6 +134,21 @@ namespace UnityEngine
         public static int frameCount { get; set; }
     }
 
+    public static class Application
+    {
+        public static bool QuitRequested { get; private set; }
+
+        public static void Quit()
+        {
+            QuitRequested = true;
+        }
+
+        internal static void Reset()
+        {
+            QuitRequested = false;
+        }
+    }
+
     public class Transform : Component
     {
         private readonly List<Transform> children = new List<Transform>();
@@ -227,6 +242,7 @@ namespace UnityEngine
         public static void Reset()
         {
             Objects.Clear();
+            Application.Reset();
         }
 
         public static GameObject FindRoot(string name)

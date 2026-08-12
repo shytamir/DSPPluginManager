@@ -16,6 +16,8 @@ namespace DSPPluginManager.Lifecycle
         private readonly UnityHostBridge unityHost;
         private readonly Dictionary<string, PluginLifecycleRecord> records;
         private readonly Dictionary<string, PluginActivationOutcome> outcomes;
+        private readonly Dictionary<string, PluginStopOutcome> stopOutcomes;
+        private readonly List<string> activationOrder;
 
         internal PluginActivationCoordinator(
             SelectedCandidateLoader loader,
@@ -45,6 +47,10 @@ namespace DSPPluginManager.Lifecycle
             outcomes = new Dictionary<string, PluginActivationOutcome>(
                 PluginContractRules.IdentifierComparer
             );
+            stopOutcomes = new Dictionary<string, PluginStopOutcome>(
+                PluginContractRules.IdentifierComparer
+            );
+            activationOrder = new List<string>();
         }
 
         internal PluginActivationOutcome Activate(
@@ -147,7 +153,97 @@ namespace DSPPluginManager.Lifecycle
                         invocation
                     );
                 outcomes.Add(identifier, outcome);
+                activationOrder.Add(identifier);
                 return outcome;
+            }
+        }
+
+        internal PluginStopOutcome Stop(string identifier)
+        {
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                throw new ArgumentException(
+                    "The plugin identifier is required.",
+                    "identifier"
+                );
+            }
+
+            lock (sync)
+            {
+                PluginStopOutcome retained;
+                if (stopOutcomes.TryGetValue(identifier, out retained))
+                {
+                    return retained;
+                }
+
+                PluginLifecycleRecord lifecycle;
+                if (!records.TryGetValue(identifier, out lifecycle) ||
+                    lifecycle.State != PluginLifecycleState.Active)
+                {
+                    throw new InvalidOperationException(
+                        "Only an active plugin can be stopped."
+                    );
+                }
+
+                RequireAccepted(
+                    lifecycle.TransitionTo(PluginLifecycleState.Stopping)
+                );
+                PluginStopInvocationResult invocation = null;
+                try
+                {
+                    invocation = unityHost.StopPlugin(identifier);
+                    if (invocation.Acknowledged)
+                    {
+                        RequireAccepted(lifecycle.TransitionTo(
+                            PluginLifecycleState.Stopped
+                        ));
+                    }
+                    else
+                    {
+                        RequireAccepted(lifecycle.TransitionToFailure(
+                            PluginLifecycleState.StopFailed,
+                            invocation.FailurePhase,
+                            invocation.Exception
+                        ));
+                    }
+                }
+                catch (Exception exception)
+                {
+                    if (lifecycle.State == PluginLifecycleState.Stopping)
+                    {
+                        RequireAccepted(lifecycle.TransitionToFailure(
+                            PluginLifecycleState.StopFailed,
+                            "unity-stop",
+                            exception
+                        ));
+                    }
+                }
+
+                PluginStopOutcome outcome = new PluginStopOutcome(
+                    lifecycle,
+                    invocation
+                );
+                stopOutcomes.Add(identifier, outcome);
+                return outcome;
+            }
+        }
+
+        internal IReadOnlyList<PluginStopOutcome> StopAll()
+        {
+            lock (sync)
+            {
+                List<PluginStopOutcome> stopped =
+                    new List<PluginStopOutcome>();
+                foreach (string identifier in activationOrder)
+                {
+                    PluginLifecycleRecord lifecycle = records[identifier];
+                    if (lifecycle.State == PluginLifecycleState.Active ||
+                        stopOutcomes.ContainsKey(identifier))
+                    {
+                        stopped.Add(Stop(identifier));
+                    }
+                }
+                return stopped.AsReadOnly();
             }
         }
 

@@ -29,6 +29,8 @@ namespace DSPPluginManager.UnityHost
             private set;
         }
 
+        internal PluginStopInvocationResult StopResult { get; private set; }
+
         internal void RetainInstance(PluginBehaviour instance)
         {
             if (Instance != null)
@@ -61,6 +63,28 @@ namespace DSPPluginManager.UnityHost
             {
                 throw new InvalidOperationException(
                     "The failed component is not owned by this plugin slot."
+                );
+            }
+            Instance = null;
+        }
+
+        internal void RetainStopResult(PluginStopInvocationResult result)
+        {
+            if (StopResult != null)
+            {
+                throw new InvalidOperationException(
+                    "The plugin object already has a stop result."
+                );
+            }
+            StopResult = result ?? throw new ArgumentNullException("result");
+        }
+
+        internal void ReleaseStoppedInstance(PluginBehaviour instance)
+        {
+            if (!object.ReferenceEquals(Instance, instance))
+            {
+                throw new InvalidOperationException(
+                    "The stopped component is not owned by this plugin slot."
                 );
             }
             Instance = null;

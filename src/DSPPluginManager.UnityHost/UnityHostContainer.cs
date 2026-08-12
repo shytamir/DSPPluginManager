@@ -43,6 +43,16 @@ namespace DSPPluginManager.UnityHost
 
             GameObject root = new GameObject(RootName);
             UnityEngine.Object.DontDestroyOnLoad(root);
+            Component signal = root.AddComponent(
+                typeof(UnityHostShutdownSignal)
+            );
+            if (signal == null || signal.GetType() !=
+                typeof(UnityHostShutdownSignal))
+            {
+                throw new InvalidOperationException(
+                    "The Unity shutdown signal could not be attached."
+                );
+            }
             return new UnityHostContainer(mainThreadId, root);
         }
 
@@ -164,6 +174,78 @@ namespace DSPPluginManager.UnityHost
                     "Unity host access must remain on its creation thread."
                 );
             }
+        }
+
+        internal PluginStopInvocationResult StopPlugin(string identifier)
+        {
+            RequireMainThread();
+            string key = PluginContractRules.GetIdentifierComparisonKey(
+                identifier
+            );
+            PluginObjectSlot slot;
+            if (!pluginObjects.TryGetValue(key, out slot) ||
+                slot.ActivationResult == null ||
+                !slot.ActivationResult.Acknowledged || slot.Instance == null)
+            {
+                throw new InvalidOperationException(
+                    "The Unity host does not own an active plugin component."
+                );
+            }
+            if (slot.StopResult != null)
+            {
+                return slot.StopResult;
+            }
+
+            PluginBehaviour instance = slot.Instance;
+            Exception callbackFailure = null;
+            try
+            {
+                instance.Deactivate();
+            }
+            catch (Exception exception)
+            {
+                callbackFailure = exception;
+            }
+
+            Exception destructionFailure = null;
+            try
+            {
+                instance.enabled = false;
+                UnityEngine.Object.Destroy(instance);
+                slot.ReleaseStoppedInstance(instance);
+            }
+            catch (Exception exception)
+            {
+                destructionFailure = exception;
+            }
+
+            PluginStopInvocationResult result;
+            if (callbackFailure != null)
+            {
+                result = PluginStopInvocationResult.Failed(
+                    "deactivation",
+                    destructionFailure == null
+                        ? callbackFailure
+                        : new AggregateException(
+                            "Plugin cleanup and component destruction failed.",
+                            callbackFailure,
+                            destructionFailure
+                        )
+                );
+            }
+            else if (destructionFailure != null)
+            {
+                result = PluginStopInvocationResult.Failed(
+                    "component-destruction",
+                    destructionFailure
+                );
+            }
+            else
+            {
+                result = PluginStopInvocationResult.Stopped();
+            }
+            slot.RetainStopResult(result);
+            return result;
         }
 
         private static PluginActivationInvocationResult RetainFailure(

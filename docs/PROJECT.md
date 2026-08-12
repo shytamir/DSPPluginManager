@@ -23,7 +23,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-18 persistent Unity host container | Accepted by project owner |
 | RM-19 one selected plugin activation | Accepted by project owner |
 | RM-20 activation failure isolation | Accepted by project owner |
-| RM-21 exercised Unity runtime delivery | Acceptance conditions met in installed DSP; awaiting project-owner acceptance |
+| RM-21 exercised Unity runtime delivery | Accepted by project owner |
+| RM-22 observable orderly shutdown | Acceptance conditions met in installed DSP; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -40,7 +41,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; remaining migration surface not specified |
-| Plugin discovery, activation, and lifecycle host | Deterministically selected candidates are supervised independently through runtime load and activation; attributable startup failure is isolated, and ordinary Unity frame, coroutine, cancellation, and scene-persistence delivery are installed-runtime validated; shutdown is not implemented |
+| Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, and writable-root slices implemented; remaining service surfaces not implemented |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
@@ -68,7 +69,13 @@ ordinary `Awake` before rendered-frame `Update`, resumed `yield return null` on
 a later frame, cancelled one exact coroutine handle, and retained the same
 component and host root across an active-scene round trip. These observations
 qualify only the exercised ordinary Unity behavior; unclaimed Unity messages
-remain ambient and unsupervised. Orderly shutdown remains later roadmap work.
+remain ambient and unsupervised. A manager-owned Unity quit signal now invokes
+each active plugin's explicit `Deactivate()` once on the main thread before
+component destruction. An installed two-plugin run retained services through
+both callbacks, continued after one attributable cleanup exception, recorded
+`StopFailed` and `Stopped`, then flushed and closed the current-run log. These
+logical terminal outcomes do not claim crash cleanup or managed assembly
+unloading.
 
 ## Purpose and success
 

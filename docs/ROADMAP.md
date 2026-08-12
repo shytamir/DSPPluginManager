@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-21 — Exercised Unity runtime delivery
+- **Active story:** RM-22 — Observable orderly shutdown
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -293,7 +293,7 @@ interception, or process isolation.
 
 ### RM-21 — Exercised Unity runtime delivery
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a plugin author, I want ordinary Unity frame and coroutine
 behavior preserved so an active component behaves like the retained consumers.
@@ -320,7 +320,7 @@ global input capture, or arbitrary Unity-event interception.
 
 ### RM-22 — Observable orderly shutdown
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As an operator, I want one supported orderly stop path so plugin
 cleanup finishes before its services and the current-run log are disposed.

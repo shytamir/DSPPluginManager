@@ -52,5 +52,12 @@ namespace DSPPluginManager.UnityHost
         {
             return Current.ActivateSelected(request);
         }
+
+        internal static PluginStopInvocationResult StopPlugin(
+            string identifier
+        )
+        {
+            return Current.StopPlugin(identifier);
+        }
     }
 }

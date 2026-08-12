@@ -15,6 +15,7 @@ namespace DSPPluginManager.Bootstrap
     {
         private static readonly OneShotGate EntryGate = new OneShotGate();
         private static readonly OneShotGate HandoffGate = new OneShotGate();
+        private static readonly OneShotGate ShutdownGate = new OneShotGate();
         private static ReservedDependencyResolver resolver;
         private static BootstrapEnvironment environment;
         private static DiskLogSink diskLogSink;
@@ -120,6 +121,91 @@ namespace DSPPluginManager.Bootstrap
                 "Unity main-thread handoff completed. " + containerOutcome
             );
             ActivateSelectedCandidates();
+        }
+
+        public static void UnityOrderlyShutdown()
+        {
+            if (!ShutdownGate.TryEnter())
+            {
+                return;
+            }
+
+            try
+            {
+                if (activationCoordinator != null)
+                {
+                    System.Collections.Generic.IReadOnlyList<PluginStopOutcome>
+                        outcomes = activationCoordinator.StopAll();
+                    foreach (PluginStopOutcome outcome in outcomes)
+                    {
+                        RecognizedPluginCandidate candidate =
+                            outcome.Lifecycle.Candidate;
+                        if (outcome.IsStopped)
+                        {
+                            hostLogger.Information(
+                                "Plugin cleanup acknowledged: identifier=" +
+                                candidate.Identifier + " version=" +
+                                candidate.Version.ToString(3) + " state=Stopped."
+                            );
+                            continue;
+                        }
+
+                        PluginLifecycleFailure failure =
+                            outcome.Lifecycle.Failure;
+                        hostLogger.Error(
+                            "Plugin cleanup failed: identifier=" +
+                            candidate.Identifier + " version=" +
+                            candidate.Version.ToString(3) + " state=StopFailed" +
+                            " phase=" + (failure == null
+                                ? "<unavailable>"
+                                : failure.Phase) + ". " + (failure == null
+                                ? "No failure context was retained."
+                                : failure.ExceptionText)
+                        );
+                    }
+                }
+            }
+            catch (Exception exception)
+            {
+                if (hostLogger != null)
+                {
+                    hostLogger.Error(
+                        "Orderly plugin shutdown encountered an unexpected " +
+                        "host failure. " + exception
+                    );
+                }
+            }
+            finally
+            {
+                if (resolver != null)
+                {
+                    try
+                    {
+                        resolver.Dispose();
+                    }
+                    catch (Exception exception)
+                    {
+                        if (hostLogger != null)
+                        {
+                            hostLogger.Error(
+                                "Dependency resolver disposal failed after " +
+                                "plugin cleanup. " + exception
+                            );
+                        }
+                    }
+                }
+                if (hostLogger != null)
+                {
+                    hostLogger.Information(
+                        "Orderly plugin shutdown completed; closing " +
+                        "current-run log."
+                    );
+                }
+                if (diskLogSink != null)
+                {
+                    diskLogSink.Dispose();
+                }
+            }
         }
 
         private static string EnsureUnityHostCreated(
