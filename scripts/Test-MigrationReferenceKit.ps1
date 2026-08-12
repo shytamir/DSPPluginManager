@@ -133,12 +133,44 @@ $mirrorFixture = Join-Path $repositoryPath `
     'artifacts\fixtures\rm32-mirror-qualification\DSPPluginManager.RM32MirrorQualification.dll'
 $guideFixture = Join-Path $repositoryPath `
     'artifacts\fixtures\rm32-guide-qualification\DSPPluginManager.RM32GuideQualification.dll'
-$mirrorReferences = [Reflection.Assembly]::ReflectionOnlyLoadFrom(
-    $mirrorFixture
-).GetReferencedAssemblies().Name
-$guideReferences = [Reflection.Assembly]::ReflectionOnlyLoadFrom(
-    $guideFixture
-).GetReferencedAssemblies().Name
+$cecilPath = Join-Path $repositoryPath `
+    'artifacts\managed-dependencies\runtime\Mono.Cecil.dll'
+$cecil = [Reflection.Assembly]::LoadFrom($cecilPath)
+$assemblyDefinitionType = $cecil.GetType(
+    'Mono.Cecil.AssemblyDefinition',
+    $true
+)
+$readAssembly = $assemblyDefinitionType.GetMethods() |
+    Where-Object {
+        $_.Name -ceq 'ReadAssembly' -and
+        $_.IsStatic -and
+        $_.GetParameters().Count -eq 1 -and
+        $_.GetParameters()[0].ParameterType -eq [string]
+    } |
+    Select-Object -First 1
+if ($null -eq $readAssembly) {
+    throw 'Mono.Cecil ReadAssembly(string) was not found.'
+}
+$mirrorDefinition = $readAssembly.Invoke(
+    $null,
+    [object[]]@([string]$mirrorFixture)
+)
+$guideDefinition = $readAssembly.Invoke(
+    $null,
+    [object[]]@([string]$guideFixture)
+)
+try {
+    $mirrorReferences = @(
+        $mirrorDefinition.MainModule.AssemblyReferences.Name
+    )
+    $guideReferences = @(
+        $guideDefinition.MainModule.AssemblyReferences.Name
+    )
+}
+finally {
+    $mirrorDefinition.Dispose()
+    $guideDefinition.Dispose()
+}
 if ($mirrorReferences -cnotcontains 'DSPPluginManager.Contracts' -or
     $mirrorReferences -cnotcontains '0Harmony' -or
     $guideReferences -cnotcontains 'DSPPluginManager.Contracts' -or
