@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-19 — One selected plugin activation
+- **Active story:** RM-20 — Activation failure isolation
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -237,7 +237,7 @@ manager-facing enable/disable controls.
 
 ### RM-19 — One selected plugin activation
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As an operator, I want one selected candidate activated once as a
 real Unity component so its accepted startup behavior can run without BepInEx.
@@ -265,7 +265,7 @@ qualification, or shutdown.
 
 ### RM-20 — Activation failure isolation
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As an operator, I want one plugin's startup failure contained so an
 unrelated selected plugin can still become active and remain diagnosable.

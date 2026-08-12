@@ -119,7 +119,7 @@ namespace DSPPluginManager.Bootstrap
             hostLogger.Information(
                 "Unity main-thread handoff completed. " + containerOutcome
             );
-            ActivateFirstSelectedCandidate();
+            ActivateSelectedCandidates();
         }
 
         private static string EnsureUnityHostCreated(
@@ -136,57 +136,53 @@ namespace DSPPluginManager.Bootstrap
             );
         }
 
-        private static void ActivateFirstSelectedCandidate()
+        private static void ActivateSelectedCandidates()
         {
-            CandidateReconciliationEntry selected = null;
-            foreach (CandidateReconciliationEntry entry in
-                discoveryPlan.Reconciliation.Entries)
-            {
-                if (entry.State == CandidateReconciliationState.Selected)
-                {
-                    selected = entry;
-                    break;
-                }
-            }
-            if (selected == null)
-            {
-                hostLogger.Information(
-                    "No selected plugin candidate is available for RM-19 " +
-                    "single-candidate activation."
-                );
-                return;
-            }
-
             activationCoordinator = new PluginActivationCoordinator(
                 new SelectedCandidateLoader(),
                 logDispatcher,
                 environment.Paths.WritableOutputDirectory,
                 unityHost
             );
-            PluginActivationOutcome outcome =
-                activationCoordinator.Activate(selected);
-            if (outcome.IsActive)
+            System.Collections.Generic.IReadOnlyList<PluginActivationOutcome>
+                outcomes = activationCoordinator.ActivateSelected(
+                    discoveryPlan.Reconciliation
+                );
+            if (outcomes.Count == 0)
             {
                 hostLogger.Information(
-                    "Plugin activation acknowledged: identifier=" +
-                    selected.Candidate.Identifier + " version=" +
-                    selected.Candidate.Version.ToString(3) + " type='" +
-                    selected.Candidate.TypeName + "'."
+                    "No selected plugin candidate is available for activation."
                 );
                 return;
             }
 
-            PluginLifecycleFailure failure = outcome.Lifecycle.Failure;
-            hostLogger.Error(
-                "Plugin activation failed: identifier=" +
-                selected.Candidate.Identifier + " version=" +
-                selected.Candidate.Version.ToString(3) + " type='" +
-                selected.Candidate.TypeName + "' phase=" +
-                (failure == null ? "<unavailable>" : failure.Phase) + ". " +
-                (failure == null
-                    ? "No failure context was retained."
-                    : failure.ExceptionText)
-            );
+            foreach (PluginActivationOutcome outcome in outcomes)
+            {
+                RecognizedPluginCandidate candidate =
+                    outcome.Lifecycle.Candidate;
+                if (outcome.IsActive)
+                {
+                    hostLogger.Information(
+                        "Plugin activation acknowledged: identifier=" +
+                        candidate.Identifier + " version=" +
+                        candidate.Version.ToString(3) + " type='" +
+                        candidate.TypeName + "'."
+                    );
+                    continue;
+                }
+
+                PluginLifecycleFailure failure = outcome.Lifecycle.Failure;
+                hostLogger.Error(
+                    "Plugin activation failed: identifier=" +
+                    candidate.Identifier + " version=" +
+                    candidate.Version.ToString(3) + " type='" +
+                    candidate.TypeName + "' phase=" +
+                    (failure == null ? "<unavailable>" : failure.Phase) +
+                    ". " + (failure == null
+                        ? "No failure context was retained."
+                        : failure.ExceptionText)
+                );
+            }
         }
 
         private static CandidateDiscoveryPlan RunPreActivationDiscovery(

@@ -53,6 +53,19 @@ namespace UnityEngine
 
             FacadeRuntime.HierarchyRoot(gameObject).Persistent = true;
         }
+
+        public static void Destroy(Object target)
+        {
+            Component component = target as Component;
+            if (component == null || component.gameObject == null)
+            {
+                return;
+            }
+
+            GameObject owner = component.gameObject;
+            owner.RemoveComponent(component);
+            component.gameObject = null;
+        }
     }
 
     public class Component : Object
@@ -155,6 +168,11 @@ namespace UnityEngine
         internal int AttachedComponentCount
         {
             get { return components.Count; }
+        }
+
+        internal void RemoveComponent(Component component)
+        {
+            components.Remove(component);
         }
     }
 

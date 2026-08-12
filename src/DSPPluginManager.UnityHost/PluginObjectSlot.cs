@@ -54,5 +54,16 @@ namespace DSPPluginManager.UnityHost
                 "result"
             );
         }
+
+        internal void ReleaseFailedInstance(PluginBehaviour instance)
+        {
+            if (!object.ReferenceEquals(Instance, instance))
+            {
+                throw new InvalidOperationException(
+                    "The failed component is not owned by this plugin slot."
+                );
+            }
+            Instance = null;
+        }
     }
 }

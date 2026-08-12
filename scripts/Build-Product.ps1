@@ -38,6 +38,10 @@ $facadeProject = Join-Path $RepositoryRoot `
     'fixtures\UnityReferenceFacade\UnityReferenceFacade.csproj'
 $consumerProject = Join-Path $RepositoryRoot `
     'fixtures\RM09.Consumer\DSPPluginManager.RM09Consumer.csproj'
+$constructionFailureProject = Join-Path $RepositoryRoot `
+    'fixtures\RM20.ConstructionFailure\DSPPluginManager.RM20ConstructionFailure.csproj'
+$activationFailureProject = Join-Path $RepositoryRoot `
+    'fixtures\RM20.ActivationFailure\DSPPluginManager.RM20ActivationFailure.csproj'
 $packageDirectory = Join-Path $RepositoryRoot 'artifacts\nuget\packages'
 $productOutput = Join-Path $RepositoryRoot 'artifacts\build'
 $testOutput = Join-Path $RepositoryRoot 'artifacts\tests'
@@ -48,6 +52,10 @@ $facadeOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\unity-reference'
 $consumerOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm09-consumer'
+$constructionFailureOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\rm20-construction-failure'
+$activationFailureOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\rm20-activation-failure'
 $dependencyRuntime = Join-Path $RepositoryRoot `
     'artifacts\managed-dependencies\runtime'
 $cecilReference = Join-Path $dependencyRuntime 'Mono.Cecil.dll'
@@ -60,7 +68,9 @@ foreach ($project in @(
         $unityHostProject,
         $contractProject,
         $facadeProject,
-        $consumerProject
+        $consumerProject,
+        $constructionFailureProject,
+        $activationFailureProject
     )) {
     if (-not (Test-Path -LiteralPath $project -PathType Leaf)) {
         throw "Required project was not found: $project"
@@ -74,7 +84,9 @@ foreach ($lockFile in @(
         (Join-Path (Split-Path -Parent $unityHostProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $contractProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $facadeProject) 'packages.lock.json'),
-        (Join-Path (Split-Path -Parent $consumerProject) 'packages.lock.json')
+        (Join-Path (Split-Path -Parent $consumerProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $constructionFailureProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $activationFailureProject) 'packages.lock.json')
     )) {
     if (-not (Test-Path -LiteralPath $lockFile -PathType Leaf)) {
         throw "Required package lock was not found: $lockFile"
@@ -191,6 +203,20 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'RM-09 consumer fixture restore failed.'
     }
+    foreach ($failureProject in @(
+            $constructionFailureProject,
+            $activationFailureProject
+        )) {
+        & dotnet restore $failureProject `
+            --packages $packageDirectory `
+            --locked-mode `
+            "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+            "-p:PluginContractReferencePath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
+            --verbosity minimal
+        if ($LASTEXITCODE -ne 0) {
+            throw "RM-20 failure fixture restore failed: $failureProject"
+        }
+    }
 
     & dotnet build $productProject `
         --no-restore `
@@ -237,6 +263,28 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'RM-09 consumer fixture build failed.'
     }
+    $failureBuilds = @(
+        [pscustomobject]@{
+            Project = $constructionFailureProject
+            Output = $constructionFailureOutput
+        },
+        [pscustomobject]@{
+            Project = $activationFailureProject
+            Output = $activationFailureOutput
+        }
+    )
+    foreach ($failureBuild in $failureBuilds) {
+        & dotnet build $failureBuild.Project `
+            --no-restore `
+            --configuration Release `
+            --output $failureBuild.Output `
+            "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+            "-p:PluginContractReferencePath=$contractDll" `
+            @properties
+        if ($LASTEXITCODE -ne 0) {
+            throw "RM-20 failure fixture build failed: $($failureBuild.Project)"
+        }
+    }
 
     & dotnet build $testProject `
         --no-restore `
@@ -277,6 +325,10 @@ $unityHostDll = Join-Path $handoffOutput 'DSPPluginManager.UnityHost.dll'
 $contractDll = Join-Path $contractOutput 'DSPPluginManager.Contracts.dll'
 $consumerDll = Join-Path $consumerOutput `
     'DSPPluginManager.RM09Consumer.dll'
+$constructionFailureDll = Join-Path $constructionFailureOutput `
+    'DSPPluginManager.RM20ConstructionFailure.dll'
+$activationFailureDll = Join-Path $activationFailureOutput `
+    'DSPPluginManager.RM20ActivationFailure.dll'
 $staleTestCecil = Join-Path $testOutput 'Mono.Cecil.dll'
 if (Test-Path -LiteralPath $staleTestCecil -PathType Leaf) {
     Remove-Item -LiteralPath $staleTestCecil -Force
@@ -284,6 +336,8 @@ if (Test-Path -LiteralPath $staleTestCecil -PathType Leaf) {
 foreach ($outputDirectory in @(
         $contractOutput,
         $consumerOutput,
+        $constructionFailureOutput,
+        $activationFailureOutput,
         $handoffOutput
     )) {
     if (Test-Path -LiteralPath (
@@ -301,7 +355,9 @@ $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
     $unityHostDll `
     $facadeDll `
     $contractDll `
-    $consumerDll
+    $consumerDll `
+    $constructionFailureDll `
+    $activationFailureDll
 if ($LASTEXITCODE -ne 0) {
     throw 'Compiled product tests failed.'
 }

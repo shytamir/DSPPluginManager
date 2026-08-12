@@ -151,6 +151,28 @@ namespace DSPPluginManager.Lifecycle
             }
         }
 
+        internal IReadOnlyList<PluginActivationOutcome> ActivateSelected(
+            CandidateReconciliationResult reconciliation
+        )
+        {
+            if (reconciliation == null)
+            {
+                throw new ArgumentNullException("reconciliation");
+            }
+
+            List<PluginActivationOutcome> selectedOutcomes =
+                new List<PluginActivationOutcome>();
+            foreach (CandidateReconciliationEntry entry in
+                reconciliation.Entries)
+            {
+                if (entry.State == CandidateReconciliationState.Selected)
+                {
+                    selectedOutcomes.Add(Activate(entry));
+                }
+            }
+            return selectedOutcomes.AsReadOnly();
+        }
+
         internal PluginLifecycleRecord GetLifecycleRecord(string identifier)
         {
             lock (sync)

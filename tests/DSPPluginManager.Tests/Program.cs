@@ -25,7 +25,9 @@ namespace DSPPluginManager.Tests
                     args[4],
                     args[5],
                     args[6],
-                    args[7]
+                    args[7],
+                    args[8],
+                    args[9]
                 );
                 LoggingCoreTests.Run();
                 DiskLogSinkTests.Run();
@@ -34,7 +36,8 @@ namespace DSPPluginManager.Tests
                 Console.WriteLine(
                     "Compiled foundation, host/plugin paths, Unity container, " +
                     "bootstrap entry, diagnostic, " +
-                    "reserved dependency, selected activation, logging, " +
+                    "reserved dependency, activation failure isolation, " +
+                    "logging, " +
                     "candidate enumeration, " +
                     "and lifecycle state tests passed."
                 );

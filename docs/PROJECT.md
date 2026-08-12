@@ -21,7 +21,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-16 plugin logging contract slice | Accepted by project owner |
 | RM-17 plugin writable-root contract slice | Accepted by project owner |
 | RM-18 persistent Unity host container | Accepted by project owner |
-| RM-19 one selected plugin activation | Acceptance conditions met; awaiting project-owner acceptance |
+| RM-19 one selected plugin activation | Accepted by project owner |
+| RM-20 activation failure isolation | Acceptance conditions met; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -38,7 +39,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; remaining migration surface not specified |
-| Plugin discovery, activation, and lifecycle host | One reconciled candidate can be runtime-loaded and activated once with supervised lifecycle state on the persistent Unity container; multi-plugin continuation and shutdown are not implemented |
+| Plugin discovery, activation, and lifecycle host | Deterministically selected candidates are supervised independently through runtime load and activation; attributable startup failure does not block an unrelated candidate, while runtime behavior qualification and shutdown are not implemented |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, and writable-root slices implemented; remaining service surfaces not implemented |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
@@ -56,11 +57,13 @@ because private Unity messages did not expose failure or destruction completion
 to the host. The selected-candidate runtime boundary and deterministic
 per-candidate lifecycle state record now drive one supervised production
 activation path. The validated handoff creates one retained persistent Unity
-root, attaches the exact selected plugin type once on its owned child, prepares
-its attributed logger and writable root before explicit startup, and retains
-`Active` only after normal `Activate()` return. Multi-plugin failure
-continuation, runtime behavior qualification, and orderly shutdown remain later
-roadmap work.
+root, attaches exact selected plugin types on separately owned children,
+prepares attributed logger and writable-root services before explicit startup,
+and retains `Active` only after normal `Activate()` return. Construction,
+runtime-dependency, and explicit-startup failures retain complete attributable
+context; a partially attached failed component is removed while unrelated
+selected candidates continue. Runtime behavior qualification and orderly
+shutdown remain later roadmap work.
 
 ## Purpose and success
 

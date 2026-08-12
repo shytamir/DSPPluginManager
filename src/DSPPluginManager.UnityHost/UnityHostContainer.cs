@@ -131,7 +131,7 @@ namespace DSPPluginManager.UnityHost
             {
                 return RetainFailure(
                     slot,
-                    instance,
+                    CleanupFailedInstance(slot, instance, exception),
                     "service-preparation",
                     exception
                 );
@@ -149,7 +149,7 @@ namespace DSPPluginManager.UnityHost
             {
                 return RetainFailure(
                     slot,
-                    instance,
+                    CleanupFailedInstance(slot, instance, exception),
                     "activation",
                     exception
                 );
@@ -181,6 +181,29 @@ namespace DSPPluginManager.UnityHost
                 );
             slot.RetainActivationResult(failure);
             return failure;
+        }
+
+        private static object CleanupFailedInstance(
+            PluginObjectSlot slot,
+            PluginBehaviour instance,
+            Exception activationFailure
+        )
+        {
+            try
+            {
+                instance.enabled = false;
+                UnityEngine.Object.Destroy(instance);
+                slot.ReleaseFailedInstance(instance);
+                return null;
+            }
+            catch (Exception cleanupFailure)
+            {
+                throw new AggregateException(
+                    "The failed plugin component could not be cleaned.",
+                    activationFailure,
+                    cleanupFailure
+                );
+            }
         }
     }
 }
