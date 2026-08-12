@@ -17,7 +17,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Roadmap status | Milestone 2: Supervised Unity activation is active |
 | RM-13 Unity lifecycle observability decision probe | Accepted by project owner |
 | RM-14 selected assembly runtime loader | Accepted by project owner |
-| RM-15 deterministic lifecycle state record | Acceptance conditions met; awaiting project-owner acceptance |
+| RM-15 deterministic lifecycle state record | Accepted by project owner |
+| RM-16 plugin logging contract slice | Acceptance conditions met; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -33,9 +34,9 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-12 deterministic candidate reconciliation | Accepted by project owner |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
-| Product contract | Minimal discovery and lifecycle slices defined; remaining migration surface not specified |
+| Product contract | Minimal discovery, lifecycle, and plugin-logging slices defined; remaining migration surface not specified |
 | Plugin discovery, activation, and lifecycle host | Discovery, reconciliation, selected-candidate runtime loading, and deterministic lifecycle state records implemented; activation not implemented |
-| Public source-migration contract | Minimal discovery and lifecycle slices specified; service surface not specified |
+| Public source-migration contract | Minimal discovery and plugin-logging slices implemented; lifecycle and remaining service surfaces not implemented |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
 
@@ -51,8 +52,9 @@ installed decision probe selected an explicit two-callback lifecycle seam
 because private Unity messages did not expose failure or destruction completion
 to the host. The selected-candidate runtime boundary and deterministic
 per-candidate lifecycle state record are implemented and fixture-validated but
-are not yet invoked by the host. The host does not yet activate plugins and
-exposes no plugin services.
+are not yet invoked by the host. The public plugin-logging slice is implemented,
+but the host does not yet provision that handle because plugin activation is
+not implemented.
 
 ## Purpose and success
 
@@ -179,11 +181,10 @@ evidence or an explicit product decision.
 - `DSPPluginManager.Contracts.PluginAttribute` is a sealed, non-inherited,
   single-use class marker. Its constructor takes exactly three strings in this
   order: stable identifier, display name, and canonical version.
-- The implemented discovery-only
-  `DSPPluginManager.Contracts.PluginBehaviour` remains an abstract
-  `UnityEngine.MonoBehaviour` with no project-owned members. RM-13 selected the
-  lifecycle extension recorded above, but did not add production lifecycle
-  members.
+- The implemented `DSPPluginManager.Contracts.PluginBehaviour` remains an
+  abstract `UnityEngine.MonoBehaviour`. It now exposes only the read-only
+  plugin-logging handle recorded below; RM-13 selected the lifecycle extension
+  recorded above but did not add production lifecycle members.
 - Identifiers are non-empty ASCII strings containing only letters, digits,
   `.`, `_`, and `-`. Identity comparison is ordinal and case-insensitive.
 - Versions contain exactly three non-negative decimal integer components
@@ -204,6 +205,15 @@ evidence or an explicit product decision.
   safely.
 - Host and plugin loggers retain immutable stable-identifier and display-name
   attribution and support only information, warning, and error records.
+- The exact public plugin-logging slice is the read-only
+  `DSPPluginManager.Contracts.PluginBehaviour.Logger` property and the sealed
+  `DSPPluginManager.Contracts.PluginLogger` type with exactly
+  `void Information(object payload)`, `void Warning(object payload)`, and
+  `void Error(object payload)` emission methods.
+- `PluginLogger` has no public constructor, attribution member, or replacement
+  operation. The host prepares one stable handle before supported plugin
+  startup; plugins may retain and pass that handle but cannot select its
+  attribution or dispatch destination.
 - Payload formatting, timestamp acquisition, or sink failure never escapes a
   logging call, and concurrent source calls reach the internal sink as complete
   records.
@@ -255,8 +265,8 @@ evidence or an explicit product decision.
 
 ## Open steering decisions
 
-- remaining public service contracts beyond the minimal discovery and
-  lifecycle slices;
+- remaining public service contracts beyond the implemented plugin-logging
+  slice;
 - final host, plugin, configuration, log, and writable-parent locations;
 - configuration format and treatment of existing BepInEx `.cfg` files;
 - first migration consumer and its acceptance matrix;

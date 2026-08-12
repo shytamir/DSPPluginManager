@@ -112,7 +112,7 @@ namespace DSPPluginManager.ContractTests
                 TypeDefinition[] types = assembly.MainModule.Types
                     .Where(type => type.IsPublic)
                     .ToArray();
-                TestAssert.Equal(2, types.Length, "public contract type count");
+                TestAssert.Equal(3, types.Length, "public contract type count");
 
                 TypeDefinition marker = types.Single(type =>
                     type.FullName == PluginContractRules.MetadataTypeName
@@ -171,12 +171,68 @@ namespace DSPPluginManager.ContractTests
                     pluginBase.BaseType.Scope.Name,
                     "Unity assembly identity"
                 );
-                TestAssert.Equal(0, pluginBase.Properties.Count, "base service properties");
+                PropertyDefinition loggerProperty = pluginBase.Properties.Single();
+                TestAssert.Equal("Logger", loggerProperty.Name, "base logger property");
                 TestAssert.Equal(
-                    0,
-                    pluginBase.Methods.Count(method => !method.IsConstructor),
-                    "base service methods"
+                    "DSPPluginManager.Contracts.PluginLogger",
+                    loggerProperty.PropertyType.FullName,
+                    "base logger property type"
                 );
+                TestAssert.True(
+                    loggerProperty.GetMethod.IsPublic &&
+                    loggerProperty.SetMethod == null,
+                    "The plugin logger handle must be public read-only."
+                );
+                TestAssert.Equal(
+                    "get_Logger",
+                    string.Join(",", pluginBase.Methods
+                        .Where(method => method.IsPublic && !method.IsConstructor)
+                        .Select(method => method.Name)),
+                    "public base service methods"
+                );
+
+                TypeDefinition logger = types.Single(type =>
+                    type.FullName == "DSPPluginManager.Contracts.PluginLogger"
+                );
+                TestAssert.True(logger.IsSealed, "Plugin logger must be sealed.");
+                TestAssert.Equal("System.Object", logger.BaseType.FullName, "logger base");
+                TestAssert.Equal(0, logger.Properties.Count(property =>
+                    property.GetMethod != null && property.GetMethod.IsPublic
+                ), "public logger properties");
+                TestAssert.Equal(0, logger.Fields.Count(field => field.IsPublic),
+                    "public logger fields");
+                TestAssert.Equal(
+                    "Error,Information,Warning",
+                    string.Join(",", logger.Methods
+                        .Where(method => method.IsPublic && !method.IsConstructor)
+                        .Select(method => method.Name)
+                        .OrderBy(name => name, StringComparer.Ordinal)),
+                    "public logger methods"
+                );
+                foreach (MethodDefinition method in logger.Methods.Where(method =>
+                    method.IsPublic && !method.IsConstructor
+                ))
+                {
+                    TestAssert.Equal(1, method.Parameters.Count,
+                        method.Name + " arity");
+                    TestAssert.Equal("System.Object",
+                        method.Parameters[0].ParameterType.FullName,
+                        method.Name + " payload type");
+                    TestAssert.Equal("System.Void", method.ReturnType.FullName,
+                        method.Name + " return type");
+                }
+                TestAssert.True(
+                    !logger.Methods.Any(method => method.IsPublic && method.IsConstructor),
+                    "Plugins must not construct loggers or choose attribution."
+                );
+                foreach (string fieldName in new[] { "identifier", "displayName" })
+                {
+                    FieldDefinition field = logger.Fields.Single(candidate =>
+                        candidate.Name == fieldName
+                    );
+                    TestAssert.True(field.IsPrivate && field.IsInitOnly,
+                        fieldName + " attribution must be immutable.");
+                }
                 TestAssert.True(
                     !assembly.MainModule.AssemblyReferences.Any(reference =>
                         reference.Name == "BepInEx"
@@ -223,6 +279,46 @@ namespace DSPPluginManager.ContractTests
                         reference.Name == "BepInEx"
                     ),
                     "Fixture references the wrong contract."
+                );
+
+                FieldDefinition retainedLogger = plugin.Fields.Single(field =>
+                    field.Name == "logger"
+                );
+                TestAssert.Equal(
+                    "DSPPluginManager.Contracts.PluginLogger",
+                    retainedLogger.FieldType.FullName,
+                    "retained logger type"
+                );
+                MethodDefinition capture = plugin.Methods.Single(method =>
+                    method.Name == "CaptureLogger"
+                );
+                TestAssert.True(capture.Body.Instructions.Any(instruction =>
+                    instruction.Operand == retainedLogger
+                ), "Fixture did not retain the logger handle.");
+
+                TypeDefinition helper = assembly.MainModule.GetType(
+                    "DSPPluginManager.RM09Consumer.MirrorLoggingHelper"
+                );
+                TestAssert.True(helper != null, "Logging helper is missing.");
+                MethodDefinition report = helper.Methods.Single(method =>
+                    method.Name == "Report"
+                );
+                TestAssert.Equal(
+                    "DSPPluginManager.Contracts.PluginLogger",
+                    report.Parameters.Single().ParameterType.FullName,
+                    "helper logger parameter"
+                );
+                TestAssert.Equal(
+                    "Error,Information,Warning",
+                    string.Join(",", report.Body.Instructions
+                        .Select(instruction => instruction.Operand as MethodReference)
+                        .Where(method => method != null &&
+                            method.DeclaringType.FullName ==
+                                "DSPPluginManager.Contracts.PluginLogger")
+                        .Select(method => method.Name)
+                        .Distinct()
+                        .OrderBy(name => name, StringComparer.Ordinal)),
+                    "fixture logging calls"
                 );
             }
         }

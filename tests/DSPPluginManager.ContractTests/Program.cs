@@ -50,6 +50,7 @@ namespace DSPPluginManager.ContractTests
                     args[3],
                     args[4]
                 );
+                PluginLoggerContractTests.Run(args[0]);
                 Milestone1DiscoveryTests.Run(
                     args[0],
                     args[1],
@@ -58,7 +59,7 @@ namespace DSPPluginManager.ContractTests
                 );
                 Console.WriteLine(
                     "RM-09 contract, RM-11 metadata, RM-12 reconciliation, " +
-                    "and RM-14 runtime-loader tests passed."
+                    "RM-14 runtime-loader, and RM-16 plugin-logger tests passed."
                 );
                 return 0;
             }
