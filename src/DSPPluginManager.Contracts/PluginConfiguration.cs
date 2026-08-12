@@ -107,8 +107,8 @@ namespace DSPPluginManager.Contracts
             string description
         )
         {
-            ValidateDefinitionPart(section, "section", '[', ']');
-            ValidateDefinitionPart(key, "key", '=');
+            ValidateDefinitionPart(section, "section", false, '[', ']');
+            ValidateDefinitionPart(key, "key", true, '=', '[', ']');
             if (description == null)
             {
                 throw new ArgumentNullException("description");
@@ -126,6 +126,7 @@ namespace DSPPluginManager.Contracts
         private static void ValidateDefinitionPart(
             string value,
             string parameterName,
+            bool forbidCommentStart,
             params char[] forbidden
         )
         {
@@ -135,8 +136,8 @@ namespace DSPPluginManager.Contracts
             }
             if (value.Length == 0 ||
                 !string.Equals(value, value.Trim(), StringComparison.Ordinal) ||
-                value.IndexOf('\r') >= 0 ||
-                value.IndexOf('\n') >= 0 ||
+                ContainsControlCharacter(value) ||
+                (forbidCommentStart && value[0] == '#') ||
                 value.IndexOfAny(forbidden) >= 0)
             {
                 throw new ArgumentException(
@@ -144,6 +145,18 @@ namespace DSPPluginManager.Contracts
                     parameterName
                 );
             }
+        }
+
+        private static bool ContainsControlCharacter(string value)
+        {
+            for (int index = 0; index < value.Length; index++)
+            {
+                if (char.IsControl(value[index]))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

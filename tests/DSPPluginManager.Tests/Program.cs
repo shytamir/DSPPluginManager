@@ -12,6 +12,7 @@ namespace DSPPluginManager.Tests
                 HostEnvironmentPathsTests.Run();
                 PluginWritableRootPathTests.Run();
                 PluginConfigurationScopeTests.Run();
+                PluginConfigurationDocumentTests.Run();
                 UnityHostContainerTests.Run(
                     args[0],
                     args[4],
@@ -56,6 +57,7 @@ namespace DSPPluginManager.Tests
                     "reserved dependency, activation failure isolation, " +
                     "runtime-delivery metadata, orderly shutdown, logging, " +
                     "candidate enumeration, RM-24 contract behavior, " +
+                    "RM-26 configuration parsing, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;

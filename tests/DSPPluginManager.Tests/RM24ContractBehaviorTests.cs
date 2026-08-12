@@ -42,6 +42,16 @@ namespace DSPPluginManager.Tests
                 uninitialized,
                 new object[] { "Section", " Key", "value", "description" }
             );
+            AssertInvocationFailure<ArgumentException>(
+                stringBind,
+                uninitialized,
+                new object[] { "Section", "# Key", "value", "description" }
+            );
+            AssertInvocationFailure<ArgumentException>(
+                stringBind,
+                uninitialized,
+                new object[] { "Section", "[Key]", "value", "description" }
+            );
             AssertInvocationFailure<ArgumentNullException>(
                 stringBind,
                 uninitialized,

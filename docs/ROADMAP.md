@@ -17,7 +17,8 @@ consumer or establish the final publishable package.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
-- **Active story:** RM-25 — Per-plugin configuration ownership and file policy
+- **Active story:** RM-26 — Sectioned parsing and value-preserving late-bound
+  entries
 - **Active story status:** Acceptance gate met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -39,7 +40,8 @@ consumer or establish the final publishable package.
 Milestones 1 and 2 delivered the deterministic pre-activation host, supervised
 Unity lifecycle, plugin logger and writable root, and the pinned manager-owned
 Harmony closure. RM-24 delivered the bounded public configuration and shortcut
-compile contract; its backing storage and Unity input behavior remain
+compile contract, and RM-25 delivered separate manager-owned per-plugin
+configuration scopes. Typed storage behavior and Unity input behavior remain
 deliberately absent. Required plugin startup work uses explicit `Activate()`
 after host services are prepared; ambient private Unity `Awake` is not a
 supervised startup boundary.
@@ -91,7 +93,7 @@ migration.
 
 ### RM-25 — Per-plugin configuration ownership and file policy
 
-**Status:** Acceptance gate met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As an operator, I want every plugin configuration file owned by its
 validated identity so plugins cannot collide or select arbitrary host paths.
@@ -125,7 +127,7 @@ manager installation layout.
 
 ### RM-26 — Sectioned parsing and value-preserving late-bound entries
 
-**Status:** Pending
+**Status:** Acceptance gate met; awaiting project-owner acceptance
 
 **Story:** As a Guide migrator, I want valid settings preserved before their
 save-specific keys are known so early fixed bindings cannot erase inactive-save

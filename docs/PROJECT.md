@@ -16,14 +16,14 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 3 active; RM-24 accepted and RM-25 acceptance gate met, awaiting project-owner acceptance |
+| Roadmap status | Milestone 3 active; RM-24 and RM-25 accepted, and RM-26 acceptance gate met awaiting project-owner acceptance |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
-| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration file ownership is implemented while parsing, persistence, and Unity input behavior remain pending |
+| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration file ownership and sectioned parsing are implemented while typed binding, persistence, and Unity input behavior remain pending |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and shortcut slices implemented; the latter two await their backing services |
 | Consumer migrations | Mirror selected first; migration not started |
@@ -41,12 +41,13 @@ selected-only activation as independent persistent Unity components,
 source-scoped logging, plugin writable roots, isolated lifecycle failures,
 orderly cleanup, the bounded configuration and shortcut compile contract,
 manager-owned per-plugin configuration scopes, and the pinned manager-owned
-Harmony closure. Configuration parsing, persistence, and Unity input polling
+Harmony closure. The configuration document parser retains valid unbound scalar
+values for later binding. Typed conversion, persistence, and Unity input polling
 are not implemented yet. The temporary
 Thunderstore package remains internal automation evidence rather than an
 installable product. Consumer migration has not started. The approved Milestone
-3 roadmap is active with RM-24 accepted and RM-25's acceptance gate met,
-awaiting project-owner acceptance.
+3 roadmap is active with RM-24 and RM-25 accepted and RM-26's acceptance gate
+met, awaiting project-owner acceptance.
 
 ## Purpose and success
 
@@ -261,6 +262,10 @@ evidence or an explicit product decision.
   imports, moves, or writes an existing BepInEx configuration file; migration
   uses the separate manager file and documents any values users or migrators
   must carry forward.
+- The bounded document grammar uses `[section]` headers, `key = scalar`
+  assignments, blank lines, and full-line `#` comments. Surrounding structural
+  whitespace is ignored, the first `=` separates key from scalar text, and
+  scalar text remains untyped until a matching bind.
 - Definition identity within that file is the ordinal case-sensitive
   `(section, key)` pair. The first successful bind establishes that definition's
   type, default, and description; a repeated bind of the same type returns the
@@ -268,6 +273,11 @@ evidence or an explicit product decision.
   through every save so Guide's late current and legacy save keys remain
   claimable; source comments, whitespace, and byte layout are not preservation
   contracts.
+- Malformed lines and invalid definitions are isolated with line-number and
+  source-line context. A repeated definition is diagnosed and its last textual
+  value is retained deterministically. A malformed section header clears the
+  active section so following entries cannot be attributed to the preceding
+  valid section accidentally.
 - The only initial configuration codecs are Boolean, non-null string, and
   `KeyboardShortcut`. Missing values use the supplied default. Malformed stored
   values are scoped warnings and also retain the supplied default.
