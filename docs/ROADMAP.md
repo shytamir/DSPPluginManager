@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-14 — Selected assembly runtime loader
+- **Active story:** RM-15 — Deterministic lifecycle state record
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -94,7 +94,7 @@ R-10.
 
 ### RM-14 — Selected assembly runtime loader
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As the host, I want only reconciled candidates loaded at runtime so
 rejected and superseded code remains outside the execution context.
@@ -123,7 +123,7 @@ context.
 
 ### RM-15 — Deterministic lifecycle state record
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As an operator, I want each selected plugin to have one authoritative
 lifecycle outcome so logs cannot confuse loading, activation, and cleanup.

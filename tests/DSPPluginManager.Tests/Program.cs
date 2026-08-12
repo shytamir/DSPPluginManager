@@ -16,10 +16,11 @@ namespace DSPPluginManager.Tests
                 LoggingCoreTests.Run();
                 DiskLogSinkTests.Run();
                 CandidateFileEnumeratorTests.Run();
+                PluginLifecycleRecordTests.Run();
                 Console.WriteLine(
                     "Compiled foundation, path, bootstrap entry, diagnostic, " +
-                    "reserved dependency, logging, and candidate enumeration " +
-                    "tests passed."
+                    "reserved dependency, logging, candidate enumeration, " +
+                    "and lifecycle state tests passed."
                 );
                 return 0;
             }

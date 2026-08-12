@@ -16,7 +16,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | --- | --- |
 | Roadmap status | Milestone 2: Supervised Unity activation is active |
 | RM-13 Unity lifecycle observability decision probe | Accepted by project owner |
-| RM-14 selected assembly runtime loader | Acceptance conditions met; awaiting project-owner acceptance |
+| RM-14 selected assembly runtime loader | Accepted by project owner |
+| RM-15 deterministic lifecycle state record | Acceptance conditions met; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -33,7 +34,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery and lifecycle slices defined; remaining migration surface not specified |
-| Plugin discovery, activation, and lifecycle host | Bounded enumeration, static recognition, deterministic reconciliation, and selected-candidate runtime loading implemented; activation not implemented |
+| Plugin discovery, activation, and lifecycle host | Discovery, reconciliation, selected-candidate runtime loading, and deterministic lifecycle state records implemented; activation not implemented |
 | Public source-migration contract | Minimal discovery and lifecycle slices specified; service surface not specified |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
@@ -48,9 +49,10 @@ and logged the same deterministic reconciliation plan as the offline tests.
 That installed exit did not runtime-load or execute a candidate. A later
 installed decision probe selected an explicit two-callback lifecycle seam
 because private Unity messages did not expose failure or destruction completion
-to the host. The selected-candidate runtime boundary is implemented and
-fixture-validated but is not yet invoked by the host. The host does not yet
-activate plugins and exposes no plugin services.
+to the host. The selected-candidate runtime boundary and deterministic
+per-candidate lifecycle state record are implemented and fixture-validated but
+are not yet invoked by the host. The host does not yet activate plugins and
+exposes no plugin services.
 
 ## Purpose and success
 
@@ -117,6 +119,24 @@ evidence or an explicit product decision.
 - Private Unity `Awake` and `OnDestroy` messages remain ambient Unity behavior,
   not supervised lifecycle callbacks. Required startup or cleanup work must use
   the explicit callbacks; no process-exit or crash-cleanup guarantee is made.
+- Each selected candidate owns one authoritative lifecycle record whose initial
+  state is `Selected`, meaning it is eligible but no runtime activation attempt
+  has begun.
+- `Activating` means the one activation attempt has been admitted but has not
+  been acknowledged. `Active` means explicit `Activate()` returned normally.
+  `Failed` is the terminal outcome of a runtime-load, construction, or explicit
+  activation failure.
+- `Stopping` means the one orderly cleanup attempt has been admitted while the
+  component and services remain available. `Stopped` means explicit
+  `Deactivate()` returned normally; `StopFailed` means it threw.
+- The only accepted transitions are `Selected → Activating`,
+  `Selected → Failed`, `Activating → Active`, `Activating → Failed`,
+  `Active → Stopping`, `Stopping → Stopped`, and
+  `Stopping → StopFailed`. Duplicate, backward, skipped, and terminal-state
+  transitions are rejected without changing the prior record.
+- `Failed` and `StopFailed` require identifier, version, assembly path, type,
+  phase, and complete exception context. `Stopped` and `StopFailed` are logical
+  cleanup outcomes only and never claim that the managed assembly was unloaded.
 - The host reports lifecycle failures without claiming hot reload or managed
   assembly unloading.
 - Managed entry and the selected Unity handoff are each admitted at most once.
