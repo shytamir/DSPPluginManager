@@ -132,6 +132,15 @@ namespace DSPPluginManager.Tests
                     field.Name + " must be readonly after construction."
                 );
             }
+
+            string pluginRoot = first.CreatePluginWritableRoot("fixture.plugin");
+            TestAssert.Equal(
+                Path.Combine(first.WritableOutputDirectory, "fixture.plugin"),
+                pluginRoot,
+                "host-derived plugin writable root"
+            );
+            TestAssert.True(Directory.Exists(pluginRoot),
+                "Host-derived plugin writable root was not initialized.");
         }
 
         private static void VerifyEmptyAndRelativeInputs(string[] validInputs)

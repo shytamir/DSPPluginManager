@@ -10,6 +10,7 @@ namespace DSPPluginManager.Tests
             {
                 FoundationTests.Run(args);
                 HostEnvironmentPathsTests.Run();
+                PluginWritableRootPathTests.Run();
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
@@ -18,7 +19,7 @@ namespace DSPPluginManager.Tests
                 CandidateFileEnumeratorTests.Run();
                 PluginLifecycleRecordTests.Run();
                 Console.WriteLine(
-                    "Compiled foundation, path, bootstrap entry, diagnostic, " +
+                    "Compiled foundation, host/plugin paths, bootstrap entry, diagnostic, " +
                     "reserved dependency, logging, candidate enumeration, " +
                     "and lifecycle state tests passed."
                 );

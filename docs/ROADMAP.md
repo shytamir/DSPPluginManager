@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-16 — Plugin logging contract slice
+- **Active story:** RM-17 — Plugin writable-root contract slice
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -151,7 +151,7 @@ lifecycle registry.
 
 ### RM-16 — Plugin logging contract slice
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a plugin author, I want a retained plugin logger available before
 startup so migrated code and helpers can emit attributable diagnostics.
@@ -179,7 +179,7 @@ plugin-selected destinations.
 
 ### RM-17 — Plugin writable-root contract slice
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As a plugin author, I want one immutable writable root owned by my
 stable identity so output files do not depend on BepInEx paths or the working

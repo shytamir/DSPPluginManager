@@ -171,7 +171,16 @@ namespace DSPPluginManager.ContractTests
                     pluginBase.BaseType.Scope.Name,
                     "Unity assembly identity"
                 );
-                PropertyDefinition loggerProperty = pluginBase.Properties.Single();
+                TestAssert.Equal(
+                    "Logger,WritableRoot",
+                    string.Join(",", pluginBase.Properties
+                        .Select(property => property.Name)
+                        .OrderBy(name => name, StringComparer.Ordinal)),
+                    "base service properties"
+                );
+                PropertyDefinition loggerProperty = pluginBase.Properties.Single(
+                    property => property.Name == "Logger"
+                );
                 TestAssert.Equal("Logger", loggerProperty.Name, "base logger property");
                 TestAssert.Equal(
                     "DSPPluginManager.Contracts.PluginLogger",
@@ -183,11 +192,26 @@ namespace DSPPluginManager.ContractTests
                     loggerProperty.SetMethod == null,
                     "The plugin logger handle must be public read-only."
                 );
+                PropertyDefinition writableRootProperty =
+                    pluginBase.Properties.Single(property =>
+                        property.Name == "WritableRoot"
+                    );
                 TestAssert.Equal(
-                    "get_Logger",
+                    "System.String",
+                    writableRootProperty.PropertyType.FullName,
+                    "writable-root property type"
+                );
+                TestAssert.True(
+                    writableRootProperty.GetMethod.IsPublic &&
+                    writableRootProperty.SetMethod == null,
+                    "The plugin writable root must be public read-only."
+                );
+                TestAssert.Equal(
+                    "get_Logger,get_WritableRoot",
                     string.Join(",", pluginBase.Methods
                         .Where(method => method.IsPublic && !method.IsConstructor)
-                        .Select(method => method.Name)),
+                        .Select(method => method.Name)
+                        .OrderBy(name => name, StringComparer.Ordinal)),
                     "public base service methods"
                 );
 
@@ -319,6 +343,37 @@ namespace DSPPluginManager.ContractTests
                         .Distinct()
                         .OrderBy(name => name, StringComparer.Ordinal)),
                     "fixture logging calls"
+                );
+
+                FieldDefinition retainedRoot = plugin.Fields.Single(field =>
+                    field.Name == "writableRoot"
+                );
+                TestAssert.Equal(
+                    "System.String",
+                    retainedRoot.FieldType.FullName,
+                    "retained writable-root type"
+                );
+                MethodDefinition captureRoot = plugin.Methods.Single(method =>
+                    method.Name == "CaptureWritableRoot"
+                );
+                TestAssert.True(captureRoot.Body.Instructions.Any(instruction =>
+                    instruction.Operand == retainedRoot
+                ), "Fixture did not retain the writable root.");
+
+                TypeDefinition outputHelper = assembly.MainModule.GetType(
+                    "DSPPluginManager.RM09Consumer.MirrorOutputHelper"
+                );
+                TestAssert.True(outputHelper != null,
+                    "Writable-root output helper is missing.");
+                MethodDefinition writeSnapshot = outputHelper.Methods.Single(
+                    method => method.Name == "WriteSnapshot"
+                );
+                TestAssert.Equal(
+                    "System.String,System.String",
+                    string.Join(",", writeSnapshot.Parameters.Select(parameter =>
+                        parameter.ParameterType.FullName
+                    )),
+                    "output helper parameters"
                 );
             }
         }

@@ -42,6 +42,14 @@ namespace DSPPluginManager.Hosting
 
         internal string WritableOutputDirectory { get; }
 
+        internal string CreatePluginWritableRoot(string identifier)
+        {
+            return PluginWritableRootPath.Create(
+                WritableOutputDirectory,
+                identifier
+            );
+        }
+
         internal static HostEnvironmentPaths Create(
             string executablePath,
             string managedDirectory,
