@@ -83,6 +83,14 @@ Do not amend, rebase, reset, clean, stash, force-push, or rewrite history unless
 explicitly instructed. Use non-interactive Git operations and avoid global Git
 configuration changes.
 
+An explicit request to push `main` authorizes pushing the requested commits to
+this repository's existing configured `origin/main`. Resolve and verify the
+current branch and `origin` URL internally before pushing; do not require the
+user to restate a literal remote URL or repository path. Include the resolved
+destination in any tool approval rationale when needed. This authorization does
+not extend to another remote, another branch, a changed or missing `origin`, a
+force-push, or any history rewrite.
+
 If Git reports dubious ownership, scope the exception to the command:
 
 ```powershell
