@@ -178,15 +178,70 @@ namespace DSPPluginManager.Contracts
             poll = value;
         }
 
+        internal string ToPersistedString()
+        {
+            return mainKey == KeyCode.None ? string.Empty : ToString();
+        }
+
+        internal static bool TryParse(
+            string serializedValue,
+            out KeyboardShortcut shortcut
+        )
+        {
+            shortcut = Unset;
+            if (serializedValue == null)
+            {
+                return false;
+            }
+            if (serializedValue.Length == 0)
+            {
+                return true;
+            }
+            if (serializedValue.IndexOf(',') >= 0 ||
+                serializedValue.IndexOf(';') >= 0 ||
+                serializedValue.IndexOf('|') >= 0)
+            {
+                return false;
+            }
+
+            string[] tokens = serializedValue.Split('+');
+            KeyCode[] keys = new KeyCode[tokens.Length];
+            for (int index = 0; index < tokens.Length; index++)
+            {
+                string token = tokens[index].Trim(' ');
+                KeyCode key;
+                if (token.Length == 0 ||
+                    !TryParseDefinedName(token, out key))
+                {
+                    return false;
+                }
+                keys[index] = key;
+            }
+
+            if (keys[0] == KeyCode.None)
+            {
+                return false;
+            }
+            for (int index = 0; index < keys.Length; index++)
+            {
+                if (!IsKeyboardKey(keys[index]))
+                {
+                    return false;
+                }
+            }
+
+            KeyCode[] held = new KeyCode[keys.Length - 1];
+            Array.Copy(keys, 1, held, 0, held.Length);
+            shortcut = new KeyboardShortcut(keys[0], held);
+            return true;
+        }
+
         private static void RequireKeyboardKey(
             KeyCode value,
             string parameterName
         )
         {
-            int numeric = (int)value;
-            if (value == KeyCode.None ||
-                !Enum.IsDefined(typeof(KeyCode), value) ||
-                numeric >= 323)
+            if (!IsKeyboardKey(value))
             {
                 throw new ArgumentOutOfRangeException(
                     parameterName,
@@ -194,6 +249,31 @@ namespace DSPPluginManager.Contracts
                     "Only defined keyboard KeyCode values are supported."
                 );
             }
+        }
+
+        private static bool IsKeyboardKey(KeyCode value)
+        {
+            return value != KeyCode.None &&
+                Enum.IsDefined(typeof(KeyCode), value) &&
+                (int)value < (int)KeyCode.Mouse0;
+        }
+
+        private static bool TryParseDefinedName(
+            string value,
+            out KeyCode key
+        )
+        {
+            foreach (string name in Enum.GetNames(typeof(KeyCode)))
+            {
+                if (string.Equals(name, value, StringComparison.Ordinal))
+                {
+                    key = (KeyCode)Enum.Parse(typeof(KeyCode), name, false);
+                    return true;
+                }
+            }
+
+            key = KeyCode.None;
+            return false;
         }
     }
 }

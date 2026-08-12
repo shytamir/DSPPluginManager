@@ -20,6 +20,7 @@ namespace DSPPluginManager.Tests
                     args[6]
                 );
                 RM24ContractBehaviorTests.Run(args[6]);
+                RM27ShortcutContractTests.Run(args[6]);
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
@@ -58,6 +59,7 @@ namespace DSPPluginManager.Tests
                     "runtime-delivery metadata, orderly shutdown, logging, " +
                     "candidate enumeration, RM-24 contract behavior, " +
                     "RM-26 configuration parsing, " +
+                    "RM-27 shortcut scalar, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;

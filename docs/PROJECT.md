@@ -16,14 +16,14 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 3 active; RM-24 and RM-25 accepted, and RM-26 acceptance gate met awaiting project-owner acceptance |
+| Roadmap status | Milestone 3 active; RM-24 through RM-26 accepted, and RM-27 acceptance gate met awaiting project-owner acceptance |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
-| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration file ownership and sectioned parsing are implemented while typed binding, persistence, and Unity input behavior remain pending |
+| Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration file ownership, sectioned parsing, and shortcut scalar conversion are implemented while typed binding, persistence, and Unity input polling remain pending |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and shortcut slices implemented; the latter two await their backing services |
 | Consumer migrations | Mirror selected first; migration not started |
@@ -42,12 +42,13 @@ source-scoped logging, plugin writable roots, isolated lifecycle failures,
 orderly cleanup, the bounded configuration and shortcut compile contract,
 manager-owned per-plugin configuration scopes, and the pinned manager-owned
 Harmony closure. The configuration document parser retains valid unbound scalar
-values for later binding. Typed conversion, persistence, and Unity input polling
-are not implemented yet. The temporary
+values for later binding, and the keyboard-shortcut scalar has its bounded
+canonical codec. Typed entry binding, persistence, and Unity input polling are
+not implemented yet. The temporary
 Thunderstore package remains internal automation evidence rather than an
 installable product. Consumer migration has not started. The approved Milestone
-3 roadmap is active with RM-24 and RM-25 accepted and RM-26's acceptance gate
-met, awaiting project-owner acceptance.
+3 roadmap is active with RM-24 through RM-26 accepted and RM-27's acceptance
+gate met, awaiting project-owner acceptance.
 
 ## Purpose and success
 
@@ -297,7 +298,8 @@ evidence or an explicit product decision.
   persisted and configured display text uses ` + ` between the main key and
   normalized held keys, while unset display text is `Not set`. The additional
   comma, semicolon, and pipe separators accepted by BepInEx are deliberately
-  not supported because its files are not reused.
+  not supported because its files are not reused. The literal `None` is also
+  rejected as stored text so unset has exactly one persisted representation.
 - `KeyboardShortcut.IsDown()` is a non-consuming Unity-main-thread query. It
   checks the main-key edge before held state, requires every configured held
   key, rejects any additional supported keyboard key, permits unrelated mouse
