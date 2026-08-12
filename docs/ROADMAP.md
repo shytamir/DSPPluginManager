@@ -17,7 +17,7 @@ consumer or establish the final publishable package.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
-- **Active story:** RM-28 — Typed binding, defaults, and in-memory mutation
+- **Active story:** RM-29 — Deterministic autosave and atomic replacement
 - **Active story status:** Acceptance gate met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -41,10 +41,12 @@ Unity lifecycle, plugin logger and writable root, and the pinned manager-owned
 Harmony closure. RM-24 delivered the bounded public configuration and shortcut
 compile contract, and RM-25 delivered separate manager-owned per-plugin
 configuration scopes. RM-26 delivered the value-preserving untyped document
-parser, and RM-27 delivered the normalized shortcut scalar and codec. Disk
-persistence and Unity input behavior remain deliberately absent. Required
-plugin startup work uses explicit `Activate()` after host services are prepared;
-ambient private Unity `Awake` is not a supervised startup boundary.
+parser, RM-27 delivered the normalized shortcut scalar and codec, and RM-28
+delivered typed binding and in-memory mutation. RM-29 has now met its acceptance
+gate with deterministic atomic persistence; Unity input behavior remains
+deliberately absent. Required plugin startup work uses explicit `Activate()`
+after host services are prepared; ambient private Unity `Awake` is not a
+supervised startup boundary.
 
 The remaining host requirements are R-13 through R-15 from the private feature
 map. FM-05 requires safe per-plugin persistence, including Guide's late-bound
@@ -201,7 +203,7 @@ FM-05/FM-06 boundary.
 
 ### RM-28 — Typed binding, defaults, and in-memory mutation
 
-**Status:** Acceptance gate met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a plugin implementer, I want stored values converted into stable
 typed entries so malformed settings remain local and usable defaults survive.
@@ -236,7 +238,7 @@ events, or enumeration APIs.
 
 ### RM-29 — Deterministic autosave and atomic replacement
 
-**Status:** Pending
+**Status:** Acceptance gate met; awaiting project-owner acceptance
 
 **Story:** As an operator, I want configuration changes persisted without
 destroying the last usable file so a failed save cannot silently erase settings.

@@ -14,39 +14,55 @@ namespace DSPPluginManager.Tests
             string contractPath
         )
         {
-            Assembly unityHost = FindLoadedAssembly(unityHostPath);
-            Assembly contract = FindLoadedAssembly(contractPath);
-            Type serviceType = unityHost.GetType(
-                "DSPPluginManager.UnityHost.PluginConfigurationService",
-                true
+            string sandbox = Path.Combine(
+                Path.GetTempPath(),
+                "DSPPluginManager.RM28.Tests",
+                Guid.NewGuid().ToString("N")
             );
-            Type configurationType = contract.GetType(
-                "DSPPluginManager.Contracts.PluginConfiguration",
-                true
-            );
-            Type shortcutType = contract.GetType(
-                "DSPPluginManager.Contracts.KeyboardShortcut",
-                true
-            );
-            Type keyCodeType = shortcutType.GetConstructors().Single()
-                .GetParameters()[0].ParameterType;
+            Directory.CreateDirectory(sandbox);
+            try
+            {
+                Assembly unityHost = FindLoadedAssembly(unityHostPath);
+                Assembly contract = FindLoadedAssembly(contractPath);
+                Type serviceType = unityHost.GetType(
+                    "DSPPluginManager.UnityHost.PluginConfigurationService",
+                    true
+                );
+                Type configurationType = contract.GetType(
+                    "DSPPluginManager.Contracts.PluginConfiguration",
+                    true
+                );
+                Type shortcutType = contract.GetType(
+                    "DSPPluginManager.Contracts.KeyboardShortcut",
+                    true
+                );
+                Type keyCodeType = shortcutType.GetConstructors().Single()
+                    .GetParameters()[0].ParameterType;
 
-            VerifyBindingAndMutation(
-                serviceType,
-                configurationType,
-                shortcutType,
-                keyCodeType
-            );
-            VerifyMalformedValuesAndIsolation(
-                serviceType,
-                configurationType,
-                shortcutType,
-                keyCodeType
-            );
-            VerifyScalarCodecs(serviceType);
+                VerifyBindingAndMutation(
+                    sandbox,
+                    serviceType,
+                    configurationType,
+                    shortcutType,
+                    keyCodeType
+                );
+                VerifyMalformedValuesAndIsolation(
+                    sandbox,
+                    serviceType,
+                    configurationType,
+                    shortcutType,
+                    keyCodeType
+                );
+                VerifyScalarCodecs(serviceType);
+            }
+            finally
+            {
+                Directory.Delete(sandbox, true);
+            }
         }
 
         private static void VerifyBindingAndMutation(
+            string sandbox,
             Type serviceType,
             Type configurationType,
             Type shortcutType,
@@ -63,6 +79,7 @@ namespace DSPPluginManager.Tests
                 );
             List<string> warnings = new List<string>();
             object service = CreateService(
+                sandbox,
                 serviceType,
                 "Fixture.Plugin",
                 document,
@@ -161,6 +178,7 @@ namespace DSPPluginManager.Tests
         }
 
         private static void VerifyMalformedValuesAndIsolation(
+            string sandbox,
             Type serviceType,
             Type configurationType,
             Type shortcutType,
@@ -176,6 +194,7 @@ namespace DSPPluginManager.Tests
                 );
             List<string> brokenWarnings = new List<string>();
             object broken = CreateService(
+                sandbox,
                 serviceType,
                 "Broken.Plugin",
                 brokenDocument,
@@ -234,6 +253,7 @@ namespace DSPPluginManager.Tests
                 );
             List<string> healthyWarnings = new List<string>();
             object healthy = CreateService(
+                sandbox,
                 serviceType,
                 "Healthy.Plugin",
                 healthyDocument,
@@ -258,7 +278,10 @@ namespace DSPPluginManager.Tests
                 null,
                 new object[]
                 {
-                    "Throwing.Plugin",
+                    PluginConfigurationScope.Create(
+                        Path.Combine(sandbox, "throwing"),
+                        "Throwing.Plugin"
+                    ),
                     throwingDocument,
                     new Action<string>(message =>
                     {
@@ -316,6 +339,7 @@ namespace DSPPluginManager.Tests
         }
 
         private static object CreateService(
+            string sandbox,
             Type serviceType,
             string identifier,
             PluginConfigurationDocument document,
@@ -328,7 +352,10 @@ namespace DSPPluginManager.Tests
                 null,
                 new object[]
                 {
-                    identifier,
+                    PluginConfigurationScope.Create(
+                        Path.Combine(sandbox, identifier),
+                        identifier
+                    ),
                     document,
                     new Action<string>(warnings.Add)
                 },

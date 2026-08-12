@@ -22,6 +22,7 @@ namespace DSPPluginManager.Tests
                 RM24ContractBehaviorTests.Run(args[6]);
                 RM27ShortcutContractTests.Run(args[6]);
                 RM28TypedConfigurationTests.Run(args[4], args[6]);
+                RM29ConfigurationPersistenceTests.Run(args[4], args[6]);
                 BootstrapFailureRecordTests.Run();
                 BootstrapEntrypointTests.Run();
                 ReservedDependencyResolverTests.Run(args[3]);
@@ -62,6 +63,7 @@ namespace DSPPluginManager.Tests
                     "RM-26 configuration parsing, " +
                     "RM-27 shortcut scalar, " +
                     "RM-28 typed configuration, " +
+                    "RM-29 atomic configuration persistence, " +
                     "and lifecycle state tests passed."
                 );
                 return 0;

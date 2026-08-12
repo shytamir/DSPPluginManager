@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using DSPPluginManager.Configuration;
 using DSPPluginManager.Contracts;
@@ -11,35 +12,57 @@ namespace DSPPluginManager.UnityHost
     internal sealed class PluginConfigurationService
     {
         private readonly string identifier;
+        private readonly string filePath;
+        private readonly bool writeBlocked;
         private readonly PluginConfigurationDocument document;
         private readonly Action<string> warning;
+        private readonly IPluginConfigurationPersistence persistence;
         private readonly Dictionary<ConfigurationDefinition, Binding> bindings;
+        private readonly object sync = new object();
         private int mutationVersion;
+        private int requestedPersistenceVersion;
+        private int persistedVersion;
 
         internal PluginConfigurationService(
-            string identifier,
+            PluginConfigurationScope scope,
             PluginConfigurationDocument document,
             Action<string> warning
+        ) : this(
+            scope,
+            document,
+            warning,
+            new PluginConfigurationPersistence()
         )
         {
-            if (!PluginContractRules.IsValidIdentifier(identifier))
+        }
+
+        internal PluginConfigurationService(
+            PluginConfigurationScope scope,
+            PluginConfigurationDocument document,
+            Action<string> warning,
+            IPluginConfigurationPersistence persistence
+        )
+        {
+            if (scope == null)
             {
-                throw new ArgumentException(
-                    "Plugin identifier is invalid.",
-                    "identifier"
-                );
+                throw new ArgumentNullException("scope");
             }
-            this.identifier = identifier.ToLowerInvariant();
+            identifier = scope.Identifier;
+            filePath = scope.FilePath;
+            writeBlocked = !scope.IsUsable;
             this.document = document ?? throw new ArgumentNullException(
                 "document"
             );
             this.warning = warning ?? throw new ArgumentNullException("warning");
+            this.persistence = persistence ?? throw new ArgumentNullException(
+                "persistence"
+            );
             bindings = new Dictionary<ConfigurationDefinition, Binding>();
             Handle = new PluginConfiguration(
                 BindBoolean,
                 BindString,
                 BindShortcut,
-                SaveBeforePersistenceExists
+                Save
             );
         }
 
@@ -47,7 +70,35 @@ namespace DSPPluginManager.UnityHost
 
         internal int MutationVersion
         {
-            get { return mutationVersion; }
+            get
+            {
+                lock (sync)
+                {
+                    return mutationVersion;
+                }
+            }
+        }
+
+        internal int RequestedPersistenceVersion
+        {
+            get
+            {
+                lock (sync)
+                {
+                    return requestedPersistenceVersion;
+                }
+            }
+        }
+
+        internal int PersistedVersion
+        {
+            get
+            {
+                lock (sync)
+                {
+                    return persistedVersion;
+                }
+            }
         }
 
         private PluginConfigurationEntry<bool> BindBoolean(
@@ -63,7 +114,8 @@ namespace DSPPluginManager.UnityHost
                 defaultValue,
                 description,
                 "Boolean",
-                TryParseBoolean
+                TryParseBoolean,
+                SerializeBoolean
             );
         }
 
@@ -80,7 +132,8 @@ namespace DSPPluginManager.UnityHost
                 defaultValue,
                 description,
                 "String",
-                TryParseString
+                TryParseString,
+                SerializeString
             );
         }
 
@@ -97,7 +150,8 @@ namespace DSPPluginManager.UnityHost
                 defaultValue,
                 description,
                 "KeyboardShortcut",
-                KeyboardShortcut.TryParse
+                KeyboardShortcut.TryParse,
+                value => value.ToPersistedString()
             );
         }
 
@@ -107,60 +161,68 @@ namespace DSPPluginManager.UnityHost
             T defaultValue,
             string description,
             string expectedType,
-            TryParseValue<T> parse
+            TryParseValue<T> parse,
+            Func<T, string> serialize
         )
         {
-            ConfigurationDefinition definition =
-                new ConfigurationDefinition(section, key);
-            Binding existing;
-            if (bindings.TryGetValue(definition, out existing))
+            lock (sync)
             {
-                TypedBinding<T> matching = existing as TypedBinding<T>;
-                if (matching == null)
+                ConfigurationDefinition definition =
+                    new ConfigurationDefinition(section, key);
+                Binding existing;
+                if (bindings.TryGetValue(definition, out existing))
                 {
-                    throw new InvalidOperationException(
-                        "Plugin '" + identifier + "' configuration [" +
-                        section + "] " + key + " was first bound as " +
-                        existing.ExpectedType + " and cannot be rebound as " +
-                        expectedType + "."
-                    );
+                    TypedBinding<T> matching = existing as TypedBinding<T>;
+                    if (matching == null)
+                    {
+                        throw new InvalidOperationException(
+                            "Plugin '" + identifier + "' configuration [" +
+                            section + "] " + key + " was first bound as " +
+                            existing.ExpectedType + " and cannot be rebound as " +
+                            expectedType + "."
+                        );
+                    }
+                    return matching.Entry;
                 }
-                return matching.Entry;
-            }
 
-            T value = defaultValue;
-            string serialized;
-            if (document.TryClaimSerializedValue(
-                    section,
-                    key,
-                    out serialized
-                ))
-            {
-                T parsed;
-                if (parse(serialized, out parsed))
-                {
-                    value = parsed;
-                }
-                else
-                {
-                    Warn(
+                T value = defaultValue;
+                string serialized;
+                if (document.TryClaimSerializedValue(
                         section,
                         key,
-                        expectedType,
-                        "stored value '" + serialized + "' is malformed"
-                    );
+                        out serialized
+                    ))
+                {
+                    T parsed;
+                    if (parse(serialized, out parsed))
+                    {
+                        value = parsed;
+                    }
+                    else
+                    {
+                        Warn(
+                            section,
+                            key,
+                            expectedType,
+                            "stored value '" + serialized + "' is malformed"
+                        );
+                    }
                 }
-            }
 
-            TypedBinding<T> created = new TypedBinding<T>(
-                expectedType,
-                defaultValue,
-                description,
-                value,
-                OnChanged
-            );
-            bindings.Add(definition, created);
-            return created.Entry;
+                TypedBinding<T> created = new TypedBinding<T>(
+                    definition,
+                    expectedType,
+                    defaultValue,
+                    description,
+                    value,
+                    serialize,
+                    sync,
+                    OnChanged
+                );
+                bindings.Add(definition, created);
+                RequestPersistence("new binding");
+                return created.Entry;
+            }
         }
 
         private void OnChanged()
@@ -169,6 +231,7 @@ namespace DSPPluginManager.UnityHost
             {
                 mutationVersion++;
             }
+            RequestPersistence("changed value");
         }
 
         private void Warn(
@@ -191,8 +254,127 @@ namespace DSPPluginManager.UnityHost
             }
         }
 
-        private static void SaveBeforePersistenceExists()
+        private void Save()
         {
+            lock (sync)
+            {
+                RequestPersistence("explicit save");
+            }
+        }
+
+        private void RequestPersistence(string reason)
+        {
+            checked
+            {
+                requestedPersistenceVersion++;
+            }
+            int requested = requestedPersistenceVersion;
+            if (writeBlocked)
+            {
+                WarnPersistence(
+                    reason,
+                    requested,
+                    "source read was unavailable; writes are blocked for " +
+                    "this process",
+                    null
+                );
+                return;
+            }
+
+            ConfigurationPersistenceResult result = persistence.Save(
+                filePath,
+                SerializeSnapshot()
+            );
+            if (result.Succeeded)
+            {
+                persistedVersion = requested;
+                return;
+            }
+
+            WarnPersistence(
+                reason,
+                requested,
+                result.FailureStage.ToString(),
+                result.Failure
+            );
+        }
+
+        private string SerializeSnapshot()
+        {
+            List<SnapshotEntry> entries = document.Entries
+                .Select(entry => new SnapshotEntry(
+                    entry.Section,
+                    entry.Key,
+                    null,
+                    entry.SerializedValue
+                ))
+                .ToList();
+            entries.AddRange(bindings.Values.Select(binding =>
+                new SnapshotEntry(
+                    binding.Definition.Section,
+                    binding.Definition.Key,
+                    binding.Description,
+                    binding.SerializeValue()
+                )
+            ));
+
+            StringBuilder result = new StringBuilder();
+            string currentSection = null;
+            foreach (SnapshotEntry entry in entries
+                .OrderBy(value => value.Section, StringComparer.Ordinal)
+                .ThenBy(value => value.Key, StringComparer.Ordinal))
+            {
+                if (!string.Equals(
+                        currentSection,
+                        entry.Section,
+                        StringComparison.Ordinal
+                    ))
+                {
+                    if (result.Length != 0)
+                    {
+                        result.AppendLine();
+                    }
+                    currentSection = entry.Section;
+                    result.Append('[');
+                    result.Append(currentSection);
+                    result.AppendLine("]");
+                }
+                if (entry.Description != null)
+                {
+                    result.Append("# ");
+                    result.AppendLine(entry.Description);
+                }
+                result.Append(entry.Key);
+                result.Append(" = ");
+                result.AppendLine(entry.SerializedValue);
+            }
+            return result.ToString();
+        }
+
+        private void WarnPersistence(
+            string reason,
+            int requested,
+            string stage,
+            Exception failure
+        )
+        {
+            string message =
+                "Plugin '" + identifier + "' configuration persistence " +
+                "request " + requested + " (" + reason + ") failed at " +
+                stage + "; persisted version remains " + persistedVersion +
+                ". In-memory values remain usable.";
+            if (failure != null)
+            {
+                message += " " + failure.GetType().FullName + ": " +
+                    failure.Message;
+            }
+            try
+            {
+                warning(message);
+            }
+            catch
+            {
+            }
         }
 
         private static bool TryParseBoolean(string value, out bool parsed)
@@ -309,54 +491,108 @@ namespace DSPPluginManager.UnityHost
 
         private abstract class Binding
         {
-            protected Binding(string expectedType)
+            protected Binding(
+                ConfigurationDefinition definition,
+                string expectedType,
+                string description
+            )
             {
+                Definition = definition;
                 ExpectedType = expectedType;
+                Description = description;
             }
 
+            internal ConfigurationDefinition Definition { get; }
+
             internal string ExpectedType { get; }
+
+            internal string Description { get; }
+
+            internal abstract string SerializeValue();
         }
 
         private sealed class TypedBinding<T> : Binding
         {
+            private readonly Func<T, string> serialize;
+            private readonly object sync;
             private readonly Action changed;
             private T value;
 
             internal TypedBinding(
+                ConfigurationDefinition definition,
                 string expectedType,
                 T defaultValue,
                 string description,
                 T value,
+                Func<T, string> serialize,
+                object sync,
                 Action changed
-            ) : base(expectedType)
+            ) : base(definition, expectedType, description)
             {
                 DefaultValue = defaultValue;
-                Description = description;
                 this.value = value;
+                this.serialize = serialize;
+                this.sync = sync;
                 this.changed = changed;
                 Entry = new PluginConfigurationEntry<T>(Read, Write);
             }
 
             internal T DefaultValue { get; }
 
-            internal string Description { get; }
-
             internal PluginConfigurationEntry<T> Entry { get; }
+
+            internal override string SerializeValue()
+            {
+                lock (sync)
+                {
+                    return serialize(value);
+                }
+            }
 
             private T Read()
             {
-                return value;
+                lock (sync)
+                {
+                    return value;
+                }
             }
 
             private void Write(T next)
             {
-                if (EqualityComparer<T>.Default.Equals(value, next))
+                lock (sync)
                 {
-                    return;
+                    if (EqualityComparer<T>.Default.Equals(value, next))
+                    {
+                        return;
+                    }
+                    value = next;
+                    changed();
                 }
-                value = next;
-                changed();
             }
+        }
+
+        private sealed class SnapshotEntry
+        {
+            internal SnapshotEntry(
+                string section,
+                string key,
+                string description,
+                string serializedValue
+            )
+            {
+                Section = section;
+                Key = key;
+                Description = description;
+                SerializedValue = serializedValue;
+            }
+
+            internal string Section { get; }
+
+            internal string Key { get; }
+
+            internal string Description { get; }
+
+            internal string SerializedValue { get; }
         }
     }
 }
