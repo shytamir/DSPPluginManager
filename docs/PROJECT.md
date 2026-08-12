@@ -173,9 +173,11 @@ evidence or an explicit product decision.
   single-use class marker. Its constructor takes exactly three strings in this
   order: stable identifier, display name, and canonical version.
 - The implemented `DSPPluginManager.Contracts.PluginBehaviour` remains an
-  abstract `UnityEngine.MonoBehaviour`. Its public surface is limited to the
-  read-only `Logger` and `WritableRoot` properties plus the parameterless
-  abstract `Activate()` and `Deactivate()` lifecycle callbacks recorded above.
+  abstract `UnityEngine.MonoBehaviour`. Its accepted public service surface is
+  limited to the read-only `Logger`, `WritableRoot`, and `Config` properties
+  plus the parameterless abstract `Activate()` and `Deactivate()` lifecycle
+  callbacks recorded above. `Config` is selected for RM-24 but is not yet
+  implemented.
 - Identifiers are non-empty ASCII strings containing only letters, digits,
   `.`, `_`, and `-`. Identity comparison is ordinal and case-insensitive.
 - Versions contain exactly three non-negative decimal integer components
@@ -214,6 +216,82 @@ evidence or an explicit product decision.
   provisions it once for the process.
 - The writable root establishes ownership and collision avoidance for trusted
   plugins; it is not a filesystem confinement or access-control boundary.
+- The selected public configuration slice is the read-only
+  `DSPPluginManager.Contracts.PluginBehaviour.Config` property of sealed type
+  `DSPPluginManager.Contracts.PluginConfiguration`. Plugins cannot construct or
+  replace this host-prepared handle.
+- `PluginConfiguration` exposes exactly three closed `Bind` overloads with
+  `(string section, string key, <value> defaultValue, string description)` for
+  `bool`, `string`, and
+  `DSPPluginManager.Contracts.KeyboardShortcut`. Each returns the corresponding
+  closed `DSPPluginManager.Contracts.PluginConfigurationEntry<T>`. There is no
+  public unrestricted generic bind or converter-registration surface.
+- `PluginConfigurationEntry<T>` is sealed, has no public constructor, and
+  exposes only a public readable/writable `T Value`. A returned entry may be
+  retained and passed to helpers. `PluginConfiguration` additionally exposes
+  exactly `void Save()` for explicit complete-snapshot persistence.
+- `DSPPluginManager.Contracts.KeyboardShortcut` is an immutable readonly value
+  type implementing `IEquatable<KeyboardShortcut>`. Its public surface is
+  exactly `KeyboardShortcut(UnityEngine.KeyCode mainKey, params
+  UnityEngine.KeyCode[] heldKeys)`, the get-only static property
+  `KeyboardShortcut Unset`, `bool IsDown()`,
+  `bool Equals(KeyboardShortcut other)`, `override bool Equals(object obj)`,
+  `override int GetHashCode()`, `override string ToString()`, and the `==` and
+  `!=` operators. It exposes no mutable key collection, input provider,
+  registration, or event surface.
+- The host guarantees `Config` during supported `Activate()` and keeps the
+  handle and entries usable through `Deactivate()` return. It does not
+  guarantee configuration during ambient private Unity `Awake`; migrated
+  required setup must use `Activate()`.
+- Accessing `Config` before host preparation, polling a configured shortcut
+  before the Unity input bridge is prepared or away from its supported Unity
+  thread, invalid definitions, conflicting repeated bind types, null string
+  values/defaults or descriptions, and unsupported values are synchronous
+  contract errors. Empty string values and descriptions remain valid.
+  Malformed stored values and configuration read/write failures are operational
+  failures: they are diagnosed with plugin/definition context, retain a usable
+  default or in-memory value, do not escape into plugin lifecycle code, and do
+  not imply successful persistence.
+- One validated canonical lowercase plugin identifier owns the human-editable
+  section/key file `<canonical-identifier>.cfg` beneath the project-owned,
+  configured host configuration directory. The manager never discovers,
+  imports, moves, or writes an existing BepInEx configuration file; migration
+  uses the separate manager file and documents any values users or migrators
+  must carry forward.
+- Definition identity within that file is the ordinal case-sensitive
+  `(section, key)` pair. The first successful bind establishes that definition's
+  type, default, and description; a repeated bind of the same type returns the
+  authoritative entry. Valid unbound serialized definitions are retained
+  through every save so Guide's late current and legacy save keys remain
+  claimable; source comments, whitespace, and byte layout are not preservation
+  contracts.
+- The only initial configuration codecs are Boolean, non-null string, and
+  `KeyboardShortcut`. Missing values use the supplied default. Malformed stored
+  values are scoped warnings and also retain the supplied default.
+- A new bind and a changed value autosave; `Save()` explicitly writes the whole
+  current snapshot. Bound and unbound definitions are emitted deterministically
+  as human-readable UTF-8. Persistence publishes a completed same-directory
+  temporary file atomically and never truncates the final file in place or
+  falls back to a non-atomic rewrite.
+- Shortcut construction defensively normalizes one main keyboard `KeyCode` and
+  its held keyboard keys. `KeyCode.None` with no held keys is the unset value
+  and is not a held key; a null held-key array, an unset main key with held keys,
+  mouse, joystick, and other unsupported key families are not initial shortcut
+  values.
+- The persisted unset shortcut is an empty scalar. Configured shortcut text is
+  one or more case-sensitive Unity `KeyCode` names separated by `+` with
+  optional surrounding ASCII spaces; the first name is the main key. Canonical
+  persisted and configured display text uses ` + ` between the main key and
+  normalized held keys, while unset display text is `Not set`. The additional
+  comma, semicolon, and pipe separators accepted by BepInEx are deliberately
+  not supported because its files are not reused.
+- `KeyboardShortcut.IsDown()` is a non-consuming Unity-main-thread query. It
+  checks the main-key edge before held state, requires every configured held
+  key, rejects any additional supported keyboard key, permits unrelated mouse
+  state, and leaves game/save/UI applicability and DSP input-context policy to
+  the plugin. The contract assembly does not reference
+  `UnityEngine.InputLegacyModule`; the late-loaded Unity host owns that internal
+  adapter.
 - Payload formatting, timestamp acquisition, or sink failure never escapes a
   logging call, and concurrent source calls reach the internal sink as complete
   records.
@@ -265,10 +343,7 @@ evidence or an explicit product decision.
 
 ## Open steering decisions
 
-- remaining public service contracts beyond the implemented plugin-logging
-  and writable-root slices;
 - final host, plugin, configuration, log, and writable-parent locations;
-- configuration format and treatment of existing BepInEx `.cfg` files;
 - Mirror's migration acceptance matrix;
 - final Thunderstore dependency, installation layout, and publication policy.
 

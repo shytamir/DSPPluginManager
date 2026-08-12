@@ -68,12 +68,17 @@ handle, typed entries, explicit save, and shortcut value.
 - `PluginBehaviour` exposes one host-prepared configuration handle; plugin code
   can bind a section/key/default/description, read and change a typed value, and
   request an explicit save.
-- The initial value domain is closed to Boolean, string, and the project-owned
-  shortcut scalar; unsupported types cannot become an accidental contract.
+- The public handle has three closed `Bind` overloads returning non-constructible
+  typed entries for Boolean, string, and the project-owned shortcut scalar; no
+  unrestricted generic bind or converter surface makes other types accidental
+  contracts.
 - Mirror-shaped fixed bindings and Guide-shaped fixed, late-bound string, and
   explicit-save calls compile using only the proposed surface.
-- Shortcut construction, unset state, display, and `IsDown()` are represented
-  without adding input registration, events, or rebinding APIs.
+- Shortcut construction, unset state, equality, display, and `IsDown()` are
+  represented without adding input registration, events, or rebinding APIs.
+- Contract misuse fails synchronously, while the public delegation seams permit
+  later storage failures to be diagnosed without escaping or discarding usable
+  in-memory values.
 
 **Depends on:** Accepted RM-09, RM-16, RM-17, and RM-19 contracts.
 
@@ -89,22 +94,24 @@ migration.
 **Story:** As an operator, I want every plugin configuration file owned by its
 validated identity so plugins cannot collide or select arbitrary host paths.
 
-**Delivers:** One immutable per-plugin configuration scope and an explicit file
-location, extension, and existing-BepInEx-file policy.
+**Delivers:** One immutable per-plugin configuration scope using a separate,
+manager-owned `<canonical-identifier>.cfg` file.
 
 **Acceptance:**
 
-- One canonical lowercase plugin identifier owns one normalized file beneath
-  the configured host configuration directory; traversal and cross-plugin
-  claims are rejected.
-- The directory and file are independent of the process working directory and
-  are prepared before supported plugin startup.
-- The final extension and treatment of existing BepInEx `.cfg` files are
-  selected and recorded as direct reuse, explicit import, or deliberate
-  separation; no implicit compatibility claim remains.
-- Missing, empty, unreadable, directory-collision, and access-denied states
-  produce deterministic scoped outcomes without overwriting an unreadable
-  source.
+- One canonical lowercase plugin identifier owns the normalized
+  `<canonical-identifier>.cfg` file beneath the project-owned, configured host
+  configuration directory; traversal and cross-plugin claims are rejected.
+- Scope creation is independent of the process working directory, creates or
+  validates the configured parent, and returns one immutable final path for
+  later lifecycle integration.
+- The manager does not discover, import, move, or write an existing BepInEx
+  `.cfg` file. Tests prove the manager scope is separate and cannot mutate a
+  supplied BepInEx fixture; required value carry-forward is deferred to the
+  RM-33 migration instructions.
+- A missing or empty file is a valid empty scope. Unreadable files,
+  directory-at-file collisions, and access denial produce deterministic scoped
+  outcomes without overwriting the affected source.
 - One plugin's file failure does not change another plugin's scope or lifecycle.
 
 **Depends on:** RM-02, RM-17, and RM-24.
@@ -112,9 +119,9 @@ location, extension, and existing-BepInEx-file policy.
 **Not included:** Section parsing, typed binding, writes, live reload, or final
 manager installation layout.
 
-**Requirements:** R-13 ownership and FM-05's open format/location decision.
+**Requirements:** R-13 ownership and FM-05's selected separation policy.
 
-### RM-26 — Sectioned parsing and lossless late-bound entries
+### RM-26 — Sectioned parsing and value-preserving late-bound entries
 
 **Status:** Pending
 
@@ -123,17 +130,20 @@ save-specific keys are known so early fixed bindings cannot erase inactive-save
 selections.
 
 **Delivers:** A bounded human-editable section/key document model that retains
-unclaimed serialized entries losslessly.
+every valid unclaimed definition and serialized value.
 
 **Acceptance:**
 
 - Definition identity is the ordinal case-sensitive `(section, key)` pair, with
   validation preventing whitespace, line-break, header, or assignment
   injection.
-- Valid entries, inert comments, and descriptions are parsed without executing
-  plugin code; all valid unclaimed values remain available for a later bind.
-- Malformed lines are isolated and diagnosed; repeated definitions are
-  diagnosed and deterministically retain the last textual value.
+- Blank lines and comments are inert. Valid definitions and serialized values
+  are parsed without executing plugin code and remain available for a later
+  bind; original whitespace, comment placement, and byte layout are not
+  retained contracts.
+- Malformed lines are isolated and diagnosed with line context; repeated
+  definitions are diagnosed and deterministically retain the last textual
+  value.
 - Fixed Mirror/Guide entries can be observed without claiming unrelated current
   or legacy `Phase Selection` keys.
 - Repeated load and in-memory document construction produce deterministic
@@ -160,18 +170,24 @@ canonical serializer.
 
 - A value contains one main Unity `KeyCode`, a defensively copied normalized
   held-key set, or an explicit unset state that can never trigger.
+- `KeyCode.None` with no held keys is the unset value; a null held-key array,
+  held `None`, an unset main key with held keys, and mouse, joystick, or other
+  unsupported key families are rejected as contract or parse errors rather
+  than normalized into another meaning.
 - Duplicate held keys and the main key are removed, remaining keys have one
   deterministic order, and value equality supports configuration change
   detection.
-- Canonical persisted text is main-key-first; display text is useful for both a
-  configured combination and the unset state.
+- An empty scalar parses and serializes as unset. Configured text accepts one or
+  more case-sensitive Unity `KeyCode` names separated by `+` with optional
+  surrounding ASCII spaces; the first name is the main key. Canonical persisted
+  and configured display text uses ` + `, and unset display text is `Not set`.
 - F8, F9, and multi-key combinations round-trip; malformed or unsupported
   keyboard names return a conversion failure rather than silently becoming
   unset.
-- The accepted separators and any drift from BepInEx shortcut text are recorded
-  explicitly for migration documentation.
+- Comma, semicolon, and pipe separators are rejected. Their deliberate drift
+  from BepInEx shortcut text is recorded for RM-33 migration documentation.
 
-**Depends on:** RM-24.
+**Depends on:** RM-24 and RM-25.
 
 **Not included:** Unity polling, mouse/gamepad guarantees, capture UI, live
 rebinding, or configuration file writes.
@@ -191,13 +207,17 @@ RM-27 shortcut scalar.
 
 **Acceptance:**
 
-- Binding claims a matching unbound value or retains the supplied default, and
-  rebinding the same definition and type returns the authoritative entry.
+- Binding claims a matching unbound value or retains the supplied default. The
+  first successful bind establishes the definition's type, default, and
+  description; rebinding the same definition and type returns that authoritative
+  entry without changing those attributes.
 - A conflicting type for an existing definition is rejected with plugin,
   section, key, and type context without changing the prior entry.
 - Boolean parsing is case-insensitive with canonical lowercase output; strings
   round-trip Unicode, control characters, `;`, and `=`; shortcut failures use
   the RM-27 scoped conversion path.
+- Empty strings are valid; null string defaults or assigned values are rejected
+  as the RM-24 synchronous contract error rather than serialized ambiguously.
 - A malformed stored value warns with expected type and reason, retains the
   supplied default, and does not affect another entry or plugin.
 - Changed values update the authoritative in-memory entry; assigning an equal
@@ -226,13 +246,19 @@ values, and explicit save.
   complete current snapshot even after an autosave.
 - Bound and still-unbound definitions are emitted in deterministic ordinal
   section/key order as UTF-8 with inert descriptions and canonical scalar text.
-- A complete temporary file is written, flushed, and closed in the same
-  directory before atomic replacement or move into the final path.
-- Simulated temporary-write, flush, replacement, and final-path failures leave
-  the previous file intact where the platform permits, keep in-memory values
-  usable, and distinguish requested from persisted state in diagnostics.
+- A complete temporary file is written, durably flushed, and closed in the same
+  directory before `File.Replace` updates an existing file or `File.Move`
+  publishes a first file; no truncate-in-place or non-atomic fallback is used.
+- Simulated temporary-write, flush, replace, move, and final-path failures leave
+  an existing file unchanged, clean up only the owned temporary file where
+  possible, keep in-memory values usable, and distinguish requested from
+  persisted state in diagnostics.
 - Operations are serialized per plugin; no background worker, debounce,
   cross-process coordination, or multi-file transaction is introduced.
+- A scope whose existing file could not be read remains write-blocked for that
+  process: autosave and explicit `Save()` diagnose the condition without
+  touching the final file. Operator recovery requires correcting the condition
+  and reopening the scope rather than risking an in-process overwrite.
 - Repeated save and reload retains Guide's unbound current and legacy keys until
   the matching late bind claims them.
 
@@ -263,6 +289,12 @@ migration.
   already retained their configured defaults through RM-28.
 - Queries are non-consuming, allowing two plugins with the same shortcut to
   observe the same frame independently.
+- The Unity host installs one internal polling bridge on its admitted main
+  thread. A configured shortcut rejects polling before bridge installation or
+  from another thread; an unset shortcut returns false without querying it.
+- `DSPPluginManager.Contracts.dll` remains free of an
+  `UnityEngine.InputLegacyModule` reference; the late-loaded Unity host owns the
+  legacy `Input` adapter.
 - Deterministic adapter tests cover no edge, missing keys, exact matches, extra
   keyboard keys, mouse coexistence, two observers, and absence of a broad scan
   on ordinary frames.
@@ -287,19 +319,24 @@ selected-candidate activation and orderly-stop path.
 
 **Acceptance:**
 
-- The host creates and loads one configuration scope after selection but before
-  `Activate()`, then initializes the plugin's public handle exactly once.
+- The host creates and loads one configuration scope after selection and before
+  component construction, then initializes the component's public handle
+  exactly once before `Activate()`.
 - Logger, writable root, configuration, lifecycle state, and runtime dependency
   context are all usable during `Activate()` and remain usable through
   `Deactivate()` return.
 - The contract explicitly does not promise configuration during ambient private
   `Awake`; required BepInEx `Awake` setup must move to `Activate()` during source
   migration.
-- Read, parse, conversion, or save diagnostics retain plugin identity and never
-  prevent an unrelated selected plugin from activating or cleaning up.
-- Failed activation and orderly cleanup release host-owned service references
-  in the accepted order without deleting the configuration file or claiming
-  assembly unload.
+- Read, parse, conversion, or save diagnostics retain plugin identity. An
+  operational file/format failure retains the documented safe configuration
+  state; a scope-construction or contract failure can fail that plugin's service
+  preparation, but neither outcome prevents an unrelated selected plugin from
+  activating or cleaning up.
+- Configuration is neither cleared nor disposed before `Deactivate()` returns.
+  Later release of supervisor references does not delete the file or claim
+  assembly unload; use of a retained handle after `Deactivate()` returns is
+  outside the supported lifecycle contract.
 
 **Depends on:** RM-24 through RM-30 and accepted RM-19 through RM-22 lifecycle
 behavior.
@@ -326,13 +363,15 @@ the completed manager contract.
 - The Guide-shaped fixture binds its fixed settings, preserves unbound current
   and legacy save keys through early autosaves, claims them late, changes the
   active value, and performs explicit save.
-- Restart fixtures prove Boolean, string, unset/F8/F9, and a multi-key shortcut
-  round-trip without cross-plugin file or entry collisions.
+- Dispose-and-reopen fixtures prove Boolean, string, unset/F8/F9, and a
+  multi-key shortcut round-trip without cross-plugin file or entry collisions;
+  installed process restart remains RM-34's responsibility.
 - Malformed values and one plugin's read/write failure retain defaults and
   diagnostics while the other fixture remains usable.
-- Fixture builds contain no `BepInEx` reference or private Harmony/MonoMod/Cecil
-  copy and use only the documented Unity, manager-contract, and optional
-  manager-owned `0Harmony` references.
+- The Mirror-shaped build uses only the documented Unity, manager-contract, and
+  manager-owned `0Harmony` references; the Guide-shaped build uses only Unity
+  and the manager contract. Neither output contains a `BepInEx` reference or a
+  private Harmony/MonoMod/Cecil copy.
 
 **Depends on:** RM-31.
 
@@ -350,8 +389,9 @@ mapped consumer shapes.
 document so source, configuration, build, package, and user-documentation changes
 can be made without rediscovering host behavior.
 
-**Delivers:** A reviewed migration contract comparison and step-by-step,
-target-specific implementation instructions derived from the completed host.
+**Delivers:** A reproducible compile-reference kit plus a reviewed migration
+contract comparison and step-by-step, target-specific implementation
+instructions derived from the completed host.
 
 **Acceptance:**
 
@@ -368,6 +408,16 @@ target-specific implementation instructions derived from the completed host.
   CI acquisition, tests, manifest dependency, package path, artifact validation,
   and removal of `BepInEx.dll`; unresolved final packaging choices are clearly
   separated from source work that can begin.
+- The repository build emits a validated migration-reference kit containing
+  only the built `DSPPluginManager.Contracts.dll`, the approved plugin-facing
+  `0Harmony.dll`, required third-party notices, integrity metadata, and the
+  migration instructions. The guide gives one reproducible local/CI acquisition
+  procedure pinned to a manager revision; it does not present the kit as an
+  installable runtime package.
+- Instructions are complete for source, build, deterministic-test, and user
+  documentation migration. Manifest dependency, final plugin payload path, and
+  publication steps that require the later installation contract are named as
+  explicit blocked substitutions rather than guessed or omitted.
 - All contract names and code fragments are validated against the built public
   assembly and the RM-32 fixtures; the instructions do not claim that either
   consumer has already migrated.
@@ -396,7 +446,7 @@ record using the RM-32 consumer-shaped fixtures and RM-33 instructions.
 - The qualification uses the built bootstrap bundle and no BepInEx-provided
   lifecycle or service assembly.
 - It exercises both consumer-shaped configuration patterns, persisted shortcut
-  values, supported Unity polling, restart persistence, independent failure,
+  values, supported Unity polling across two DSP launches, independent failure,
   orderly cleanup, and the previously accepted Harmony availability.
 - Evidence identifies exact builds and files, relates every observation to the
   migration instructions, and records exact restoration of the installed game
