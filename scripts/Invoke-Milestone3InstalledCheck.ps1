@@ -88,6 +88,28 @@ public static class RM34Keyboard
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
 
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(
+        IntPtr window,
+        IntPtr processId
+    );
+
+    [DllImport("kernel32.dll")]
+    private static extern uint GetCurrentThreadId();
+
+    [DllImport("user32.dll")]
+    private static extern bool AttachThreadInput(
+        uint sourceThread,
+        uint targetThread,
+        bool attach
+    );
+
+    [DllImport("user32.dll")]
+    private static extern bool BringWindowToTop(IntPtr window);
+
+    [DllImport("user32.dll")]
+    private static extern bool ShowWindow(IntPtr window, int command);
+
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint SendInput(
         uint count,
@@ -154,6 +176,30 @@ public static class RM34Keyboard
             throw new InvalidOperationException(
                 "Windows did not accept an RM-34 keyboard event."
             );
+        }
+    }
+
+    public static bool ActivateForeground(IntPtr window)
+    {
+        IntPtr foreground = GetForegroundWindow();
+        uint currentThread = GetCurrentThreadId();
+        uint foregroundThread = foreground == IntPtr.Zero
+            ? 0
+            : GetWindowThreadProcessId(foreground, IntPtr.Zero);
+        bool attached = foregroundThread != 0 &&
+            foregroundThread != currentThread &&
+            AttachThreadInput(currentThread, foregroundThread, true);
+        try
+        {
+            ShowWindow(window, 9);
+            BringWindowToTop(window);
+            SetForegroundWindow(window);
+            return GetForegroundWindow() == window;
+        }
+        finally
+        {
+            if (attached)
+                AttachThreadInput(currentThread, foregroundThread, false);
         }
     }
 
@@ -283,7 +329,7 @@ function Send-KeyChord {
     while ([DateTime]::UtcNow -lt $focusDeadline -and
         [RM34Keyboard]::GetForegroundWindow() -ne
             $Process.MainWindowHandle) {
-        $null = [RM34Keyboard]::SetForegroundWindow(
+        $null = [RM34Keyboard]::ActivateForeground(
             $Process.MainWindowHandle
         )
         Start-Sleep -Milliseconds 100
