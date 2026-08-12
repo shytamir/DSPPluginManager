@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,9 @@ namespace UnityEngine
 {
     public class Object
     {
+        private static int nextInstanceId;
+        private readonly int instanceId = ++nextInstanceId;
+
         internal bool Persistent { get; set; }
 
         public string name { get; set; }
@@ -28,6 +32,11 @@ namespace UnityEngine
         public override int GetHashCode()
         {
             return base.GetHashCode();
+        }
+
+        public int GetInstanceID()
+        {
+            return instanceId;
         }
 
         public static void DontDestroyOnLoad(Object target)
@@ -94,6 +103,35 @@ namespace UnityEngine
 
     public class MonoBehaviour : Behaviour
     {
+        protected Coroutine StartCoroutine(IEnumerator routine)
+        {
+            if (routine == null)
+            {
+                throw new ArgumentNullException("routine");
+            }
+            return new Coroutine();
+        }
+
+        protected void StopCoroutine(Coroutine routine)
+        {
+            if (routine == null)
+            {
+                throw new ArgumentNullException("routine");
+            }
+        }
+    }
+
+    public sealed class Coroutine : Object
+    {
+    }
+
+    public sealed class AsyncOperation : Object
+    {
+    }
+
+    public static class Time
+    {
+        public static int frameCount { get; set; }
     }
 
     public class Transform : Component
@@ -140,6 +178,11 @@ namespace UnityEngine
         public bool activeSelf { get; private set; }
 
         public Transform transform { get; private set; }
+
+        public static GameObject Find(string name)
+        {
+            return FacadeRuntime.FindAny(name);
+        }
 
         public Component AddComponent(Type componentType)
         {
@@ -190,6 +233,13 @@ namespace UnityEngine
         {
             return Objects.SingleOrDefault(candidate =>
                 candidate.transform.parent == null &&
+                string.Equals(candidate.name, name, StringComparison.Ordinal)
+            );
+        }
+
+        internal static GameObject FindAny(string name)
+        {
+            return Objects.FirstOrDefault(candidate =>
                 string.Equals(candidate.name, name, StringComparison.Ordinal)
             );
         }

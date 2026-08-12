@@ -29,6 +29,12 @@ namespace DSPPluginManager.Tests
                     args[8],
                     args[9]
                 );
+                RuntimeDeliveryFixtureTests.Run(
+                    args[3],
+                    args[5],
+                    args[6],
+                    args[10]
+                );
                 LoggingCoreTests.Run();
                 DiskLogSinkTests.Run();
                 CandidateFileEnumeratorTests.Run();
@@ -37,7 +43,7 @@ namespace DSPPluginManager.Tests
                     "Compiled foundation, host/plugin paths, Unity container, " +
                     "bootstrap entry, diagnostic, " +
                     "reserved dependency, activation failure isolation, " +
-                    "logging, " +
+                    "runtime-delivery metadata, logging, " +
                     "candidate enumeration, " +
                     "and lifecycle state tests passed."
                 );

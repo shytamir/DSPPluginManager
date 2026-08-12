@@ -65,7 +65,10 @@ namespace DSPPluginManager.Tests
                     );
 
                 CollectingSink sink = new CollectingSink();
-                UnityHostBridge unityHost = new UnityHostBridge(unityHostPath);
+                UnityHostBridge unityHost = new UnityHostBridge(
+                    unityHostPath,
+                    contractPath
+                );
                 unityHost.EnsureCreated(
                     System.Threading.Thread.CurrentThread.ManagedThreadId
                 );

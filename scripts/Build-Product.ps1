@@ -42,6 +42,8 @@ $constructionFailureProject = Join-Path $RepositoryRoot `
     'fixtures\RM20.ConstructionFailure\DSPPluginManager.RM20ConstructionFailure.csproj'
 $activationFailureProject = Join-Path $RepositoryRoot `
     'fixtures\RM20.ActivationFailure\DSPPluginManager.RM20ActivationFailure.csproj'
+$runtimeDeliveryProject = Join-Path $RepositoryRoot `
+    'fixtures\RM21.RuntimeDelivery\DSPPluginManager.RM21RuntimeDelivery.csproj'
 $packageDirectory = Join-Path $RepositoryRoot 'artifacts\nuget\packages'
 $productOutput = Join-Path $RepositoryRoot 'artifacts\build'
 $testOutput = Join-Path $RepositoryRoot 'artifacts\tests'
@@ -56,6 +58,8 @@ $constructionFailureOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm20-construction-failure'
 $activationFailureOutput = Join-Path $RepositoryRoot `
     'artifacts\fixtures\rm20-activation-failure'
+$runtimeDeliveryOutput = Join-Path $RepositoryRoot `
+    'artifacts\fixtures\rm21-runtime-delivery'
 $dependencyRuntime = Join-Path $RepositoryRoot `
     'artifacts\managed-dependencies\runtime'
 $cecilReference = Join-Path $dependencyRuntime 'Mono.Cecil.dll'
@@ -70,7 +74,8 @@ foreach ($project in @(
         $facadeProject,
         $consumerProject,
         $constructionFailureProject,
-        $activationFailureProject
+        $activationFailureProject,
+        $runtimeDeliveryProject
     )) {
     if (-not (Test-Path -LiteralPath $project -PathType Leaf)) {
         throw "Required project was not found: $project"
@@ -86,7 +91,8 @@ foreach ($lockFile in @(
         (Join-Path (Split-Path -Parent $facadeProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $consumerProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $constructionFailureProject) 'packages.lock.json'),
-        (Join-Path (Split-Path -Parent $activationFailureProject) 'packages.lock.json')
+        (Join-Path (Split-Path -Parent $activationFailureProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $runtimeDeliveryProject) 'packages.lock.json')
     )) {
     if (-not (Test-Path -LiteralPath $lockFile -PathType Leaf)) {
         throw "Required package lock was not found: $lockFile"
@@ -217,6 +223,15 @@ try {
             throw "RM-20 failure fixture restore failed: $failureProject"
         }
     }
+    & dotnet restore $runtimeDeliveryProject `
+        --packages $packageDirectory `
+        --locked-mode `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:PluginContractReferencePath=$(Join-Path $contractOutput 'DSPPluginManager.Contracts.dll')" `
+        --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        throw 'RM-21 runtime-delivery fixture restore failed.'
+    }
 
     & dotnet build $productProject `
         --no-restore `
@@ -285,6 +300,16 @@ try {
             throw "RM-20 failure fixture build failed: $($failureBuild.Project)"
         }
     }
+    & dotnet build $runtimeDeliveryProject `
+        --no-restore `
+        --configuration Release `
+        --output $runtimeDeliveryOutput `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        "-p:PluginContractReferencePath=$contractDll" `
+        @properties
+    if ($LASTEXITCODE -ne 0) {
+        throw 'RM-21 runtime-delivery fixture build failed.'
+    }
 
     & dotnet build $testProject `
         --no-restore `
@@ -329,6 +354,8 @@ $constructionFailureDll = Join-Path $constructionFailureOutput `
     'DSPPluginManager.RM20ConstructionFailure.dll'
 $activationFailureDll = Join-Path $activationFailureOutput `
     'DSPPluginManager.RM20ActivationFailure.dll'
+$runtimeDeliveryDll = Join-Path $runtimeDeliveryOutput `
+    'DSPPluginManager.RM21RuntimeDelivery.dll'
 $staleTestCecil = Join-Path $testOutput 'Mono.Cecil.dll'
 if (Test-Path -LiteralPath $staleTestCecil -PathType Leaf) {
     Remove-Item -LiteralPath $staleTestCecil -Force
@@ -338,6 +365,7 @@ foreach ($outputDirectory in @(
         $consumerOutput,
         $constructionFailureOutput,
         $activationFailureOutput,
+        $runtimeDeliveryOutput,
         $handoffOutput
     )) {
     if (Test-Path -LiteralPath (
@@ -357,7 +385,8 @@ $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
     $contractDll `
     $consumerDll `
     $constructionFailureDll `
-    $activationFailureDll
+    $activationFailureDll `
+    $runtimeDeliveryDll
 if ($LASTEXITCODE -ne 0) {
     throw 'Compiled product tests failed.'
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using DSPPluginManager.Hosting;
 
 namespace DSPPluginManager.Tests
 {
@@ -30,10 +31,22 @@ namespace DSPPluginManager.Tests
             Type runtime = facade.GetType("UnityEngine.FacadeRuntime", true);
             InvokeStatic(runtime, "Reset");
 
-            Assembly.LoadFrom(Path.GetFullPath(contractPath));
-
-            Assembly unityHost = Assembly.LoadFrom(
-                Path.GetFullPath(unityHostPath)
+            TestAssert.True(
+                AppDomain.CurrentDomain.GetAssemblies().All(candidate =>
+                    candidate.GetName().Name != "DSPPluginManager.Contracts"
+                ),
+                "The contract was already loaded before the late bridge."
+            );
+            UnityHostBridge bridge = new UnityHostBridge(
+                unityHostPath,
+                contractPath
+            );
+            Assembly unityHost = FindLoadedAssembly(unityHostPath);
+            Assembly contract = FindLoadedAssembly(contractPath);
+            TestAssert.Equal(
+                Path.GetFullPath(contractPath),
+                Path.GetFullPath(contract.Location),
+                "late-loaded contract path"
             );
             string[] references = unityHost.GetReferencedAssemblies()
                 .Select(reference => reference.Name)
@@ -50,9 +63,8 @@ namespace DSPPluginManager.Tests
                 "DSPPluginManager.UnityHost.UnityHostEntrypoint",
                 true
             );
-            MethodInfo ensureCreated = entrypoint.GetMethod("EnsureCreated");
             int mainThreadId = Thread.CurrentThread.ManagedThreadId;
-            ensureCreated.Invoke(null, new object[] { mainThreadId });
+            bridge.EnsureCreated(mainThreadId);
             object firstRoot = InvokeStatic(runtime, "FindRoot", RootName);
             TestAssert.True(firstRoot != null,
                 "The persistent Unity root was not created.");
@@ -73,7 +85,7 @@ namespace DSPPluginManager.Tests
                 "Unity host active state"
             );
 
-            ensureCreated.Invoke(null, new object[] { mainThreadId });
+            bridge.EnsureCreated(mainThreadId);
             TestAssert.True(
                 object.ReferenceEquals(
                     firstRoot,
@@ -163,11 +175,11 @@ namespace DSPPluginManager.Tests
             {
                 try
                 {
-                    ensureCreated.Invoke(null, new object[] { mainThreadId });
+                    bridge.EnsureCreated(mainThreadId);
                 }
-                catch (TargetInvocationException exception)
+                catch (Exception exception)
                 {
-                    backgroundFailure = exception.InnerException;
+                    backgroundFailure = exception;
                 }
             });
             background.Start();

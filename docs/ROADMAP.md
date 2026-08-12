@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-20 — Activation failure isolation
+- **Active story:** RM-21 — Exercised Unity runtime delivery
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -265,7 +265,7 @@ qualification, or shutdown.
 
 ### RM-20 — Activation failure isolation
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As an operator, I want one plugin's startup failure contained so an
 unrelated selected plugin can still become active and remain diagnosable.
@@ -293,7 +293,7 @@ interception, or process isolation.
 
 ### RM-21 — Exercised Unity runtime delivery
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As a plugin author, I want ordinary Unity frame and coroutine
 behavior preserved so an active component behaves like the retained consumers.
