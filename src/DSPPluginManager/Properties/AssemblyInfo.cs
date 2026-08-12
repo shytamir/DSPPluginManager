@@ -5,3 +5,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("DSPPluginManager.RM05Probe")]
 [assembly: InternalsVisibleTo("DSPPluginManager.RM13Probe")]
 [assembly: InternalsVisibleTo("DSPPluginManager.UnityHost")]
+[assembly: InternalsVisibleTo("DSPPluginManager.HarmonyTests")]

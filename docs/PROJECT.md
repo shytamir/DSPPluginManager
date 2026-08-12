@@ -24,7 +24,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-19 one selected plugin activation | Accepted by project owner |
 | RM-20 activation failure isolation | Accepted by project owner |
 | RM-21 exercised Unity runtime delivery | Accepted by project owner |
-| RM-22 observable orderly shutdown | Acceptance conditions met in installed DSP; awaiting project-owner acceptance |
+| RM-22 observable orderly shutdown | Accepted by project owner |
+| RM-23 Harmony availability through plugin lifecycle | Acceptance conditions met in installed DSP; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -39,7 +40,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-11 static plugin metadata recognition | Accepted by project owner |
 | RM-12 deterministic candidate reconciliation | Accepted by project owner |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
-| Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
+| Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
 | Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; remaining migration surface not specified |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
 | Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, and writable-root slices implemented; remaining service surfaces not implemented |
@@ -75,7 +76,12 @@ component destruction. An installed two-plugin run retained services through
 both callbacks, continued after one attributable cleanup exception, recorded
 `StopFailed` and `Stopped`, then flushed and closed the current-run log. These
 logical terminal outcomes do not claim crash cleanup or managed assembly
-unloading.
+unloading. A later installed fixture compiled only against the manager-owned
+`0Harmony` reference and loaded the exact four-assembly pinned closure from the
+manager dependency directory. It applied an attributable postfix, removed only
+its own patches during orderly cleanup, and retained the stack through cleanup;
+an independent Harmony patch failure did not prevent a non-Harmony fixture from
+completing its lifecycle.
 
 ## Purpose and success
 

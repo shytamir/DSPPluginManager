@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-22 — Observable orderly shutdown
+- **Active story:** RM-23 — Harmony availability through plugin lifecycle
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -320,7 +320,7 @@ global input capture, or arbitrary Unity-event interception.
 
 ### RM-22 — Observable orderly shutdown
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As an operator, I want one supported orderly stop path so plugin
 cleanup finishes before its services and the current-run log are disposed.
@@ -349,7 +349,7 @@ ordering.
 
 ### RM-23 — Harmony availability through plugin lifecycle
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As a Mirror maintainer, I want the pinned manager-owned Harmony stack
 usable through activation and cleanup so plugins do not provision private
