@@ -17,8 +17,7 @@ consumer or establish the final publishable package.
 - **Roadmap:** Active
 - **Active milestone:** Milestone 3 — Configuration and shortcut migration
   readiness
-- **Active story:** RM-33 — Migration drift specification and implementer
-  instructions
+- **Active story:** RM-34 — Installed migration-readiness qualification
 - **Active story status:** Acceptance gate met; awaiting project-owner review
   and acceptance
 - **In progress:** None
@@ -47,11 +46,11 @@ delivered typed binding and in-memory mutation. RM-29 delivered deterministic
 atomic persistence, and RM-30 delivered exact non-consuming Unity input
 polling. RM-31 delivered one retained configuration service across supported
 activation and cleanup. RM-32's isolated Mirror- and Guide-shaped qualification
-fixtures were accepted by the project owner. RM-33 has met its acceptance gate
-with revision-pinned compile references and implementer instructions awaiting
-project-owner review. Required plugin startup work uses explicit `Activate()`
-after host services are prepared; ambient private Unity `Awake` is not a
-supervised startup boundary.
+fixtures were accepted by the project owner. RM-33 was accepted with
+revision-pinned compile references and implementer instructions. RM-34 has met
+its installed acceptance gate and awaits project-owner review. Required plugin
+startup work uses explicit `Activate()` after host services are prepared;
+ambient private Unity `Awake` is not a supervised startup boundary.
 
 The configuration and shortcut host requirements R-13 through R-15 from the
 private feature map are implemented and deterministically qualified. Mirror is
@@ -394,7 +393,7 @@ mapped consumer shapes.
 
 ### RM-33 — Migration drift specification and implementer instructions
 
-**Status:** Acceptance gate met; awaiting project-owner review and acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a Mirror or Guide implementer, I want one authoritative migration
 document so source, configuration, build, package, and user-documentation changes
@@ -442,8 +441,7 @@ publication, compatibility shims, or preserving BepInEx assembly identity.
 
 ### RM-34 — Installed migration-readiness qualification
 
-**Status:** Pending; detailed evidence matrix to be designed before
-implementation
+**Status:** Acceptance gate met; awaiting project-owner review and acceptance
 
 **Story:** As the project owner, I want one reversible installed DSP
 qualification proving the completed host contract is ready for downstream
@@ -463,8 +461,8 @@ record using the RM-32 consumer-shaped fixtures and RM-33 instructions.
   migration instructions, and records exact restoration of the installed game
   environment.
 - The detailed run sequence, input stimuli, restart boundary, observable counts,
-  and retained evidence fields will be frozen in the separate exit-test design
-  review before this story can be implemented.
+  and retained evidence fields were frozen in the separate exit-test design
+  before execution.
 
 **Depends on:** RM-32 and RM-33.
 
@@ -474,13 +472,13 @@ publication, or claims beyond the accepted two consumer patterns.
 **Requirements:** Installed closure of R-13 through R-15 and the milestone's
 ready-for-migration objective.
 
-## Milestone 3 exit — planned
+## Milestone 3 exit — acceptance gate met
 
-Milestone 3 will be complete when RM-24 through RM-34 are accepted and the
-approved installed qualification demonstrates that the manager supplies every
-host-side interface and behavior required to begin Mirror migration without
-BepInEx. Both consumer-shaped patterns must remain covered so Guide migration
-does not uncover a known host omission later.
+RM-24 through RM-33 are accepted. The approved installed qualification has
+demonstrated that the manager supplies every mapped host-side interface and
+behavior required to begin Mirror migration without BepInEx while retaining
+Guide coverage. Milestone 3 will be complete when the project owner accepts
+RM-34.
 
 “Ready for migration” will mean that the public contract is complete for the
 mapped consumers, configuration and shortcut drift is decided and documented,
@@ -489,5 +487,5 @@ installed host passes the approved readiness test. It will not mean that Mirror
 or Guide has been migrated, that final Thunderstore installation/publication is
 settled, or that the product release steering gate has passed.
 
-The exact installed exit procedure and evidence matrix are deliberately left
-for the next design review after this story decomposition is approved.
+The exact installed procedure, results, and restoration record are retained in
+the RM-34 design and Milestone 3 evidence documents.

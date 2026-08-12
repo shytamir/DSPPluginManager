@@ -9,6 +9,9 @@
 - [RM-34 installed exit-test design](RM34-EXIT-TEST-DESIGN.md) — frozen
   two-launch stimuli, observations, retained evidence, and restoration gate for
   Milestone 3.
+- [Milestone 3 exit evidence](MILESTONE-3-EXIT-EVIDENCE.md) — two-launch
+  migration-readiness results, tested artifact identities, and restoration
+  record.
 - [Milestone 2 exit evidence](MILESTONE-2-EXIT-EVIDENCE.md) — integrated
   installed DSP results, tested artifact identities, and restoration record.
 - [RM-13 lifecycle evidence](RM13-LIFECYCLE-EVIDENCE.md) — installed DSP

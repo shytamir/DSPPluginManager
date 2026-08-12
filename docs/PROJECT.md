@@ -16,16 +16,17 @@ implementation documentation belong in separate topic documents listed by
 
 | Area | State |
 | --- | --- |
-| Roadmap status | Milestone 3 active; RM-24 through RM-32 accepted, and RM-33 acceptance gate met awaiting project-owner review and acceptance |
+| Roadmap status | Milestone 3 active; RM-24 through RM-33 accepted, and RM-34 acceptance gate met awaiting project-owner review and acceptance |
 | Milestone 1 | Completed and accepted by project owner |
 | Milestone 2 | Completed and accepted by project owner |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Milestone 2 installed exit | Completed and validated against installed DSP |
+| Milestone 3 installed exit | Validated against installed DSP; RM-34 awaits project-owner acceptance |
 | Managed Harmony dependency ownership | Exact pinned closure is acquired, integrity-checked, bundled with notices, narrowly resolved, and installed-runtime validated through plugin activation and cleanup |
 | Product contract | Minimal discovery, lifecycle, plugin-logging, writable-root, configuration, and shortcut slices implemented; configuration ownership, parsing, typed binding, deterministic persistence, lifecycle integration, shortcut scalar conversion, and exact Unity input polling are implemented, and both mapped consumer configuration patterns have passed deterministic qualification |
 | Plugin discovery, activation, and lifecycle host | Selected candidates are supervised independently through activation and orderly cleanup; startup and cleanup failures are isolated, and ordinary Unity delivery plus both orderly terminal outcomes are installed-runtime validated |
-| Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and exact shortcut-polling slices implemented; a revision-pinned compile-reference kit and Mirror-first/Guide-following migration instructions have met their acceptance gate |
+| Public source-migration contract | Minimal discovery, lifecycle activation, plugin-logging, writable-root, configuration, and exact shortcut-polling slices implemented; the revision-pinned compile-reference kit and Mirror-first/Guide-following migration instructions are accepted, and installed readiness qualification passed |
 | Consumer migrations | Mirror selected first; migration not started |
 | Installable or publishable product package | Not available |
 
@@ -51,9 +52,10 @@ Unity main thread and retains one configuration service per selected plugin from
 pre-construction scope loading through supported activation and cleanup. The
 temporary Thunderstore package remains internal automation evidence rather than
 an installable product. Consumer migration has not started. The approved
-Milestone 3 roadmap is active with RM-24 through RM-32 accepted. RM-33's
-migration-reference kit and implementer instructions have met their acceptance
-gate and await project-owner review and acceptance.
+Milestone 3 remains active with RM-24 through RM-33 accepted. RM-34's installed
+two-launch migration-readiness qualification passed and awaits project-owner
+review and acceptance. Consumer migration has not started, and the repository
+does not yet provide an installable or publishable product package.
 
 ## Purpose and success
 
