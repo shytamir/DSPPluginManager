@@ -19,7 +19,8 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | RM-14 selected assembly runtime loader | Accepted by project owner |
 | RM-15 deterministic lifecycle state record | Accepted by project owner |
 | RM-16 plugin logging contract slice | Accepted by project owner |
-| RM-17 plugin writable-root contract slice | Acceptance conditions met; awaiting project-owner acceptance |
+| RM-17 plugin writable-root contract slice | Accepted by project owner |
+| RM-18 persistent Unity host container | Acceptance conditions met; awaiting project-owner acceptance |
 | Repository versioning and temporary package automation | Implemented and validated as infrastructure |
 | RM-01 compiled host foundation | Accepted by project owner |
 | RM-02 immutable host environment paths | Accepted by project owner |
@@ -36,7 +37,7 @@ belong in separate topic documents listed by [`INDEX.md`](INDEX.md).
 | Milestone 1 installed exit | Completed and validated against installed DSP |
 | Managed Harmony dependency ownership | Acquisition, integrity lock, and narrow internal runtime resolution implemented; distributable placement pending |
 | Product contract | Minimal discovery, lifecycle, plugin-logging, and writable-root slices defined; remaining migration surface not specified |
-| Plugin discovery, activation, and lifecycle host | Discovery, reconciliation, selected-candidate runtime loading, and deterministic lifecycle state records implemented; activation not implemented |
+| Plugin discovery, activation, and lifecycle host | Discovery, reconciliation, selected-candidate runtime loading, lifecycle state records, and the persistent Unity container implemented; activation not implemented |
 | Public source-migration contract | Minimal discovery, plugin-logging, and writable-root slices implemented; lifecycle and remaining service surfaces not implemented |
 | Consumer migrations | Not started |
 | Installable or publishable product package | Not available |
@@ -53,9 +54,11 @@ installed decision probe selected an explicit two-callback lifecycle seam
 because private Unity messages did not expose failure or destruction completion
 to the host. The selected-candidate runtime boundary and deterministic
 per-candidate lifecycle state record are implemented and fixture-validated but
-are not yet invoked by the host. The public plugin-logging and writable-root
-slices are implemented, but the host does not yet provision those services
-because plugin activation is not implemented.
+are not yet invoked by the host. The validated handoff now creates one retained
+persistent Unity root and owns per-plugin child slots without loading a
+candidate or attaching a plugin component. The public plugin-logging and
+writable-root slices are implemented, but the host does not yet provision those
+services because plugin activation is not implemented.
 
 ## Purpose and success
 
@@ -145,6 +148,9 @@ evidence or an explicit product decision.
 - Managed entry and the selected Unity handoff are each admitted at most once.
 - The early managed entrypoint validates Doorstop's DSP paths, installs the
   reserved dependency resolver, and does not reference or call Unity APIs.
+- Unity-referencing container code remains in a late-loaded assembly reached
+  only through the admitted main-thread handoff; the early entry assembly does
+  not acquire a Unity or Unity-container assembly reference.
 
 ### Discovery and candidate selection
 

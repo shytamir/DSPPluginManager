@@ -20,6 +20,7 @@ $requiredFiles = @(
     (Join-Path $managerRoot 'DSPPluginManager.dll'),
     (Join-Path $managerRoot 'DSPPluginManager.Contracts.dll'),
     (Join-Path $managerRoot 'DSPPluginManager.UnityHandoff.dll'),
+    (Join-Path $managerRoot 'DSPPluginManager.UnityHost.dll'),
     (Join-Path $managerRoot 'dependencies\0Harmony.dll'),
     (Join-Path $managerRoot 'dependencies\Mono.Cecil.dll'),
     (Join-Path $managerRoot 'dependencies\MonoMod.RuntimeDetour.dll'),
@@ -69,6 +70,14 @@ $bundledContract = Join-Path $managerRoot `
 if ((Get-FileHash -LiteralPath $bundledContract -Algorithm SHA256).Hash -cne
     (Get-FileHash -LiteralPath $builtContract -Algorithm SHA256).Hash) {
     throw 'The bundled plugin contract differs from the tested contract build.'
+}
+$builtUnityHost = Join-Path $repositoryPath `
+    'artifacts\bootstrap-components\DSPPluginManager.UnityHost.dll'
+$bundledUnityHost = Join-Path $managerRoot `
+    'DSPPluginManager.UnityHost.dll'
+if ((Get-FileHash -LiteralPath $bundledUnityHost -Algorithm SHA256).Hash -cne
+    (Get-FileHash -LiteralPath $builtUnityHost -Algorithm SHA256).Hash) {
+    throw 'The bundled Unity host differs from the tested component build.'
 }
 if (@(Get-ChildItem -LiteralPath $bundlePath -Recurse -File |
         Where-Object { $_.Name -ceq 'UnityEngine.CoreModule.dll' }).Count -ne 0) {

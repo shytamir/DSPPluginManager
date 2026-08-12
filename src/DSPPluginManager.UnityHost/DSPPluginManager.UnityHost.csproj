@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DSPPluginManager.UnityHost</AssemblyName>
+    <RootNamespace>DSPPluginManager.UnityHost</RootNamespace>
+    <Title>DSP Plugin Manager Unity Host</Title>
+    <Description>Late-loaded Unity container for DSP Plugin Manager.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="DSPPluginManager">
+      <HintPath>$(DSPPluginManagerAssemblyPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(UnityEngineCoreModulePath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="ValidateUnityHostInputs" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(DSPPluginManagerAssemblyPath)')"
+           Text="DSPPluginManagerAssemblyPath must identify the compiled host assembly." />
+    <Error Condition="!Exists('$(UnityEngineCoreModulePath)')"
+           Text="UnityEngineCoreModulePath must identify the Unity compilation input." />
+  </Target>
+</Project>

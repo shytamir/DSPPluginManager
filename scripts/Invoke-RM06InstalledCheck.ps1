@@ -51,9 +51,8 @@ foreach ($required in @(
 if (Test-Path -LiteralPath $managerPath) {
     throw "Manager install path already exists: $managerPath"
 }
-if (@(Get-Process -Name 'DSPGAME' -ErrorAction SilentlyContinue |
-        Where-Object { $_.Path -ceq $gameExecutable }).Count -ne 0) {
-    throw 'The installed DSP executable is already running.'
+if (@(Get-Process -Name 'DSPGAME' -ErrorAction SilentlyContinue).Count -ne 0) {
+    throw 'A DSPGAME process is already running; refusing to alter the installed bootstrap configuration.'
 }
 
 function Stop-InstalledGame {

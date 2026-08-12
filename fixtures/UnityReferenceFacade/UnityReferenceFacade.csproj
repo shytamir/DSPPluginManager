@@ -2,6 +2,6 @@
   <PropertyGroup>
     <AssemblyName>UnityEngine.CoreModule</AssemblyName>
     <RootNamespace>UnityEngine</RootNamespace>
-    <Description>Compile-only RM-09 facade; not a Unity implementation.</Description>
+    <Description>Compile and lifecycle-test facade; not a Unity implementation.</Description>
   </PropertyGroup>
 </Project>

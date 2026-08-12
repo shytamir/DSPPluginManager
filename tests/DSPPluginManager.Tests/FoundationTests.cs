@@ -17,11 +17,11 @@ namespace DSPPluginManager.Tests
 
         internal static void Run(string[] args)
         {
-            if (args.Length != 4)
+            if (args.Length != 6)
             {
                 throw new InvalidOperationException(
                     "Expected product DLL, assembly version, release label, " +
-                    "and managed dependency directory."
+                    "managed dependency directory, Unity host, and facade."
                 );
             }
 

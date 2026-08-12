@@ -30,6 +30,8 @@ $contractTestProject = Join-Path $RepositoryRoot `
     'tests\DSPPluginManager.ContractTests\DSPPluginManager.ContractTests.csproj'
 $handoffProject = Join-Path $RepositoryRoot `
     'src\DSPPluginManager.UnityHandoff\DSPPluginManager.UnityHandoff.csproj'
+$unityHostProject = Join-Path $RepositoryRoot `
+    'src\DSPPluginManager.UnityHost\DSPPluginManager.UnityHost.csproj'
 $contractProject = Join-Path $RepositoryRoot `
     'src\DSPPluginManager.Contracts\DSPPluginManager.Contracts.csproj'
 $facadeProject = Join-Path $RepositoryRoot `
@@ -55,6 +57,7 @@ foreach ($project in @(
         $testProject,
         $contractTestProject,
         $handoffProject,
+        $unityHostProject,
         $contractProject,
         $facadeProject,
         $consumerProject
@@ -68,6 +71,7 @@ foreach ($lockFile in @(
         (Join-Path (Split-Path -Parent $testProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $contractTestProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $handoffProject) 'packages.lock.json'),
+        (Join-Path (Split-Path -Parent $unityHostProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $contractProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $facadeProject) 'packages.lock.json'),
         (Join-Path (Split-Path -Parent $consumerProject) 'packages.lock.json')
@@ -103,22 +107,23 @@ try {
         throw "Expected .NET SDK $($sdkConfig.sdk.version); found $actualSdk."
     }
 
+    & dotnet restore $facadeProject `
+        --packages $packageDirectory `
+        --locked-mode `
+        --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unity compile-reference facade restore failed.'
+    }
+    & dotnet build $facadeProject `
+        --no-restore `
+        --configuration Release `
+        --output $facadeOutput `
+        @facadeProperties
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unity compile-reference facade build failed.'
+    }
+    $facadeDll = Join-Path $facadeOutput 'UnityEngine.CoreModule.dll'
     if ([string]::IsNullOrWhiteSpace($UnityEngineCoreModulePath)) {
-        & dotnet restore $facadeProject `
-            --packages $packageDirectory `
-            --locked-mode `
-            --verbosity minimal
-        if ($LASTEXITCODE -ne 0) {
-            throw 'Unity compile-reference facade restore failed.'
-        }
-        & dotnet build $facadeProject `
-            --no-restore `
-            --configuration Release `
-            --output $facadeOutput `
-            @facadeProperties
-        if ($LASTEXITCODE -ne 0) {
-            throw 'Unity compile-reference facade build failed.'
-        }
         $UnityEngineCoreModulePath = Join-Path $facadeOutput `
             'UnityEngine.CoreModule.dll'
     }
@@ -159,6 +164,15 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw 'Unity handoff restore failed.'
     }
+    & dotnet restore $unityHostProject `
+        --packages $packageDirectory `
+        --locked-mode `
+        "-p:DSPPluginManagerAssemblyPath=$(Join-Path $productOutput 'DSPPluginManager.dll')" `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        --verbosity minimal
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unity host restore failed.'
+    }
     & dotnet restore $contractProject `
         --packages $packageDirectory `
         --locked-mode `
@@ -195,6 +209,18 @@ try {
         @properties
     if ($LASTEXITCODE -ne 0) {
         throw 'Plugin contract build failed.'
+    }
+
+    $productDll = Join-Path $productOutput 'DSPPluginManager.dll'
+    & dotnet build $unityHostProject `
+        --no-restore `
+        --configuration Release `
+        --output $handoffOutput `
+        "-p:DSPPluginManagerAssemblyPath=$productDll" `
+        "-p:UnityEngineCoreModulePath=$UnityEngineCoreModulePath" `
+        @properties
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Persistent Unity host build failed.'
     }
 
     $contractDll = Join-Path $contractOutput `
@@ -245,6 +271,7 @@ finally {
 }
 
 $productDll = Join-Path $productOutput 'DSPPluginManager.dll'
+$unityHostDll = Join-Path $handoffOutput 'DSPPluginManager.UnityHost.dll'
 $contractDll = Join-Path $contractOutput 'DSPPluginManager.Contracts.dll'
 $consumerDll = Join-Path $consumerOutput `
     'DSPPluginManager.RM09Consumer.dll'
@@ -252,7 +279,11 @@ $staleTestCecil = Join-Path $testOutput 'Mono.Cecil.dll'
 if (Test-Path -LiteralPath $staleTestCecil -PathType Leaf) {
     Remove-Item -LiteralPath $staleTestCecil -Force
 }
-foreach ($outputDirectory in @($contractOutput, $consumerOutput)) {
+foreach ($outputDirectory in @(
+        $contractOutput,
+        $consumerOutput,
+        $handoffOutput
+    )) {
     if (Test-Path -LiteralPath (
             Join-Path $outputDirectory 'UnityEngine.CoreModule.dll'
         )) {
@@ -264,7 +295,9 @@ $testExecutable = Join-Path $testOutput 'DSPPluginManager.Tests.exe'
     $productDll `
     $AssemblyVersion `
     $ReleaseLabel `
-    $dependencyRuntime
+    $dependencyRuntime `
+    $unityHostDll `
+    $facadeDll
 if ($LASTEXITCODE -ne 0) {
     throw 'Compiled product tests failed.'
 }

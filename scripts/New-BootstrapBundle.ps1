@@ -39,6 +39,10 @@ Copy-Item -LiteralPath (
     Join-Path $artifactsRoot `
         'bootstrap-components\DSPPluginManager.UnityHandoff.dll'
 ) -Destination $managerRoot
+Copy-Item -LiteralPath (
+    Join-Path $artifactsRoot `
+        'bootstrap-components\DSPPluginManager.UnityHost.dll'
+) -Destination $managerRoot
 Get-ChildItem -LiteralPath (
     Join-Path $artifactsRoot 'managed-dependencies\runtime'
 ) -File | Copy-Item -Destination $dependencyRoot

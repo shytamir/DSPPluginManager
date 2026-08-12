@@ -16,7 +16,7 @@ layout, or publication.
 
 - **Roadmap:** Active
 - **Active milestone:** Milestone 2 — Supervised Unity activation
-- **Active story:** RM-17 — Plugin writable-root contract slice
+- **Active story:** RM-18 — Persistent Unity host container
 - **Active story status:** Acceptance conditions met; awaiting project-owner
   acceptance
 - **In progress:** None
@@ -179,7 +179,7 @@ plugin-selected destinations.
 
 ### RM-17 — Plugin writable-root contract slice
 
-**Status:** Acceptance conditions met; awaiting project-owner acceptance
+**Status:** Accepted by project owner
 
 **Story:** As a plugin author, I want one immutable writable root owned by my
 stable identity so output files do not depend on BepInEx paths or the working
@@ -208,7 +208,7 @@ watching, or confinement claims.
 
 ### RM-18 — Persistent Unity host container
 
-**Status:** Pending
+**Status:** Acceptance conditions met; awaiting project-owner acceptance
 
 **Story:** As the host, I want one persistent Unity container created at the
 validated handoff so plugin components survive scene changes without duplicate

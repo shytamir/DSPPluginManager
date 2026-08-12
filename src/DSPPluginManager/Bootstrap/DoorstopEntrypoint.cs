@@ -108,7 +108,52 @@ namespace DSPPluginManager.Bootstrap
                 environment.Paths.HostRoot,
                 Thread.CurrentThread.ManagedThreadId
             );
-            hostLogger.Information("Unity main-thread handoff completed.");
+            string containerOutcome = EnsureUnityHostCreated(environment);
+            hostLogger.Information(
+                "Unity main-thread handoff completed. " + containerOutcome
+            );
+        }
+
+        private static string EnsureUnityHostCreated(
+            BootstrapEnvironment bootstrapEnvironment
+        )
+        {
+            string unityHostPath = Path.Combine(
+                bootstrapEnvironment.Paths.HostRoot,
+                "DSPPluginManager.UnityHost.dll"
+            );
+            Assembly unityHostAssembly = Assembly.LoadFrom(unityHostPath);
+            Type entrypoint = unityHostAssembly.GetType(
+                "DSPPluginManager.UnityHost.UnityHostEntrypoint",
+                true,
+                false
+            );
+            MethodInfo ensureCreated = entrypoint.GetMethod(
+                "EnsureCreated",
+                BindingFlags.Public | BindingFlags.Static
+            );
+            if (ensureCreated == null)
+            {
+                throw new MissingMethodException(
+                    entrypoint.FullName,
+                    "EnsureCreated"
+                );
+            }
+
+            try
+            {
+                return (string)ensureCreated.Invoke(
+                    null,
+                    new object[] { Thread.CurrentThread.ManagedThreadId }
+                );
+            }
+            catch (TargetInvocationException exception)
+            {
+                throw new InvalidOperationException(
+                    "The persistent Unity host root could not be created.",
+                    exception.InnerException ?? exception
+                );
+            }
         }
 
         private static void RunPreActivationDiscovery(
